@@ -78,7 +78,7 @@ Because Infinite Noise Mulitpliers are switched-capacitor circuits, it is import
 components with low leakage.  Op-amps with below 1nA of input bias current will enable
 running at lower frequencies with less power.
 
-There is also a [CMOS version described here](infnoise_cmos/RNG).
+There is also a [CMOS version described here](http://waywardgeek.net/RNG).
 
 ### Free As in Freedom
 
