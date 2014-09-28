@@ -1,10 +1,19 @@
 ##Infinite Noise Multiplier
 
-![Schematic Infinite Noise Multiplier](infnoise_small/schematic.png?raw=true "Infinite
+![Schematic of Infinite Noise Multiplier](infnoise_small/schematic.png?raw=true "Infinite
 Noise Multiplier")
 
-The Infinite Noise Multiplier is an architecture for true random number generators (TRNG).
+The Infinite Noise Multiplier (INM) is an architecture for true random number generators (TRNG).
 Besides being simple, low-cost, and fast, it is easy to get right, unlike other TRNGs.
+
+INMs are suitable for both board level implementation, and ASIC implementation.  Speed is
+limited by the speed of a voltage buffer and comparator, and can run in excess of 100
+Mbit/second per second with high performance components.  Cheap solutions with CMOS quad
+op-amps can run at 500 Kbit/second.
+
+Adjacent bits from an INM are correlated, so whitening is required before use in
+cryptography.  INM output has a highly predictable amount of entropy for easy estimation
+of bits added to an entropy pool.
 
 ### The Problem: Noise Sensitivity, and Signal Injection
 
@@ -78,11 +87,62 @@ Because Infinite Noise Mulitpliers are switched-capacitor circuits, it is import
 components with low leakage.  Op-amps with below 1nA of input bias current will enable
 running at lower frequencies with less power.
 
+![Schematic of small Infinite Noise Multiplier](infnoise_small/schematic.png?raw=true "Small
+Infinite Noise Multiplier")
+
+![Schematic of fast Infinite Noise Multiplier](infnoise_fast/schematic.png?raw=true "Small
+Infinite Noise Multiplier")
+
 There is also a [CMOS version described here](http://waywardgeek.net/RNG).
+
+### Simulations
+
+LTspice was used to simulate the small and fast variations.
+
+### Design Analysis
+
+The ideal case is easy to understand.  Each clock cycle the value A is multiplied by 2X.
+If the result is above Vref (typically 1/2 supply), then the comparitor will output a 1,
+and if it is below Vref, it will output a 0.  Both should occur with equal probability,
+with no correlation between bits.  This has been verified to some extent with a C
+simulation and dieharder.
+
+In the ideal case, the circuit simply multiplies a signal by 2X every cycle.  If you
+imagine the value as being between 0 and 1, and represented in binary, when you multiply
+by 2, you simply left-shift the value.  The value out is the bit that shifts from the 1/2
+position to the 1's position.  If a 1 was shifted out, we remove it, so that it is again
+between 0 and 1.
+
+However, due to accuracy limitations on real components, we cannot multiply by exactly 2X
+every cycle.  When the loop amplification is < 2X, the entropy per output bit is reduced,
+but can be easily computed.  If E is the entropy per bit, and A is the loop amplification,
+then:
+
+> E = log(A)/log(2)
+
+This provides a simple way to calculate the entropy added to an entropy pool per bit.
+
+The simplest way to understand why this is true is to imagine representing a value in base
+A, rather than base 2.  For example, if a random 3-bit binary value from 0 to 1 is
+converted to base sqrt(2), then it will take up to 6 bits.  The value 0.625 = 0.101 in
+binary.  In base sqrt(2), it is 0.010001, because 0.01 base sqrt(2) is 1/2, and 0.000001
+base sqrt(2) is 1/[sqrt(2)^6] = 0.125.
+
+Entropy, as used here, describes the possible number of equal probability outcomes.  If
+there are 12345 equally likely outputs from an INM, then that is considered to be
+log2(12345) = 13.59 bits of entropy.  In the idean case where A is exactly 2, we can
+easily see that an unbiased true random bit is shifted out each cycle.  Since converting
+an N bit sequence base 2 to an M bit sequence base A requires log(A)/log(2) bits, those
+same 2^N equally likely states are encoded by M bits base A.  An entropy pool benefits the
+same from N true random bits as M biased bits in this case.
+
+The program infnoise.c directly measures the entropy of INM output, and compares this to
+the estimated value.  Simulations show that they correlate well.
 
 ### Free As in Freedom
 
-I, Bill Cox, came up with The Infinite Noise Multiplier architecture in 2013.  I hereby
-renounce any claim to copyright and patent rigts related to this architecture.  I'm giving
-it away emphatically freely.  Furthermore, I am aware of no infringing patents and believe
-there are none.  It should be entirely safe for use in any application.
+I, Bill Cox, came up with the original CMOS based Infinite Noise Multiplier architecture
+in 2013, and the board level versions in 2014.  I hereby renounce any claim to copyright
+and patent rigts related to this architecture.  I'm giving it away emphatically freely.
+Furthermore, I am aware of no infringing patents and believe there are none.  It should be
+entirely safe for use in any application.
