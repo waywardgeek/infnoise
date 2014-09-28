@@ -97,7 +97,20 @@ There is also a [CMOS version described here](http://waywardgeek.net/RNG).
 
 ### Simulations
 
-LTspice was used to simulate the small and fast variations.
+LTspice was used to simulate the small and fast variations.  Here are simulation waveforms
+for the small verision:
+
+![Simulation of small Infinite Noise Multiplier](infnoise_small/shortsim.png?raw=true "Small
+Infinite Noise Multiplier")
+![Simulation of small Infinite Noise Multiplier](infnoise_full/shortsim.png?raw=true "Small
+Infinite Noise Multiplier")
+
+And again for the fast version.
+
+![Simulation of fast Infinite Noise Multiplier](infnoise_fast/shortsim.png?raw=true "Fast
+Infinite Noise Multiplier")
+![Simulation of fast Infinite Noise Multiplier](infnoise_full/shortsim.png?raw=true "Fast
+Infinite Noise Multiplier")
 
 ### Design Analysis
 
@@ -118,7 +131,7 @@ every cycle.  When the loop amplification is < 2X, the entropy per output bit is
 but can be easily computed.  If E is the entropy per bit, and A is the loop amplification,
 then:
 
-> E = log(A)/log(2)
+    E = log(A)/log(2)
 
 This provides a simple way to calculate the entropy added to an entropy pool per bit.
 
