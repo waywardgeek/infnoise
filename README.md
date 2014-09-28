@@ -152,6 +152,32 @@ same from N true random bits as M biased bits in this case.
 The program infnoise.c directly measures the entropy of INM output, and compares this to
 the estimated value.  Simulations show that they correlate well.
 
+There are two significant variations on the INM architecture so far.  The first one, done
+with CMOS transistors, which is suitable for an IC implementation, does a multiply by 2 by
+stacking capacitors, and if the result is greather than Vref, it subtracts a value (using
+a capacitor again) to reduce the value to below Vref.  This is a literal implementation of
+multiplication mod Vref.
+
+The board level versions were simplified using a couple of tricks.  First, multiplication
+by 2 modulo Vsup is accomplished by multiplying relative to either GND or Vsup.  When
+multiplying relative to GND, a 0.2V signal becomes 0.4V.  When multiplying relative to a
+3V Vsup, a 2.8V signal becomes 2.6V.  The math comes out the same as if I'd multiplied
+relative to GND, and simply subtracted Vsup if the result was > Vsup:
+
+    Vsup - 2*(Vsup - A) = Vsup = 2*Vsup + 2*A = 2*A - Vsup
+
+So, we multiply by 2 either way, and only subtract out Vsup if needed.  This is identical
+to multiplication modulo Vsup.
+
+A second trick used to create the "small" version was to notice that the output of the
+comparator could be used to combine both multiplier op-amps into 1.  This abuse of the
+comparator output needs to be carefully checked.  In particular, the output is generally
+treated as a digital signal, but in this case, it is used as an analog singal.  Care
+should be taken not to load the OUT signal significantly, and also to be sure the
+comparator can drive the resistive load with no more droop than the buffer driving signal
+B.  However, don't be concerned about noise.  Cross-talk is OK.  It can only add to the
+entropy.
+
 ### Free As in Freedom
 
 I, Bill Cox, came up with the original CMOS based Infinite Noise Multiplier architecture
