@@ -1,0 +1,112 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252"></head><body><h1>The Infinite Noise Multiplier</h1>
+<p>This design is an "Infinite Noise Multiplier", a hardware true random number
+generator.  The name was inspired by my daughter, who is a never ending source
+of randomness.</p>
+
+<p>The idea is simple: there is noise in every system.  All you have to do is
+amplify it.  This switched-cap circuit has a voltage V, which it multiplies by
+2 every cycle.  If V is greater than Vref/2, then it subtracts Vref/2, thus
+keeping V between 0 and Vref/2.  The truly random output bit is just the output
+of the comparator between V and Vref/2. </p>
+
+<p>This is best understood digitally.  If you have a random value between 0 and
+1, say .1001110110001, then this circuit would multiply by 2, getting
+1.001110110001X, where X is some new random noise.  It would subtract out 1
+because the value is &gt; 1, and if X is 0, we get: 0.0011101100010.  Continuing
+this process, we shift out the bits one at a time, while noise creates random
+data in the least significant bits.  The circiut is insensitive to non-random
+signal injection.  If you add a non-random signal to the value, you get
+different, but still random bits shifting out.</p>
+
+<p>There is a bit more to it than this.  The voltage followers can only drive
+down to about 0.1V, which is good, because it creates a voltage to start
+multiplying.  The multiplier only multiplies by about 1.8 instead of 2, which
+is also good, for keeping the voltage from running away.  We subtract slightly
+less than Vref/2 so that V is always between about .2V and Vref/2V.  The
+voltage followers introduce significant distortion and voltage offset.  All
+this results in non-perfect random output.  From SPICE simulations it seems
+that there may be a 25-ish% correlation between bits (this requires more
+analysis), and a 10-ish% bias for more 1's than 0's.  To get high quality random
+data out, I have to XOR many of these partially random bits together.  Here is
+the math to support this approach:</p>
+
+<p>Let b represent the maximum amplitude of a bias/correlation function between
+bits so that the probability of an attacker guessing correctly an output bit
+knowing all the surrounding bits is no higher than 0.5 + b.  As I XOR these
+bits together, the probability of being able to guess the bit drops.  Call the
+max amplitude of the bias/correlation when XORing n bits together B(n).  Let
+P(n) be the probability of an attacker correctly guessing the output bit with
+n bits XORed together.  Then: </p>
+
+<p>
+P(n+1) = (.5 + b)(.5 + B(n)) + (.5 - b)(.5 - B(n)<br>
+P(n+1) = .5 + 2*b*B(n)<br>
+B(n+1) = 2*b*B(n)<br>
+B(n) = (2*b)^n*b<br>
+</p>
+
+<p>I am XORing 80 bits together.  With b = .25, B(80) = 2e-25, which should be more than
+adequate for any crypto purposes.  However, I still recommend that the output of this RNG
+be further randomized with a cryptographically strong pseudo random number generators or
+hash function, just to be sure.</p>
+
+<p>I am implementing this design on a tiny .35u mixed-signal IC.  It occupies
+about 0.04 mm^2, and runs at 8MHz in SPICE simulations.  25 fit per mm^2, cnd
+each consumes about a milliwatt.  Each outputs 8Mbit/sec, but XORing 80 bits
+together reduces it to 100Kbit/sec.  Per mm^2, it should generate 2.5Mbit/sec
+of crypto ready random bits.  This is a very low power process.  In a high
+speed process, it should be possible to run at 100MHz instead of 8MHz, and the
+circuit should shrink dramatically.</p>
+
+<p>Here are my awful hand-drawn schematics.  The first schematic shows that on
+phase 1 we sample the voltage from the previous cycle, and store it on two hold
+capacitors in parallel.  An NMOS transistor is used as a switch from the buffer
+of the previous stage.  During phase 2, we use three more NMOS switches to
+stack the two capacitors, which in an ideal world would multiply the voltage by
+2, but because of parasitics, it only does about 1.8.  The output of the
+stacked capacitors feeds through a voltage-follower buffer into the next stage.
+Here there are two switchies: one to feed another hold capacitor during phase 2,
+and another to feed an almost identical hold capacitor also in phase 2.  The
+first hold capacitor feeds the positive terminal of a comparator, while Vref/2
+feeds the negative.  This is a clocked comparator that compares its inputs on
+the start of phase 1.  If the held voltage is greater than Vref/2, the
+comparator subtracts a charge from the other hold capacitor that causes its
+voltage to drop ideally by Vref/2.  Due to parasitics it's somewhat less than
+this.  This second hold capacitor where the subtraction occurs then feeds into
+another voltage follwer buffer, which loops back to where we started, so the
+process can repeat.  The voltage follower schematic is also shown, and is
+simply 4 mosfets: two for current sources and a matched diff pair.  It is a
+standard source-coupled voltage follower.  Vref/2 is generated with a simple
+resistor divider.  The two phases of the clock are generated with back-to-back
+NOR gates, which is also standard.  The clocked comparator is a standard
+circuit as well, which is based on two inverters feeding back on each other,
+with some mosfets to reset the inverter outputs to 1 when the input clock is
+high, and when it goes low, the inverters are connected, and will flip one way
+or the other.  Two mosfets driven by the input voltages cause one side or the
+other to win.  The bias voltage generator for the buffers current sources is
+also shown, which is a resistor feeding into a mirror.</p>
+
+<img src="RNG_files/schem1.png" alt="schematic 1">
+<img src="RNG_files/schem2.png" alt="schematic 2">
+<img src="RNG_files/schem3.png" alt="schematic 3">
+
+
+<p>Here is a simulation of 80 clock cycles, showing typical random data that
+would be XORed together to generate one output bit.  The random output is Q.
+The bottom signal is a 1MHz sine wave which is coupled into the hold
+cap after buffer1 through a capacitor 10% as large as the hold capacitor.  The
+point is to show that non-random sources of noise do not cause the output to be
+less random.  This circuit is highly insensitive to external signals.</p>
+
+<img src="RNG_files/RNG5.png" alt="SPICE simulation">
+
+<p>The main sources of noise in this circuit are primarily shot noise and
+thermal noise.  Shot noise is generated every time an electron is accelerated
+through the input transistors of the voltage followers.  Thermal noise is
+generated in the bias current resistor.  However, the source of noise in the
+SPICE simulation is the numerical errors in the simulator, which dominate over
+the quieter shot and thermal noise.  The actual source of noise should not make
+any differece.  Every analog signal has noise.  It simply has to be amplified
+for us to use it.</p>
+</body></html>
