@@ -1,0 +1,47 @@
+ICs
+---
+
+Low-input current rail-to-rail output fast opamp:
+P/N: ADA4891-1ARJZ-R7
+Digikey: ADA4891-1ARJZ-R7CT-ND
+Package: SOT-23 5 pin
+Note: Vin can only go up to V+ - 0.8V
+
+USB 2.0 to parallel FIFO
+P/N FT240XQ-T
+Digikey: 768-1157-ND
+Package: 4x4mm 24-pin QFN, 2.25mm pad
+
+Lattice 384-Flop flash FPGA:
+P/N: ICE40LP384-SG32
+Digikey: 220-2646-ND
+Package: 32-pin QFNS, 5x5mm, 2.7mm pad
+
+Fast rail-to-rail comparator
+P/N: TLV3501AIDBVR
+Digikey: 296-35977-1-ND
+Package: SOT-23-6 (6 pin)
+
+Fast dual SPDT analog switch
+P/N: TS5A23157RSER
+Digikey: 296-21919-1-ND
+Package: 10-UQFN, 2mm X 1.5mm, 0.5mm pitch
+
+Passives
+--------
+
+100 nF chip bypass Capacitor, 20%, 6.3V
+P/N: LLL153C80J104ME01E
+Digikey: 490-4310-1-ND
+
+Ceramic Capacitor, 470pF 630V 5% 
+P/N: C3216C0G2J471J085AA
+Digikey: 445-2340-1-ND
+
+8.2K Ohm 1% 1/16W chip resistor
+P/N: MCR01MRTF8201
+Digikey: RHM8.2KCDCT-ND
+
+10K Ohm 1% 1/16W chip resistor
+P/N: MCR01MRTF1002
+Digikey: RHM10.0KCDCT-ND
