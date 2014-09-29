@@ -79,13 +79,18 @@ an attacker.
 
 There are currently 3 versions of Infinite Noise Multipliers documented here.  The
 infnoise_small directory describes a low part-count design that works well with op-amps
-which have rail-to-rail inputs and outputs.  The infnoise_fast directory contains a faster
-design that uses a few more resistors and an additional op-amp.  This design is suitable
-for use with a wide range of op-amps.
+which have rail-to-rail inputs and outputs.  It runs at 4MHz, outputing 0.84 bits worth of
+entropy on each clock (loop gain = 1.8), for a total of 3.36Mbit of entropy produced per
+second.  The infnoise_fast directory contains a 50% faster design that uses a few more
+resistors and an additional op-amp.  This design is suitable for use with a wide range of
+op-amps.  It runs at 6MHz, outputing 0.84 bits worth of entropy on each clock (loop gain =
+1.8), for a total of 5.04Mbit of entropy per second.
 
 Because Infinite Noise Mulitpliers are switched-capacitor circuits, it is important to use
-components with low leakage.  Op-amps with below 1nA of input bias current will enable
-running at lower frequencies with less power.
+components with low leakage, like the OPA4354 CMOS quad op-amp from TI.  Op-amps with
+below 1nA of input bias current will enable running at lower frequencies with less power.
+
+To reproduce these simulations, download the TINA spice simulator from Ti.com.
 
 ![Schematic of small Infinite Noise Multiplier](infnoise_small/schematic.png?raw=true "Small
 Infinite Noise Multiplier")
