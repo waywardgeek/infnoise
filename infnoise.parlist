@@ -9,14 +9,16 @@ Note: Vin can only go up to V+ - 0.8V
 Note: Quad op-amp version available: ADA4891-4
 
 USB 2.0 to parallel FIFO
-P/N FT240XQ-T
+P/N: FT240XQ-T
 Digikey: 768-1157-ND
 Package: 4x4mm 24-pin QFN, 2.25mm pad
+Price: $1.575/1000
 
 Lattice 384-Flop flash FPGA:
 P/N: ICE40LP384-SG32
 Digikey: 220-2646-ND
 Package: 32-pin QFNS, 5x5mm, 2.7mm pad
+Price: $1.3125/100
 
 Fast rail-to-rail comparator
 P/N: TLV3501AIDBVR
@@ -32,11 +34,13 @@ Fast quad SPST analog switch, break-before-make
 P/N: ADG713BRUZ-REEL7
 Digikey: ADG713BRUZ-REEL7CT-ND
 Package: 16-TSSOP
+Price: $1.3566/1000
 
 Rail-to-rail high-speed quad op-amp
 P/N: OPA4354AIDR
 Digikey: 296-12643-1-ND
-Package: 
+Package: 14-SOIC
+Price: $1.80/1000
 
 Passives
 --------
@@ -44,43 +48,38 @@ Passives
 100 nF chip bypass Capacitor, 20%, 6.3V
 P/N: LLL153C80J104ME01E
 Digikey: 490-4310-1-ND
+Price: 4.05 cents in 1,000 units
 
-Ceramic Capacitor, 470pF 630V 5% 
-P/N: C3216C0G2J471J085AA
-Digikey: 445-2340-1-ND
+Ceramic Capacitor, 100pF 100V 5% 
+P/N: CGA4C2C0G2A101J060AA
+Digikey: 445-6951-2-ND
+Price: $0.022/1000
+Price: $0.0172/4000
 
-8.2K Ohm 1% 1/16W chip resistor
-P/N: MCR01MRTF8201
-Digikey: RHM8.2KCDCT-ND
+120 Ohm 5% 63mW chip resistor
+P/N: CRCW0402120RJNED
+Digikey: 541-120JCT-ND
+Price: $0.01566/1000
 
-10K Ohm 1% 1/16W chip resistor
-P/N: MCR01MRTF1002
-Digikey: RHM10.0KCDCT-ND
+quad 10K 5% 63mW resistors
+P/N: CRA06S08310K0JTA
+Digikey: CRA6S810KCT-ND
+Price: $0.01568/1000
 
-4X 10K Ohm 1% 65mW chip resistors
-P/N: CRA04S08310K0FTD
-Digikey: CRA4S810.0KACT-ND
+quad 8.2K 5% 63mW resistors
+P/N: CRA06S0838K20JTA
+Digikey: CRA6S88.2KCT-ND
+Price: $0.01568/1000
 
-2.7K 1% 63mW chip resistor
-P/N: MCR01MRTF2701
-Digikey: RHM2.70KCDCT-ND
+dual 120 Ohm 5% 63mW resistors
+P/N: RP102PJ121CS
+Digikey: 1276-6069-1-ND
+Price: $0.00997/1000
 
-100K 5% 63mW chip resistor
-P/N: CRCW0402100KJNED
-Digikey: 541-100KJCT-ND
-
-51K 1% 63mW chip resistor
-P/N: RC1005F513CS
-Digikey: 1276-4178-2-ND
-
-53.6K 1% 63mW chip resistor
-P/N: RMCF0402FT53K6
-Digikey: RMCF0402FT53K6TR-ND
-
-300 Ohm 1% 63mW chip resistor
-P/N: CRCW0402300RFKED
-Digikey: 541-300LCT-ND
-
-1.1K 1% 100mW chip resistor
-P/N: CRCW06031K10FKEA
-Digikey: 541-1.10KHCT-ND
+Still need
+----------
+PCB pricing
+Housing pricing
+USB connector price
+fuse
+a few discretes for USB and FPGS
