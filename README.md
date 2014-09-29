@@ -183,6 +183,127 @@ comparator can drive the resistive load with no more droop than the buffer drivi
 B.  However, don't be concerned about noise.  Cross-talk is OK.  It can only add to the
 entropy.
 
+### Mathematical Rational for Modular Multiplication
+
+Lets start with a traditional zener TRNG:
+
+    Vzener -> Multiply by 1e9 relative to Vref -> Clamp between -Vsupply and Vsupply -> digital 0/1
+
+For simplicity, assume our amplifier has positive and negative supplies, Vsupply, and
+-Vsupply.  If Vzener*1e9 >= 0, then the output is a digital 1, otherwize 0.
+
+There are variations on this theme, but this is basically how Zener TRNGs work.  The math
+computed by this circuit is:
+
+    clamp(-Vsupply, Vsupply, Vref + 1e9*(Vzener - Vref))
+
+where the first two parameters are the lower and upper clamping voltages, and the third
+parameter is the amplified signal.
+
+The problem with this design is that an attacker, Malory, can override the tiny zener
+noise source with radio-signals, or any of a number of attacks.  Basically, if he can find
+a way to add his signal to Vzener, then the circuit does this:
+
+    clamp(-Vsupply, Vsupply, 1e9*(Vzener + Vmallory))
+
+If Vmallory is always just a bit larger than Vzener in magnitued, then Mallory can
+completely determine the output, because Mallory can make Vzener + Vmallory greater or
+less than zero will, and after multiplying by 1e9 it the amplifier will saturate in the
+direction of the sign of Vm.
+
+What if we could use modular multiplication instead?  Assume we represent Vzener now as a
+positive voltage between 0 and Vsupply.  In this case the normal output would be:
+
+    Vzener*1e9 mod Vsupply -> compare to Vsupply/2 -> 1 if > Vsupply/2, 0 otherwise
+
+This is even *more* unpredictable than the original version. Only the portion of Vzener
+between +/- Vsupply/1e9 made any difference in the output before, but now we use the
+entire amplitude of Vzener.  The amplitude of Vzener has additional entropy which now
+further whitens the output bit.
+
+When Mallory attacks this system, injecting Vmallory into the same node as Vzener, it
+computes:
+
+    (Vzener + Vmallory)*1e9 mod Vsupply = Vzener*1e9 + Vmallory*1e9 mod Vsupply
+
+Let Vz = Vzenner*1e9 mod Vsupply, and Vm = Vmallory*1e9 mod Vsupply.  Then the output
+is just:
+
+    Vz + Vm mod Vsupply
+
+Vz is unpredicably distributed between 0 and Vsupply, hopefully somewhat uniformly.
+How can Mallory determine what to add to it to control the output?  He can not.
+His interference can only *increase* the entropy of the output, since Mallory's attack is
+itself an entropy source, further randomizing the result.
+
+### A Workable Modular Multiplying Amplifier
+
+It turns out to be difficult to build an amplifier than can represent Vzener*1e9 with a
+real voltage that wont hurt anybody.  Fortunately, we can compute the modular
+multiplication by multipling by 2X in each amplifier stage, and subtracting Vsupply if
+the result is > Vsupply:
+
+    Vout = 2*Vzener mod Vsupply
+
+Cascading 30 of these stages gets us 2^30 amplification, or just a bit > 1e9.  There is
+one complication, however.  In order to compare 2*Vzener with Vsupply, we have to hold the
+signal steady for a while.  A sample-and-hold circuit is required.  This is why Infinite
+Noise Multipliers are "switched-capacitor" circuits.  Basically, all the switches do is
+hold the value of 2*Vin until we have time to compare it to Vsupply.
+
+### Rolling Up the Loop
+
+A 30-long cascade of switched capacitor 2X modular multipliers is a lot of hardware!
+Fortunately, it is possible to reuse the same multplier for each stage, without even
+slowing down the circuit.  In our long chain of 2X modular multipliers, we computed:
+
+    V1(1) = 2*Vzener(0) mod Vsupply
+    V2(2) = 2*V1 mod Vsupply
+    V3(3) = 2*V2 mod Vsupply
+    ...
+    V30(30) = 2*V29 mod Vsupply
+
+Here, Vzener(0) is Vzener when sampled at the first clock pulse.  Vzener(n) is the voltage
+sampled on the nth clock pulse.  Vn(t) is the output of the nth 2X modular multiplier at
+clock cycle t.  Instead of using 30 stages, what would happen if we added V(1) to
+Vzener(1), and used the same exact multiplier stage?
+
+    V1(1) = 2*Vzener(0) mod Vsupply
+    V2(2) = 2*(Vzener(1) + V1(1) mod Vsupply 
+          = 2*Vzener(1) + 4*Vzener(0) mod Vsupply
+    V3(3) = 2*(Vzener(2) + V2(2)) mod Vsupply
+          = 2*Vzener(2) + 4*Vzener(1) + 8*Vzener(0) mod Vsupply
+    ...
+    V30(30) = 2*Vzener(29) + 4*Vzener(28) + 8*Vzener(27) + ... + 2^30*Vzener(0) mod
+    Vsupply
+
+If Vzener(t) samples are truely unpredictable and uncorrelated, then 2^30*Vzener(0) mod
+Vsupply is an unpredictable value almost uniform between 0V and Vsupply.  The other terms
+can in no way reduce this unpredicability.  What if Mallory attacks?  In that case, at
+step 30, we have:
+
+    V30(30) = 2*(Vzener(29) + Vmallory(29)) + ... + 2^30*(Vzener(0) + Vmallory(0) mod
+    Vsupply
+            = [2*Vzener(29) + 4Vzener(28) + ... + 2^30*Vzener(0)] +
+              [2*Vmallory(29) + 4Vmallory(28) + ... + 2^30*Vmallory(0)] mod Vsupply
+
+This is just the signal we had before without Mallory's influence, plus a predictable
+value injected by Mallory.  Once again if Mallory does not know what the value of V30(30)
+would have been, he cannot control the result.  He can only make it more random.
+
+### We Don't Need the Zener
+
+In reality, there are many sources of noise in every circuit, and some will not be
+correlated with others.  Thermal noise at the fempto-volt level in the comparator is
+unlikely to be correlated with fempto-volt level noise in the amplifier.  About 40 clocks
+later, these two noise sources will be on the same order of magnatude as Vsupply, and
+their entropy will combine to make the output even less predictable.
+
+It is exactly like what happened when Mallory tried to control the output.  He made it
+more random instead!  *Every* source of entropy in the entire circuit contributes to the
+unpredictability of the output.  The individual noise sources contribute a power-of-two
+sequence to the total, just like Mallory did.
+
 ### Free As in Freedom
 
 I, Bill Cox, came up with the original CMOS based Infinite Noise Multiplier architecture
