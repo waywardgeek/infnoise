@@ -308,6 +308,6 @@ sequence to the total, just like Mallory did.
 
 I, Bill Cox, came up with the original CMOS based Infinite Noise Multiplier architecture
 in 2013, and the board level versions in 2014.  I hereby renounce any claim to copyright
-and patent rigts related to this architecture.  I'm giving it away emphatically freely.
+and patent rights related to this architecture.  I'm giving it away emphatically freely.
 Furthermore, I am aware of no infringing patents and believe there are none.  It should be
 entirely safe for use in any application.
