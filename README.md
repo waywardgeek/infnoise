@@ -9,7 +9,7 @@ Besides being simple, low-cost, and fast, it is easy to get right, unlike other 
 INMs are suitable for both board level implementation, and ASIC implementation.  Speed is
 limited by the speed of a voltage buffer and comparator, and can run in excess of 100
 Mbit/second per second with high performance components.  Cheap solutions with CMOS quad
-op-amps can run at 500 Kbit/second.
+op-amps can run at 6Mbit/second.
 
 Adjacent bits from an INM are correlated, so whitening is required before use in
 cryptography.  INM output has a highly predictable amount of entropy for easy estimation
@@ -102,14 +102,14 @@ for the small verision:
 
 ![Simulation of small Infinite Noise Multiplier](infnoise_small/shortsim.png?raw=true "Small
 Infinite Noise Multiplier")
-![Simulation of small Infinite Noise Multiplier](infnoise_full/shortsim.png?raw=true "Small
+![Simulation of small Infinite Noise Multiplier](infnoise_fast/shortsim.png?raw=true "Small
 Infinite Noise Multiplier")
 
 And again for the fast version.
 
 ![Simulation of fast Infinite Noise Multiplier](infnoise_fast/shortsim.png?raw=true "Fast
 Infinite Noise Multiplier")
-![Simulation of fast Infinite Noise Multiplier](infnoise_full/shortsim.png?raw=true "Fast
+![Simulation of fast Infinite Noise Multiplier](infnoise_fast/shortsim.png?raw=true "Fast
 Infinite Noise Multiplier")
 
 ### Design Analysis

@@ -6,6 +6,7 @@ P/N: ADA4891-1ARJZ-R7
 Digikey: ADA4891-1ARJZ-R7CT-ND
 Package: SOT-23 5 pin
 Note: Vin can only go up to V+ - 0.8V
+Note: Quad op-amp version available: ADA4891-4
 
 USB 2.0 to parallel FIFO
 P/N FT240XQ-T
@@ -27,6 +28,16 @@ P/N: TS5A23157RSER
 Digikey: 296-21919-1-ND
 Package: 10-UQFN, 2mm X 1.5mm, 0.5mm pitch
 
+Fast quad SPST analog switch, break-before-make
+P/N: ADG713BRUZ-REEL7
+Digikey: ADG713BRUZ-REEL7CT-ND
+Package: 16-TSSOP
+
+Rail-to-rail high-speed quad op-amp
+P/N: OPA4354AIDR
+Digikey: 296-12643-1-ND
+Package: 
+
 Passives
 --------
 
@@ -45,3 +56,31 @@ Digikey: RHM8.2KCDCT-ND
 10K Ohm 1% 1/16W chip resistor
 P/N: MCR01MRTF1002
 Digikey: RHM10.0KCDCT-ND
+
+4X 10K Ohm 1% 65mW chip resistors
+P/N: CRA04S08310K0FTD
+Digikey: CRA4S810.0KACT-ND
+
+2.7K 1% 63mW chip resistor
+P/N: MCR01MRTF2701
+Digikey: RHM2.70KCDCT-ND
+
+100K 5% 63mW chip resistor
+P/N: CRCW0402100KJNED
+Digikey: 541-100KJCT-ND
+
+51K 1% 63mW chip resistor
+P/N: RC1005F513CS
+Digikey: 1276-4178-2-ND
+
+53.6K 1% 63mW chip resistor
+P/N: RMCF0402FT53K6
+Digikey: RMCF0402FT53K6TR-ND
+
+300 Ohm 1% 63mW chip resistor
+P/N: CRCW0402300RFKED
+Digikey: 541-300LCT-ND
+
+1.1K 1% 100mW chip resistor
+P/N: CRCW06031K10FKEA
+Digikey: 541-1.10KHCT-ND
