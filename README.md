@@ -12,8 +12,8 @@ Mbit/second per second with high performance components.  Cheap solutions with C
 op-amps can run at 6Mbit/second.
 
 Adjacent bits from an INM are correlated, so whitening is required before use in
-cryptography.  INM output has a highly predictable amount of entropy for easy estimation
-of bits added to an entropy pool.
+cryptography.  However, the output has a highly predictable amount of entropy for easy
+estimation of bits added to an entropy pool.
 
 ### The Problem: Noise Sensitivity, and Signal Injection
 
@@ -22,22 +22,14 @@ tiny noise signal, perhaps only a microvolt in amplitude, by a factor of million
 billions, until the signal is an unpredictable digital signal.  This signal is then
 sampled to see if it's a 0 or 1.
 
-The problem with this aproach is the weak noise source can easily be overridden by other
-nearby signals, which may be under the control of an attacker.  Power supply noise can
-cause zener diodes to avalanche with predictable timing.  Thermal noise can be overridden
-by nearby radio sources, such as EMI from a CPU.  Oscillator drift can be controlled
-through syncrhonous power-supply noise.  Jitter can be controlled through cross-talk and
-power rail droop.  On ICs, substrate currents can override thermal noise.  Cross talk
-strong enough to override these tiny sources of noise can be introduced through radio
-waves, inductive coupling, capacitive coupling, or even "microphonics", due to physical
-vibrations in the system.  These circuits are sometimes even light sensitive.
+The problem with this aproach is the weak noise source can easily be influenced by other
+nearby signals, which may be under the control of an attacker, or perhaps observable by an
+attacker, enabling him to predict the output.
 
 Systems built with massive amplification of tiny noise sources often require power supply
-filters, EMI shielding, and even light shielding, and even then remain difficult to prove
-secure.  Such systems can be difficult to audit, because their signal traces are
-inaccessible behind layers of shields.
+filters and EMI shielding, and even then remain difficult to prove secure.
 
-Intel's RDRAND instruction is a perfect example.  It uses massive amplification of thermal
+Intel's RDRAND instruction is a perfect example.  It uses rapid amplification of thermal
 noise to determine the power-up state of a latch.  Unfortunately, this source of entropy
 is highly power-supply, cross-talk, and substrate current sensitive.  Intel claims to have
 carefully shielded their thermal noise source, but without a thorough pubic audit of both
@@ -58,33 +50,32 @@ from influencing the noise source.
 For example, if we amplify a tiny noise source by 1 billion in a system that saturates at
 3.3V, then 1uV of noise will be amplified causing the output to be about 3.3V.  An
 attacker need only introduce at least -1uV to cause the TRNG to saturate at 0V instead.
-An attacker with even this tiny influence over the noise source can entirely control the
-output.
+An attacker with even this tiny influence can entirely control the output.
 
-This is the wrong aproach.  Instead, TRNGs should use modular multiplication to amplify
-their noise source, because modular multiplication never saturates.
+If TRNGs used modular multiplication to amplify their noise source, this noise sensitivity
+problem would go away.
 
 If we multiply a 1uV peak by 1 billion modulo 3.3V, then the result will be about 0.3V,
 which will result in a ditital 0.  If an attacker subtracts 1uV, causing our noise source
 to be at 0.0V, then after amplification, the output is 0V, which still results in a 0.  In
 fact, without knowing the current amplituded of the noise source, there is no signal an
-attacker can add to our noise source that will result in a desired output.  He may be able
-to flip the output bit, but since it was already random, his signal injection fails to
-control the result, which is still random.  In fact, an attacker's injected signal causes
-the output to be *more* random, since an attacker is a nice unpredictable source of
-entropy!  Infinite Noise Multipliers *add* entropy from all noise sources, even those from
-an attacker.
+attacker can add to our noise source to control the output.  He may be able to flip the
+output bit, but since it was already random, his signal injection fails to control the
+result, which is still random.  In fact, an attacker's injected signal causes the output
+to be _more_ random, since an attacker is a nice unpredictable source of entropy!
+Infinite Noise Multipliers _add_ entropy from all noise sources, even those from an
+attacker.
 
 ### Variations
 
 There are currently 3 versions of Infinite Noise Multipliers documented here.  The
 infnoise_small directory describes a low part-count design that works well with op-amps
-which have rail-to-rail inputs and outputs.  It runs at 4MHz, outputing 0.84 bits worth of
-entropy on each clock (loop gain = 1.8), for a total of 3.36Mbit of entropy produced per
-second.  The infnoise_fast directory contains a 50% faster design that uses a few more
+which have rail-to-rail inputs and outputs.  It runs at 4MHz, outputing 0.86 bits worth of
+entropy on each clock (loop gain = 1.82), for a total of over 3.4 Mbit of entropy produced
+per second.  The infnoise_fast directory contains a 50% faster design that uses a few more
 resistors and an additional op-amp.  This design is suitable for use with a wide range of
-op-amps.  It runs at 6MHz, outputing 0.84 bits worth of entropy on each clock (loop gain =
-1.8), for a total of 5.04Mbit of entropy per second.
+op-amps.  It runs at 6MHz, outputing 0.86 bits worth of entropy on each clock (loop gain =
+1.82), for over 5Mbit of entropy per second.
 
 Because Infinite Noise Mulitpliers are switched-capacitor circuits, it is important to use
 components with low leakage, like the OPA4354 CMOS quad op-amp from TI.  Op-amps with
@@ -117,7 +108,7 @@ Infinite Noise Multiplier")
 ![Simulation of fast Infinite Noise Multiplier](infnoise_fast/shortsim.png?raw=true "Fast
 Infinite Noise Multiplier")
 
-### Design Analysis
+### Designing Infinite Noise Multipliers
 
 The ideal case is easy to understand.  Each clock cycle the value A is multiplied by 2X.
 If the result is above Vref (typically 1/2 supply), then the comparitor will output a 1,
@@ -125,35 +116,14 @@ and if it is below Vref, it will output a 0.  Both should occur with equal proba
 with no correlation between bits.  This has been verified to some extent with a C
 simulation and dieharder.
 
-In the ideal case, the circuit simply multiplies a signal by 2X every cycle.  If you
-imagine the value as being between 0 and 1, and represented in binary, when you multiply
-by 2, you simply left-shift the value.  The value out is the bit that shifts from the 1/2
-position to the 1's position.  If a 1 was shifted out, we remove it, so that it is again
-between 0 and 1.
-
 However, due to accuracy limitations on real components, we cannot multiply by exactly 2X
 every cycle.  When the loop amplification is < 2X, the entropy per output bit is reduced,
-but can be easily computed.  If E is the entropy per bit, and A is the loop amplification,
+but can be easily computed.  If E is the entropy per bit, and K is the loop amplification,
 then:
 
-    E = log(A)/log(2)
+    E = log(K)/log(2)
 
 This provides a simple way to calculate the entropy added to an entropy pool per bit.
-
-The simplest way to understand why this is true is to imagine representing a value in base
-A, rather than base 2.  For example, if a random 3-bit binary value from 0 to 1 is
-converted to base sqrt(2), then it will take up to 6 bits.  The value 0.625 = 0.101 in
-binary.  In base sqrt(2), it is 0.010001, because 0.01 base sqrt(2) is 1/2, and 0.000001
-base sqrt(2) is 1/[sqrt(2)^6] = 0.125.
-
-Entropy, as used here, describes the possible number of equal probability outcomes.  If
-there are 12345 equally likely outputs from an INM, then that is considered to be
-log2(12345) = 13.59 bits of entropy.  In the idean case where A is exactly 2, we can
-easily see that an unbiased true random bit is shifted out each cycle.  Since converting
-an N bit sequence base 2 to an M bit sequence base A requires log(A)/log(2) bits, those
-same 2^N equally likely states are encoded by M bits base A.  An entropy pool benefits the
-same from N true random bits as M biased bits in this case.
-
 The program infnoise.c directly measures the entropy of INM output, and compares this to
 the estimated value.  Simulations show that they correlate well.
 
@@ -180,22 +150,22 @@ comparator output needs to be carefully checked.  In particular, the output is g
 treated as a digital signal, but in this case, it is used as an analog singal.  Care
 should be taken not to load the OUT signal significantly, and also to be sure the
 comparator can drive the resistive load with no more droop than the buffer driving signal
-B.  However, don't be concerned about noise.  Cross-talk is OK.  It can only add to the
+A.  However, don't be concerned about noise.  Cross-talk is OK.  It can only add to the
 entropy.
 
-### Mathematical Rational for Modular Multiplication
+### Analisys of Analog Modular Multiplication
 
-Lets start with a traditional zener TRNG:
+Consider a traditional zener TRNG:
 
     Vzener -> Multiply by 1e9 relative to Vref -> Clamp between -Vsupply and Vsupply -> digital 0/1
 
 For simplicity, assume our amplifier has positive and negative supplies, Vsupply, and
--Vsupply.  If Vzener*1e9 >= 0, then the output is a digital 1, otherwize 0.
+-Vsupply.  If Vzener\*1e9 >= 0, then the output is a digital 1, otherwize 0.
 
 There are variations on this theme, but this is basically how Zener TRNGs work.  The math
 computed by this circuit is:
 
-    clamp(-Vsupply, Vsupply, Vref + 1e9*(Vzener - Vref))
+    clamp(-Vsupply, Vsupply, 1e9*Vzener)
 
 where the first two parameters are the lower and upper clamping voltages, and the third
 parameter is the amplified signal.
@@ -209,14 +179,15 @@ a way to add his signal to Vzener, then the circuit does this:
 If Vmallory is always just a bit larger than Vzener in magnitued, then Mallory can
 completely determine the output, because Mallory can make Vzener + Vmallory greater or
 less than zero will, and after multiplying by 1e9 it the amplifier will saturate in the
-direction of the sign of Vm.
+direction of the sign of Vmallory.
 
-What if we could use modular multiplication instead?  Assume we represent Vzener now as a
-positive voltage between 0 and Vsupply.  In this case the normal output would be:
+What if we used modular multiplication instead?  Assume we represent Vzener now as a
+positive voltage between 0 and Vsupply so we can use the normal mod operation.  In this
+case the normal output would be:
 
     Vzener*1e9 mod Vsupply -> compare to Vsupply/2 -> 1 if > Vsupply/2, 0 otherwise
 
-This is even *more* unpredictable than the original version. Only the portion of Vzener
+This is even _more_ unpredictable than the original version. Only the portion of Vzener
 between +/- Vsupply/1e9 made any difference in the output before, but now we use the
 entire amplitude of Vzener.  The amplitude of Vzener has additional entropy which now
 further whitens the output bit.
@@ -226,30 +197,31 @@ computes:
 
     (Vzener + Vmallory)*1e9 mod Vsupply = Vzener*1e9 + Vmallory*1e9 mod Vsupply
 
-Let Vz = Vzenner*1e9 mod Vsupply, and Vm = Vmallory*1e9 mod Vsupply.  Then the output
+Let Vz = Vzenner\*1e9 mod Vsupply, and Vm = Vmallory\*1e9 mod Vsupply.  Then the output
 is just:
 
     Vz + Vm mod Vsupply
 
 Vz is unpredicably distributed between 0 and Vsupply, hopefully somewhat uniformly.
 How can Mallory determine what to add to it to control the output?  He can not.
-His interference can only *increase* the entropy of the output, since Mallory's attack is
+His interference can only _increase_ the entropy of the output, since Mallory's attack is
 itself an entropy source, further randomizing the result.
 
 ### A Workable Modular Multiplying Amplifier
 
-It turns out to be difficult to build an amplifier than can represent Vzener*1e9 with a
+It turns out to be difficult to build an amplifier than can represent Vzener\*1e9 with a
 real voltage that wont hurt anybody.  Fortunately, we can compute the modular
 multiplication by multipling by 2X in each amplifier stage, and subtracting Vsupply if
 the result is > Vsupply:
 
-    Vout = 2*Vzener mod Vsupply
+    Vout = 2*Vin mod Vsupply
 
-Cascading 30 of these stages gets us 2^30 amplification, or just a bit > 1e9.  There is
-one complication, however.  In order to compare 2*Vzener with Vsupply, we have to hold the
+Cascading 30 of these stages gets us 2^30 amplification, or just a bit over 1e9.  There is
+one complication.  In order to compare 2\*Vin with Vsupply, we have to hold the
 signal steady for a while.  A sample-and-hold circuit is required.  This is why Infinite
 Noise Multipliers are "switched-capacitor" circuits.  Basically, all the switches do is
-hold the value of 2*Vin until we have time to compare it to Vsupply.
+hold the value of 2\*Vin until we have time to compare it to Vsupply.  In reality, we
+compare Vin to Vsupply/2, so we never have to deal wth voltages > Vsupply.
 
 ### Rolling Up the Loop
 
@@ -257,43 +229,42 @@ A 30-long cascade of switched capacitor 2X modular multipliers is a lot of hardw
 Fortunately, it is possible to reuse the same multplier for each stage, without even
 slowing down the circuit.  In our long chain of 2X modular multipliers, we computed:
 
-    V1(1) = 2*Vzener(0) mod Vsupply
-    V2(2) = 2*V1(1) mod Vsupply
-    V3(3) = 2*V2(2) mod Vsupply
+    A1(1) = 2*Vzener(0) mod Vsupply
+    A2(2) = 2*A1(1) mod Vsupply
+    A3(3) = 2*A2(2) mod Vsupply
     ...
-    V30(30) = 2*V29(29) mod Vsupply
+    A30(30) = 2*V29(29) mod Vsupply
 
 Here, Vzener(0) is Vzener when sampled at the first clock pulse.  Vzener(n) is the voltage
-sampled on the nth clock pulse.  Vn(t) is the output of the nth 2X modular multiplier at
-clock cycle t.  Instead of using 30 stages, what would happen if we simply fed the output
-of the 2X modular multiplier stage back on itself?  We'd just have V1 instead of V1 ..
-V30:
+sampled on the nth clock pulse.  An(i) is the output of the nth 2X modular multiplier at
+clock cycle i.  Instead of using 30 stages, what would happen if we simply fed the output
+of the 2X modular multiplier stage back on itself?  We'd just have A instead of A1 ..
+A30:
 
-    V1(1) = 2*Vzener(0) mod Vsupply
-    V1(2) = 2*(Vzener(1) + V1(1) mod Vsupply 
+    A(1) = 2*Vzener(0) mod Vsupply
+    A(2) = 2*(Vzener(1) + A(1) mod Vsupply 
           = 2*Vzener(1) + 4*Vzener(0) mod Vsupply
-    V1(3) = 2*(Vzener(2) + V1(2)) mod Vsupply
+    A(3) = 2*(Vzener(2) + A(2)) mod Vsupply
           = 2*Vzener(2) + 4*Vzener(1) + 8*Vzener(0) mod Vsupply
     ...
-    V1(30) = 2*Vzener(29) + 4*Vzener(28) + 8*Vzener(27) + ... + 2^30*Vzener(0) mod
+    A(30) = 2*Vzener(29) + 4*Vzener(28) + 8*Vzener(27) + ... + 2^30*Vzener(0) mod
     Vsupply
 
-If Vzener(t) samples are truely unpredictable and uncorrelated, then 2^30*Vzener(0) mod
-Vsupply is an unpredictable value almost uniform between 0V and Vsupply.  The other terms
-can in no way reduce this unpredicability.  What if Mallory attacks?  In that case, at
-step 30, we have:
+If 2^30\*Vzener(0) mod Vsupply is an unpredictable value, then the other terms can in no
+way reduce this unpredicability.  What if Mallory attacks?  In that case, at step 30, we
+have:
 
-    V1(30) = 2*(Vzener(29) + Vmallory(29)) + ... + 2^30*(Vzener(0) + Vmallory(0) mod
+    A(30) = 2*(Vzener(29) + Vmallory(29)) + ... + 2^30*(Vzener(0) + Vmallory(0) mod
     Vsupply
             = [2*Vzener(29) + 4*Vzener(28) + ... + 2^30*Vzener(0)] +
               [2*Vmallory(29) + 4Vmallory(28) + ... + 2^30*Vmallory(0)] mod Vsupply
 
-This is just the signal we had before without Mallory's influence, plus a value injected
-by Mallory.  Once again if Mallory does not know what the value of V1(30) would have
-been, he cannot control the result.  He can only make it more random.
+The output is just the signal we had before without Mallory's influence, plus a value
+injected by Mallory, mod Vsupply.  Once again if Mallory does not know what the value of
+A(30) would have been, he cannot control the result.  He can only make it more random.
 
-The value of V1 actually acts as an entropy pool, collecting entropy from all signals
-that impact it's value.
+The value of A acts as an entropy pool, collecting entropy from all signals that impact
+it's value.
 
 ### We Don't Need the Zener
 
@@ -301,13 +272,13 @@ In reality, there are many sources of unpredictable noise in every circuit.  The
 predictable and controlable noise, like power supply noise, and tiny 1/f noise in the
 multi-gigahertz range.  Shot noise, thermal noise, EMI, cross-talk... you name it, no
 matter where we look, there's noise.  Infinite noise multipliers amplify them all in
-parallel, and adds them together effectively in an entropy pool.  Zener noise would be
-just one more source of noise in a symphony of noise sources.
+parallel, and adds them together effectively in an tiny entropy pool.  Zener noise would
+be just one more source of noise in a symphony of existing noise sources, and will not
+enhance the resultin entropy enough to bother.
 
-An INM will amplify *every* source of niose until it is larger than Vsupply.  It adds them
-together and amplifies them in parallel.  Every device in the signal path in the loop
-contributes, most of them in several ways.  The board level version has literally hundreds
-of noise sources, any of which would be a fine noise source on its own.
+An INM will amplify _every_ source of niose large enough to captue is amplified until it
+is larger than Vsupply.  It adds them together and amplifies them in parallel.  Every
+device in the signal path loop contributes. 
 
 With N sources of noise, the output looks like:
 
@@ -319,10 +290,46 @@ With N sources of noise, the output looks like:
              [2*VnoiseN(29) + 4VnoiseN(28) + ... + 2^30*VnoiseN(0)] mod Vsupply
 
 Each individual noise sources contributes its own power-of-two sequence to the total.
-A fempto-volt noise source is just as powerful as a Vsupply/10 amplitude noise source.
+A micro-volt noise source contributes nearly as strongly as a Vsupply/10 amplitude noise
+source.
 
 The mashing together of noise source data with unbounded modular multiplicationes leads to
-awesome entropy.
+awesome entropy levels.  Just how awesome?  Consider just thermal noise from one resistive
+summing node (the minus terminal on op-amp in the 2X gain stage).
+
+The RMS thermal noise generated by a resistor of value R is:
+
+    Vnoise = sqrt(4*Kb*T*deltaF*R)
+
+where Kb is Boltzmann's constant 1.3806504×10-23 J/K, T is temperature in Kelvin (about
+293 for room temperature), and deltaF is the frequency range of noise being measured.  We
+are only interested in noise components that are above the clock frequency, yet low enough
+to pass through our op-amp.  If the clock frequency is F, consider the range from F to
+10\*F.  If CLK is 100 MHz, the noise in the 100 MHz to 1000 MHz range at room temperature
+generated by a 5K Ohm resistor at a high impedence summing node is about 0.27mV.  Even if
+the op-amp rolls off with a 1st order pole right at 100MHz (very unlikely if we're
+operating at a 100MHz clock), over 27uV of RMS noise should still get through.  Once
+latched into the sample-and-hold on the output of the op-amp, this voltage is simply part
+of our signal A, and gets multiplied by 2X no more than 12 times before causing changes
+the output.
+
+How correlated are successive samples?  How badly does this impact our output?  It turns
+out that high correlation is OK.  What we want is high resolution contribution of noise
+samples, even more than low correlation.
+
+Suppose sample Vnoise(0) is 1.034 uV, and Vnoise(1) is 1.019 uV.  That is
+some bad correlation, but 14 clock cycles later, the difference in amplitudes between
+these samples will have the output toggling unpredictably.  What matters is not
+correlation between noise samples, but the accuracy to which we can remember the
+difference between them in our circuit.  This should be limited only by electron counts on
+our hold capacitor.  It has an integer number of electrons at any time.  About 2.5 billion
+electrons flow out of 100pF holding caps when charging from 0.5V to 4.5V.  That's about 31
+bits of resolution.  Every time we caputure noise on these caps, it adds or subtracts an
+integer number of electrons.  Each electron contributes about 1.6nV on our hold cap.  So
+long as we can capture noise that has significantly more than 1.6nV of unpredictability,
+we should be able to keep the output generating close to 1 bit of entropy per clock.  In
+this example, both noise samples had over 10X the minimum resolution in unpreditable
+noise, and easily contributed a bit of entropy each to our 31-ish bit entropy pool.
 
 ### Non-Power-of-Two Multiplication
 
@@ -330,15 +337,31 @@ The circuit shown in infnoise_fast multiplies by 1.82 every clock rather than 2.
 stated above, this reduces the entropy per output bit to log(1.82)/log(2) = 0.86 bits of
 entropy per output bit.
 
-A reasonable model for thinking of the voltage V1 in a INM is as a binary floating point
-real number between 0 and Vsupply.  The number runs into quantum effects at it's lowest
-bits, where things are really fuzzy.  More solid digits are part of the entropy pool,
-collecting noise from every source, and shifting the data, one bit at a time, towards
-higher positions.  If there are for example effectively 50 bits of precision that count as
-measurable state in the system, then there is a 50 bit entropy pool collecting noise.
-That's 2^50 different states the pool can be in.  To determine which of those 2^50 states
-we are in, we can do multiplication by 1.8X, modulo Vsupply, over and over again.  Each
-time we shift out a 0 or 1 let's us estimate the actual voltage we started with by 
+Suppose in cycle 0, the noise Vnoise(0) is +/- Vsupply/2^30V every cycle.  At most 31 clock
+cycles can go by before the output toggles due to Vnoise(0), because on cycle 31, it's
+contribution will be 2\*Vsupply, and the remaining noise contributions can do no more than
+subtract Vsupply.  This will have to be subtracted out.  The cycle x1 where we know
+Vnoise(0) will have toggled the output is:
+
+    Vnoise(0)*2^x1 >= 2*Vsupply
+    2^x1 >= 2*Vsupply/Vnoise(0)
+    x1 >= log(2*Vsupply/Vnoise(0))/log(2)
+
+When multiplying by K, where 1 < K < 2, it takes more clock cycles for Vnoise(0) to reach
+Vsupply, insuring that it will have changed the output.  The cycle x2 when this happens
+is:
+
+    Vnoise(0)*K^x2 >= 2*Vsupply
+    K^x2 >= 2*Vsupply/Vnoise(0)
+    x2 >= log(2*Vsupply/Vnoise(0))/log(K)
+
+The ratio of the clocks it takes with amplification 2 vs K is:
+
+    x1/x2 = [log(Vsupply/Vnoise(0))/log(2)] / [log(Vsupply/Vnoise(0))/log(K)]
+          = log(K)/log(2)
+
+It takes log(2)/log(K) more cycles to insure the output is different.
+the entropy shifted out with exactly 2X amplification will be 1 bit per clock.
 
 ### Free As in Freedom
 
