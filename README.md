@@ -83,8 +83,16 @@ below 1nA of input bias current will enable running at lower frequencies with le
 
 To reproduce these simulations, download the TINA spice simulator from Ti.com.
 
+Here's a "small" INM:
+
 ![Schematic of small Infinite Noise Multiplier](infnoise_small/schematic.png?raw=true "Small
 Infinite Noise Multiplier")
+
+Note that the upper left op-amp is used as a comparator, and must settle to either 0V or
+Vsup before the lower left op-amp can multiply the input by 2X.
+
+Here's a "fast" version that does two multiplications in parallel and uses the comparator
+result to select the right one.
 
 ![Schematic of fast Infinite Noise Multiplier](infnoise_fast/schematic.png?raw=true "Small
 Infinite Noise Multiplier")
