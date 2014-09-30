@@ -106,14 +106,14 @@ for the small verision:
 
 ![Simulation of small Infinite Noise Multiplier](infnoise_small/shortsim.png?raw=true "Small
 Infinite Noise Multiplier")
-![Simulation of small Infinite Noise Multiplier](infnoise_fast/shortsim.png?raw=true "Small
+![Simulation of small Infinite Noise Multiplier](infnoise_small/longsim.png?raw=true "Small
 Infinite Noise Multiplier")
 
 And again for the fast version.
 
 ![Simulation of fast Infinite Noise Multiplier](infnoise_fast/shortsim.png?raw=true "Fast
 Infinite Noise Multiplier")
-![Simulation of fast Infinite Noise Multiplier](infnoise_fast/shortsim.png?raw=true "Fast
+![Simulation of fast Infinite Noise Multiplier](infnoise_fast/longsim.png?raw=true "Fast
 Infinite Noise Multiplier")
 
 ### Designing Infinite Noise Multipliers
