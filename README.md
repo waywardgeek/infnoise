@@ -58,7 +58,7 @@ from influencing the noise source.
 For example, if we amplify a tiny noise source by 1 billion in a system that saturates at
 3.3V, then 1uV of noise will be amplified causing the output to be about 3.3V.  An
 attacker need only introduce at least -1uV to cause the TRNG to saturate at 0V instead.
-An attacker even this tiny influence over the noise source can entirely control the
+An attacker with even this tiny influence over the noise source can entirely control the
 output.
 
 This is the wrong aproach.  Instead, TRNGs should use modular multiplication to amplify
