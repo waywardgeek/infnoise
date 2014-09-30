@@ -258,23 +258,24 @@ Fortunately, it is possible to reuse the same multplier for each stage, without 
 slowing down the circuit.  In our long chain of 2X modular multipliers, we computed:
 
     V1(1) = 2*Vzener(0) mod Vsupply
-    V2(2) = 2*V1 mod Vsupply
-    V3(3) = 2*V2 mod Vsupply
+    V2(2) = 2*V1(1) mod Vsupply
+    V3(3) = 2*V2(2) mod Vsupply
     ...
-    V30(30) = 2*V29 mod Vsupply
+    V30(30) = 2*V29(29) mod Vsupply
 
 Here, Vzener(0) is Vzener when sampled at the first clock pulse.  Vzener(n) is the voltage
 sampled on the nth clock pulse.  Vn(t) is the output of the nth 2X modular multiplier at
-clock cycle t.  Instead of using 30 stages, what would happen if we added V(1) to
-Vzener(1), and used the same exact multiplier stage?
+clock cycle t.  Instead of using 30 stages, what would happen if we simply fed the output
+of the 2X modular multiplier stage back on itself?  We'd just have V1 instead of V1 ..
+V30:
 
     V1(1) = 2*Vzener(0) mod Vsupply
-    V2(2) = 2*(Vzener(1) + V1(1) mod Vsupply 
+    V1(2) = 2*(Vzener(1) + V1(1) mod Vsupply 
           = 2*Vzener(1) + 4*Vzener(0) mod Vsupply
-    V3(3) = 2*(Vzener(2) + V2(2)) mod Vsupply
+    V1(3) = 2*(Vzener(2) + V1(2)) mod Vsupply
           = 2*Vzener(2) + 4*Vzener(1) + 8*Vzener(0) mod Vsupply
     ...
-    V30(30) = 2*Vzener(29) + 4*Vzener(28) + 8*Vzener(27) + ... + 2^30*Vzener(0) mod
+    V1(30) = 2*Vzener(29) + 4*Vzener(28) + 8*Vzener(27) + ... + 2^30*Vzener(0) mod
     Vsupply
 
 If Vzener(t) samples are truely unpredictable and uncorrelated, then 2^30*Vzener(0) mod
@@ -282,27 +283,62 @@ Vsupply is an unpredictable value almost uniform between 0V and Vsupply.  The ot
 can in no way reduce this unpredicability.  What if Mallory attacks?  In that case, at
 step 30, we have:
 
-    V30(30) = 2*(Vzener(29) + Vmallory(29)) + ... + 2^30*(Vzener(0) + Vmallory(0) mod
+    V1(30) = 2*(Vzener(29) + Vmallory(29)) + ... + 2^30*(Vzener(0) + Vmallory(0) mod
     Vsupply
-            = [2*Vzener(29) + 4Vzener(28) + ... + 2^30*Vzener(0)] +
+            = [2*Vzener(29) + 4*Vzener(28) + ... + 2^30*Vzener(0)] +
               [2*Vmallory(29) + 4Vmallory(28) + ... + 2^30*Vmallory(0)] mod Vsupply
 
-This is just the signal we had before without Mallory's influence, plus a predictable
-value injected by Mallory.  Once again if Mallory does not know what the value of V30(30)
-would have been, he cannot control the result.  He can only make it more random.
+This is just the signal we had before without Mallory's influence, plus a value injected
+by Mallory.  Once again if Mallory does not know what the value of V1(30) would have
+been, he cannot control the result.  He can only make it more random.
+
+The value of V1 actually acts as an entropy pool, collecting entropy from all signals
+that impact it's value.
 
 ### We Don't Need the Zener
 
-In reality, there are many sources of noise in every circuit, and some will not be
-correlated with others.  Thermal noise at the fempto-volt level in the comparator is
-unlikely to be correlated with fempto-volt level noise in the amplifier.  About 40 clocks
-later, these two noise sources will be on the same order of magnatude as Vsupply, and
-their entropy will combine to make the output even less predictable.
+In reality, there are many sources of unpredictable noise in every circuit.  There's large
+predictable and controlable noise, like power supply noise, and tiny 1/f noise in the
+multi-gigahertz range.  Shot noise, thermal noise, EMI, cross-talk... you name it, no
+matter where we look, there's noise.  Infinite noise multipliers amplify them all in
+parallel, and adds them together effectively in an entropy pool.  Zener noise would be
+just one more source of noise in a symphony of noise sources.
 
-It is exactly like what happened when Mallory tried to control the output.  He made it
-more random instead!  *Every* source of entropy in the entire circuit contributes to the
-unpredictability of the output.  The individual noise sources contribute a power-of-two
-sequence to the total, just like Mallory did.
+An INM will amplify *every* source of niose until it is larger than Vsupply.  It adds them
+together and amplifies them in parallel.  Every device in the signal path in the loop
+contributes, most of them in several ways.  The board level version has literally hundreds
+of noise sources, any of which would be a fine noise source on its own.
+
+With N sources of noise, the output looks like:
+
+    V1(1) = Vnoise1(1) + Vnoise2(1) + Vnoise3(1) ... VoinseN(1)
+    ...
+    V1(30) = [2*Vnoise1(29) + 4*Vnoise1(28) + ... + 2^30*Vnoise1(0)] +
+             [2*Vnoise2(29) + 4*Vnoise2(28) + ... + 2^30*Vnoise2(0)] +
+             ...
+             [2*VnoiseN(29) + 4VnoiseN(28) + ... + 2^30*VnoiseN(0)] mod Vsupply
+
+Each individual noise sources contributes its own power-of-two sequence to the total.
+A fempto-volt noise source is just as powerful as a Vsupply/10 amplitude noise source.
+
+The mashing together of noise source data with unbounded modular multiplicationes leads to
+awesome entropy.
+
+### Non-Power-of-Two Multiplication
+
+The circuit shown in infnoise_fast multiplies by 1.82 every clock rather than 2.0.  As
+stated above, this reduces the entropy per output bit to log(1.82)/log(2) = 0.86 bits of
+entropy per output bit.
+
+A reasonable model for thinking of the voltage V1 in a INM is as a binary floating point
+real number between 0 and Vsupply.  The number runs into quantum effects at it's lowest
+bits, where things are really fuzzy.  More solid digits are part of the entropy pool,
+collecting noise from every source, and shifting the data, one bit at a time, towards
+higher positions.  If there are for example effectively 50 bits of precision that count as
+measurable state in the system, then there is a 50 bit entropy pool collecting noise.
+That's 2^50 different states the pool can be in.  To determine which of those 2^50 states
+we are in, we can do multiplication by 1.8X, modulo Vsupply, over and over again.  Each
+time we shift out a 0 or 1 let's us estimate the actual voltage we started with by 
 
 ### Free As in Freedom
 
