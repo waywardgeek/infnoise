@@ -2,14 +2,16 @@
    This example uses the libftdi API.
    Minimal error checking; written for brevity, not durability. */
 
+#include <stdint.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <ftdi.h>
 
-#define LED 0x08  /* CTS (brown wire on FTDI cable) */
+#define BUFLEN 64
+//#define BUFLEN 1
 
 int main()
 {
-    unsigned char c = 0;
     struct ftdi_context ftdic;
 
     /* Initialize context for subsequent function calls */
@@ -21,9 +23,22 @@ int main()
         return 1;
     }
 
-    /* Enable bitbang mode with a single output line */
-    //ftdi_enable_bitbang(&ftdic, LED); -- obsolete
-    int rc = ftdi_set_bitmode(&ftdic, 0xff, BITMODE_BITBANG);
+    /* Try to set high baud rate */
+    int rc = ftdi_set_baudrate(&ftdic, 3000000);
+    if(rc == -1) {
+        puts("Invalid baud rate\n");
+        return -1;
+    } else if(rc == -2) {
+        puts("Setting baud rate failed\n");
+        return -1;
+    } else if(rc == -3) {
+        puts("USB device unavailable\n");
+        return -1;
+    }
+
+    /* Enable bitbang mode with 4 out, 4 in */
+    //rc = ftdi_set_bitmode(&ftdic, 0xf, BITMODE_BITBANG);
+    rc = ftdi_set_bitmode(&ftdic, 0xf, BITMODE_SYNCBB);
     if(rc == -1) {
         puts("Can't enable bit-bang mode\n");
         return -1;
@@ -33,9 +48,18 @@ int main()
     }
 
     /* Endless loop: invert LED state, write output, pause 1 second */
+    int i = 0;
+    unsigned char outBuf[BUFLEN], inBuf[BUFLEN];
+    for(i = 0; i < BUFLEN; i++) {
+        outBuf[i] = i & 1? 1 : 2; // Alternate Ph1 and Ph2 - maybe should have both off in between
+    }
+    i = 0;
     for(;;) {
-        c = ~c;
-        ftdi_write_data(&ftdic, &c, 1);
-        sleep(1);
+        ftdi_write_data(&ftdic, outBuf, BUFLEN);
+        ftdi_read_data(&ftdic, inBuf, BUFLEN);
+        i++;
+        if((i & 0xfff) == 0) {
+            printf("read %u\n", 4096*BUFLEN);
+        }
     }
 }
