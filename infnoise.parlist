@@ -25,6 +25,11 @@ P/N: TLV3501AIDBVR
 Digikey: 296-35977-1-ND
 Package: SOT-23-6 (6 pin)
 
+Fast low-leakage SPDT analog switch
+P/N: NS5B1G385DTT1G
+Digikey: NS5B1G385DTT1GOSCT-ND
+Package: SOT-23-5
+
 Fast dual SPDT analog switch
 P/N: TS5A23157RSER
 Digikey: 296-21919-1-ND
@@ -41,6 +46,10 @@ P/N: OPA4354AIDR
 Digikey: 296-12643-1-ND
 Package: 14-SOIC
 Price: $1.80/1000
+
+1.2V LDO Voltage Regulator
+P/N: AP2127K-1.2TRG1
+Digikey: AP2127K-1.2TRG1DICT-ND
 
 Passives
 --------
