@@ -25,10 +25,17 @@ P/N: TLV3501AIDBVR
 Digikey: 296-35977-1-ND
 Package: SOT-23-6 (6 pin)
 
+Slow rail-to-rail dual comparator
+P/N: TC75W57FU(TE12L,F)
+Digikey: TC75W57FU(TE12LF)CT-ND
+Price: $0.2904/1000
+Package: SSOP-8, 0.65mm pitch
+
 Fast low-leakage SPDT analog switch
 P/N: NS5B1G385DTT1G
 Digikey: NS5B1G385DTT1GOSCT-ND
 Package: SOT-23-5
+Price: 0.09385/1000
 
 Fast dual SPDT analog switch
 P/N: TS5A23157RSER
@@ -47,9 +54,16 @@ Digikey: 296-12643-1-ND
 Package: 14-SOIC
 Price: $1.80/1000
 
+Low speed rail-to-rail op-amp
+P/N: TSV991AIQ2T
+Digikey: 497-14858-1-ND
+Package: DFN8 (0.5mm pitch, 2mm X 2mm
+Price: $0.3366/1000
+
 1.2V LDO Voltage Regulator
 P/N: AP2127K-1.2TRG1
 Digikey: AP2127K-1.2TRG1DICT-ND
+Price: $0.10238/1000
 
 Passives
 --------
@@ -59,11 +73,36 @@ P/N: LLL153C80J104ME01E
 Digikey: 490-4310-1-ND
 Price: 4.05 cents in 1,000 units
 
+Ceramic Capacitor, 47pF 50V 5% 
+P/N: GRM1555C1H470JA01D
+Digikey: 490-5942-2-ND
+Price: 0.0027/10,000
+
 Ceramic Capacitor, 100pF 100V 5% 
 P/N: CGA4C2C0G2A101J060AA
 Digikey: 445-6951-2-ND
 Price: $0.022/1000
 Price: $0.0172/4000
+
+Ceramic Capacitor, 10nF 25V 10% 
+P/N: GRM155R71E103KA01D
+Digikey: 490-1312-1-ND
+Price: 0.00309/1000
+
+Ceramic Capacitor, 1uF 25V 10%
+P/N: GRM188R61E105KA12D
+Digikey: 490-3897-1-ND
+Price: $0.01101/1000
+
+Ceramic Capacitor, 4.7uF 16V -20% - %80%
+P/N: GRM188F51A475ZE20D
+Digikey: 490-3302-1-ND
+Price: $0.0297/1000
+
+27 Ohm 5% 63mW chip resistor
+P/N: MCR01MRTJ270
+Digikey: RHM27CECT-ND
+Price: $0.00233/1000
 
 120 Ohm 5% 63mW chip resistor
 P/N: CRCW0402120RJNED
