@@ -1,0 +1,112 @@
+Netlist
+
+Exported from infnoise.brd at 10/10/14 2:00 PM
+
+EAGLE Version 7.1.0 Copyright (c) 1988-2014 CadSoft
+
+Net      Part     Pad
+
+A        AMP1     3
+         C7       1
+         CMP1     3
+         SW1      2
+
+AMP1OUT  AMP1     1
+         R10      2
+         R6       2
+         R9       1
+         SW2      1
+
+AMP2OUT  AMP1     7
+         R7       1
+         SW1      1
+
+B        AMP1     5
+         C8       2
+         CMP1     5
+         SW2      2
+
+COMP1    CMP1     1
+         R5       1
+         U1       23
+
+COMP2    CMP1     7
+         R8       2
+         U1       21
+
+FB1      AMP1     2
+         R5       2
+         R6       1
+
+FB2      AMP1     6
+         R7       2
+         R8       1
+
+GND      AMP1     4
+         AMP1     EXP
+         C1       2
+         C2       1
+         C3       1
+         C4       2
+         C5       2
+         C6       2
+         C7       2
+         C8       1
+         CMP1     4
+         R10      1
+         R4       2
+         SW1      3
+         SW2      3
+         U1       16
+         U1       3
+         U1       7
+         U1       8
+         U1       9
+         U1       EXP
+         X1       GND
+
+SW1EN    SW1      4
+         U1       22
+
+SW2EN    SW2      4
+         U1       1
+
+USBDM    R2       2
+         U1       11
+
+USBDP    R1       2
+         U1       10
+
+USB_M    C4       1
+         R1       1
+         X1       USB_P
+
+USB_P    C5       1
+         R2       1
+         X1       USB_M
+
+VCC      C2       2
+         C3       2
+         L1       2
+         U1       15
+
+VCC5     C1       1
+         L1       1
+         X1       5V
+
+VCC33    AMP1     8
+         C6       1
+         CMP1     8
+         R3       1
+         R9       2
+         SW1      5
+         SW2      5
+         U1       12
+         U1       13
+         U1       24
+
+VREF     CMP1     2
+         CMP1     6
+         R3       2
+         R4       1
+

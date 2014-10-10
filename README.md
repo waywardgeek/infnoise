@@ -1,5 +1,17 @@
 ##Infinite Noise Multiplier
 
+### An Eagle open-source board is under way
+
+Here's the schematic so far...
+
+![Schematic of Infinite Noise Multiplier](eagle/infnoise.png?raw=true "Infinite
+Noise Multiplier")
+
+Here's the board layout so far...
+
+![Board layout of Infinite Noise Multiplier](eagle/infnoise_brd.png?raw=true "Infinite
+Noise Multiplier")
+
 ![Schematic of Infinite Noise Multiplier](infnoise_small/schematic.png?raw=true "Infinite
 Noise Multiplier")
 

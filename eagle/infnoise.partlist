@@ -1,0 +1,35 @@
+Partlist
+
+Exported from infnoise.sch at 10/10/14 2:01 PM
+
+EAGLE Version 7.1.0 Copyright (c) 1988-2014 CadSoft
+
+Assembly variant: 
+
+Part     Value          Device           Package       Library  Sheet
+
+AMP1     TSV912IQ2T     TSV912IQ2T       DFN6-2X3      infnoise 1
+C1       10nF           CAP0402-CAP      0402-CAP      infnoise 1
+C2       4.7uF          CAP0603-CAP      0603-CAP      infnoise 1
+C3       100nF          CAP0402-CAP      0402-CAP      infnoise 1
+C4       47pF           CAP0402-CAP      0402-CAP      infnoise 1
+C5       47pF           CAP0402-CAP      0402-CAP      infnoise 1
+C6       100nF          CAP0402-CAP      0402-CAP      infnoise 1
+C7       100pF          CAP0402-CAP      0402-CAP      infnoise 1
+C8       100pF          CAP0402-CAP      0402-CAP      infnoise 1
+CMP1     TC75W57FK      TC75W57FK        SSOP8-P-0.50A infnoise 1
+L1       CIM05U601NC    CIM05U601NC      0402          infnoise 1
+R1       27             RESISTOR0402-RES 0402-RES      infnoise 1
+R2       27             RESISTOR0402-RES 0402-RES      infnoise 1
+R3       10K            RESISTOR0402-RES 0402-RES      infnoise 1
+R4       10K            RESISTOR0402-RES 0402-RES      infnoise 1
+R5       10K            RESISTOR0402-RES 0402-RES      infnoise 1
+R6       8.2K           RESISTOR0402-RES 0402-RES      infnoise 1
+R7       8.2K           RESISTOR0402-RES 0402-RES      infnoise 1
+R8       10K            RESISTOR0402-RES 0402-RES      infnoise 1
+R9       8.2K           RESISTOR0402-RES 0402-RES      infnoise 1
+R10      8.2K           RESISTOR0402-RES 0402-RES      infnoise 1
+SW1      NS5B1G385DFT2G NS5B1G385DFT2G   SC70-5L       infnoise 1
+SW2      NS5B1G385DFT2G NS5B1G385DFT2G   SC70-5L       infnoise 1
+U1       FT240XQ        FT240XQ          QFN24-4X4     infnoise 1
+X1       USBPCB         USBPCB           USB-A-PCB     infnoise 1
