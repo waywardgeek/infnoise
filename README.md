@@ -1,5 +1,17 @@
 ##Infinite Noise Multiplier
 
+The Infinite Noise Multiplier (INM) is an architecture for true random number generators (TRNG).
+Besides being simple, low-cost, and fast, it is easy to get right, unlike other TRNGs.
+
+INMs are suitable for both board level implementation, and ASIC implementation.  Speed is
+limited by the speed of a voltage buffer and comparator, and can run in excess of 100
+Mbit/second per second with high performance components.  Cheap solutions with CMOS quad
+op-amps can run at 6Mbit/second.
+
+Adjacent bits from an INM are correlated, so whitening is required before use in
+cryptography.  However, the output has a highly predictable amount of entropy for easy
+estimation of bits added to an entropy pool.
+
 ### An Eagle open-source board is under way
 
 Here's the schematic so far...
@@ -14,18 +26,6 @@ Noise Multiplier")
 
 ![Schematic of Infinite Noise Multiplier](infnoise_small/schematic.png?raw=true "Infinite
 Noise Multiplier")
-
-The Infinite Noise Multiplier (INM) is an architecture for true random number generators (TRNG).
-Besides being simple, low-cost, and fast, it is easy to get right, unlike other TRNGs.
-
-INMs are suitable for both board level implementation, and ASIC implementation.  Speed is
-limited by the speed of a voltage buffer and comparator, and can run in excess of 100
-Mbit/second per second with high performance components.  Cheap solutions with CMOS quad
-op-amps can run at 6Mbit/second.
-
-Adjacent bits from an INM are correlated, so whitening is required before use in
-cryptography.  However, the output has a highly predictable amount of entropy for easy
-estimation of bits added to an entropy pool.
 
 ### The Problem: Noise Sensitivity, and Signal Injection
 
