@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
+<grid distance="1.27" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -174,16 +174,16 @@ Source: http://www.linear.com/pc/downloadDocument.do?navId=H0,C1,C1003,C1042,C10
 <wire x1="1.0922" y1="0.9" x2="1.0922" y2="-0.9" width="0.2032" layer="21"/>
 <wire x1="1.1" y1="-1.1" x2="-1.1" y2="-1.1" width="0.2032" layer="51"/>
 <smd name="EXP" x="0" y="0" dx="1.6" dy="0.45" layer="1"/>
-<smd name="1" x="-0.75" y="-1.025" dx="0.3" dy="0.75" layer="1"/>
-<smd name="2" x="-0.25" y="-1.025" dx="0.3" dy="0.75" layer="1"/>
-<smd name="3" x="0.25" y="-1.025" dx="0.3" dy="0.75" layer="1"/>
-<smd name="4" x="0.75" y="-1.025" dx="0.3" dy="0.75" layer="1" rot="R180"/>
-<smd name="5" x="0.75" y="1.025" dx="0.3" dy="0.75" layer="1" rot="R180"/>
-<smd name="6" x="0.25" y="1.025" dx="0.3" dy="0.75" layer="1" rot="R180"/>
+<smd name="1" x="-0.75" y="-1.025" dx="0.28" dy="0.75" layer="1"/>
+<smd name="2" x="-0.25" y="-1.025" dx="0.28" dy="0.75" layer="1"/>
+<smd name="3" x="0.25" y="-1.025" dx="0.28" dy="0.75" layer="1"/>
+<smd name="4" x="0.75" y="-1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
+<smd name="5" x="0.75" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
+<smd name="6" x="0.25" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
 <text x="-0.005" y="1.705" size="0.6096" layer="25" align="bottom-center">&gt;NAME</text>
 <rectangle x1="-0.777" y1="-0.517" x2="-0.227" y2="-0.392" layer="21"/>
-<smd name="7" x="-0.25" y="1.025" dx="0.3" dy="0.75" layer="1" rot="R180"/>
-<smd name="8" x="-0.75" y="1.025" dx="0.3" dy="0.75" layer="1" rot="R180"/>
+<smd name="7" x="-0.25" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
+<smd name="8" x="-0.75" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
 </package>
 <package name="TSOP-5">
 <description>&lt;b&gt;TSOP-5&lt;/b&gt; PLASTIC PACKAGE CASE 483-02&lt;p&gt;
@@ -206,14 +206,14 @@ Source: http://www.onsemi.com/pub/Collateral/MC34164-D.PDF</description>
 <rectangle x1="-1.2" y1="-1.5" x2="-0.7" y2="-0.825" layer="51"/>
 </package>
 <package name="SSOP8-P-0.50A">
-<smd name="1" x="-0.75" y="-1.35" dx="0.6" dy="0.2" layer="1" rot="R90"/>
-<smd name="2" x="-0.25" y="-1.35" dx="0.6" dy="0.2" layer="1" rot="R90"/>
-<smd name="3" x="0.25" y="-1.35" dx="0.6" dy="0.2" layer="1" rot="R90"/>
-<smd name="4" x="0.75" y="-1.35" dx="0.6" dy="0.2" layer="1" rot="R90"/>
-<smd name="5" x="0.75" y="1.35" dx="0.6" dy="0.2" layer="1" rot="R270"/>
-<smd name="6" x="0.25" y="1.35" dx="0.6" dy="0.2" layer="1" rot="R270"/>
-<smd name="7" x="-0.25" y="1.35" dx="0.6" dy="0.2" layer="1" rot="R270"/>
-<smd name="8" x="-0.75" y="1.35" dx="0.6" dy="0.2" layer="1" rot="R270"/>
+<smd name="1" x="-0.75" y="-1.35" dx="0.6" dy="0.25" layer="1" rot="R90"/>
+<smd name="2" x="-0.25" y="-1.35" dx="0.6" dy="0.25" layer="1" rot="R90"/>
+<smd name="3" x="0.25" y="-1.35" dx="0.6" dy="0.25" layer="1" rot="R90"/>
+<smd name="4" x="0.75" y="-1.35" dx="0.6" dy="0.25" layer="1" rot="R90"/>
+<smd name="5" x="0.75" y="1.35" dx="0.6" dy="0.25" layer="1" rot="R270"/>
+<smd name="6" x="0.25" y="1.35" dx="0.6" dy="0.25" layer="1" rot="R270"/>
+<smd name="7" x="-0.25" y="1.35" dx="0.6" dy="0.25" layer="1" rot="R270"/>
+<smd name="8" x="-0.75" y="1.35" dx="0.6" dy="0.25" layer="1" rot="R270"/>
 <wire x1="-1.1" y1="1.2" x2="-1.1" y2="-1.2" width="0.127" layer="21"/>
 <wire x1="1.1" y1="1.2" x2="1.1" y2="-1.2" width="0.127" layer="21"/>
 <circle x="-0.8" y="-0.7" radius="0.1" width="0.127" layer="21"/>

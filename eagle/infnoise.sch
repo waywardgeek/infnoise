@@ -121,26 +121,26 @@ Source: http://www.linear.com/pc/downloadDocument.do?navId=H0,C1,C1003,C1042,C10
 <wire x1="1.0922" y1="0.9" x2="1.0922" y2="-0.9" width="0.2032" layer="21"/>
 <wire x1="1.1" y1="-1.1" x2="-1.1" y2="-1.1" width="0.2032" layer="51"/>
 <smd name="EXP" x="0" y="0" dx="1.6" dy="0.45" layer="1"/>
-<smd name="1" x="-0.75" y="-1.025" dx="0.3" dy="0.75" layer="1"/>
-<smd name="2" x="-0.25" y="-1.025" dx="0.3" dy="0.75" layer="1"/>
-<smd name="3" x="0.25" y="-1.025" dx="0.3" dy="0.75" layer="1"/>
-<smd name="4" x="0.75" y="-1.025" dx="0.3" dy="0.75" layer="1" rot="R180"/>
-<smd name="5" x="0.75" y="1.025" dx="0.3" dy="0.75" layer="1" rot="R180"/>
-<smd name="6" x="0.25" y="1.025" dx="0.3" dy="0.75" layer="1" rot="R180"/>
+<smd name="1" x="-0.75" y="-1.025" dx="0.28" dy="0.75" layer="1"/>
+<smd name="2" x="-0.25" y="-1.025" dx="0.28" dy="0.75" layer="1"/>
+<smd name="3" x="0.25" y="-1.025" dx="0.28" dy="0.75" layer="1"/>
+<smd name="4" x="0.75" y="-1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
+<smd name="5" x="0.75" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
+<smd name="6" x="0.25" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
 <text x="-0.005" y="1.705" size="0.6096" layer="25" align="bottom-center">&gt;NAME</text>
 <rectangle x1="-0.777" y1="-0.517" x2="-0.227" y2="-0.392" layer="21"/>
-<smd name="7" x="-0.25" y="1.025" dx="0.3" dy="0.75" layer="1" rot="R180"/>
-<smd name="8" x="-0.75" y="1.025" dx="0.3" dy="0.75" layer="1" rot="R180"/>
+<smd name="7" x="-0.25" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
+<smd name="8" x="-0.75" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
 </package>
 <package name="SSOP8-P-0.50A">
-<smd name="1" x="-0.75" y="-1.35" dx="0.6" dy="0.2" layer="1" rot="R90"/>
-<smd name="2" x="-0.25" y="-1.35" dx="0.6" dy="0.2" layer="1" rot="R90"/>
-<smd name="3" x="0.25" y="-1.35" dx="0.6" dy="0.2" layer="1" rot="R90"/>
-<smd name="4" x="0.75" y="-1.35" dx="0.6" dy="0.2" layer="1" rot="R90"/>
-<smd name="5" x="0.75" y="1.35" dx="0.6" dy="0.2" layer="1" rot="R270"/>
-<smd name="6" x="0.25" y="1.35" dx="0.6" dy="0.2" layer="1" rot="R270"/>
-<smd name="7" x="-0.25" y="1.35" dx="0.6" dy="0.2" layer="1" rot="R270"/>
-<smd name="8" x="-0.75" y="1.35" dx="0.6" dy="0.2" layer="1" rot="R270"/>
+<smd name="1" x="-0.75" y="-1.35" dx="0.6" dy="0.25" layer="1" rot="R90"/>
+<smd name="2" x="-0.25" y="-1.35" dx="0.6" dy="0.25" layer="1" rot="R90"/>
+<smd name="3" x="0.25" y="-1.35" dx="0.6" dy="0.25" layer="1" rot="R90"/>
+<smd name="4" x="0.75" y="-1.35" dx="0.6" dy="0.25" layer="1" rot="R90"/>
+<smd name="5" x="0.75" y="1.35" dx="0.6" dy="0.25" layer="1" rot="R270"/>
+<smd name="6" x="0.25" y="1.35" dx="0.6" dy="0.25" layer="1" rot="R270"/>
+<smd name="7" x="-0.25" y="1.35" dx="0.6" dy="0.25" layer="1" rot="R270"/>
+<smd name="8" x="-0.75" y="1.35" dx="0.6" dy="0.25" layer="1" rot="R270"/>
 <wire x1="-1.1" y1="1.2" x2="-1.1" y2="-1.2" width="0.127" layer="21"/>
 <wire x1="1.1" y1="1.2" x2="1.1" y2="-1.2" width="0.127" layer="21"/>
 <circle x="-0.8" y="-0.7" radius="0.1" width="0.127" layer="21"/>
@@ -951,6 +951,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <junction x="292.1" y="45.72"/>
 <pinref part="R9" gate="G$1" pin="2"/>
 <wire x1="299.72" y1="53.34" x2="299.72" y2="45.72" width="0.1524" layer="91"/>
+<junction x="299.72" y="45.72"/>
 </segment>
 </net>
 <net name="FB1" class="0">
