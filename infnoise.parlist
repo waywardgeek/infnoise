@@ -12,7 +12,7 @@ USB 2.0 to parallel FIFO
 P/N: FT240XQ-T
 Digikey: 768-1157-ND
 Package: 4x4mm 24-pin QFN, 2.25mm pad
-Price: $1.575/1000
+Price: $1.6226/1000
 
 Lattice 384-Flop flash FPGA:
 P/N: ICE40LP384-SG32
@@ -34,8 +34,16 @@ Package: SSOP-8, 0.65mm pitch
 Fast low-leakage SPDT analog switch
 P/N: NS5B1G385DTT1G
 Digikey: NS5B1G385DTT1GOSCT-ND
-Package: SOT-23-5
+Package: TSOP-5
 Price: 0.09385/1000
+Price: 0.0792/3000
+
+Fast low-leakage SPDT analog switch
+P/N: NS5B1G385DFT2G
+Mouser: 863-NS5B1G385DFT2G
+Package: SC-70
+Price: 0.087/1000
+Price: 0.068/3000
 
 Fast dual SPDT analog switch
 P/N: TS5A23157RSER
@@ -54,11 +62,11 @@ Digikey: 296-12643-1-ND
 Package: 14-SOIC
 Price: $1.80/1000
 
-Low speed rail-to-rail op-amp
-P/N: TSV991AIQ2T
-Digikey: 497-14858-1-ND
-Package: DFN8 (0.5mm pitch, 2mm X 2mm
-Price: $0.3366/1000
+Low speed (8MHz) rail-to-rail dual op-amp
+P/N: TSV912IQ2T
+Digikey: 497-12414-1-ND
+Package: DFN8
+Price: $0.3795
 
 1.2V LDO Voltage Regulator
 P/N: AP2127K-1.2TRG1
@@ -88,6 +96,11 @@ Ceramic Capacitor, 10nF 25V 10%
 P/N: GRM155R71E103KA01D
 Digikey: 490-1312-1-ND
 Price: 0.00309/1000
+
+Ceramic Capacitor, 0.1uF 10V 10%
+P/N: GRM155R61A104KA01D
+Digikey: 490-1318-2-ND
+Price: 0.0021/10,000
 
 Ceramic Capacitor, 1uF 25V 10%
 P/N: GRM188R61E105KA12D
@@ -119,15 +132,20 @@ P/N: CRA06S0838K20JTA
 Digikey: CRA6S88.2KCT-ND
 Price: $0.01568/1000
 
+dual 8.2K 5% 63mW resistors
+P/N: YC122-JR-078K2L
+Digikey: YC122J-8.2KCT-ND
+Price: $0.01017/1000
+
 dual 120 Ohm 5% 63mW resistors
 P/N: RP102PJ121CS
 Digikey: 1276-6069-1-ND
 Price: $0.00997/1000
 
-Ferrite bead
-P/N: MI0805K601R-10
-Digikey: 240-2390-1-ND
-Price: $0.02968/1000
+Ferrite bead, 600 Ohms@100MHz
+P/N: CIM05U601NC
+Digikey: 1276-6337-2-ND
+Price: 0.00341/10,000
 
 Still need
 ----------

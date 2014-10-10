@@ -59,7 +59,7 @@ int main()
         ftdi_read_data(&ftdic, inBuf, BUFLEN);
         i++;
         if((i & 0xfff) == 0) {
-            printf("read %u\n", 4096*BUFLEN);
+            printf("read %u, last byte == %u\n", 4096*BUFLEN, inBuf[BUFLEN-1]);
         }
     }
 }
