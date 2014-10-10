@@ -24,6 +24,8 @@ Here's the board layout so far...
 ![Board layout of Infinite Noise Multiplier](eagle/infnoise_brd.png?raw=true "Infinite
 Noise Multiplier")
 
+This is a faster version that uses a more expensive op-amp from TI:
+
 ![Schematic of Infinite Noise Multiplier](infnoise_small/schematic.png?raw=true "Infinite
 Noise Multiplier")
 
