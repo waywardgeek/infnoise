@@ -26,10 +26,10 @@ Digikey: 296-35977-1-ND
 Package: SOT-23-6 (6 pin)
 
 Slow rail-to-rail dual comparator
-P/N: TC75W57FU(TE12L,F)
-Digikey: TC75W57FU(TE12LF)CT-ND
+P/N: TC75W57FKTE85LF
+Digikey: TC75W57FKTE85LFCT-ND
 Price: $0.2904/1000
-Package: SSOP-8, 0.65mm pitch
+Package: custom 8-pin, 0.50mm pitch
 
 Fast low-leakage SPDT analog switch
 P/N: NS5B1G385DTT1G
@@ -127,10 +127,20 @@ P/N: CRA06S08310K0JTA
 Digikey: CRA6S810KCT-ND
 Price: $0.01568/1000
 
+10K 5% 63mW resistor
+P/N: RC1005J103CS
+Digikey: 1276-4400-1-ND
+Price: $0.0023/1000
+
 quad 8.2K 5% 63mW resistors
 P/N: CRA06S0838K20JTA
 Digikey: CRA6S88.2KCT-ND
 Price: $0.01568/1000
+
+8.2K 5% 63mW resistor
+P/N: RC1005J822CS
+Digikey: 1276-4398-1-ND
+Price: $0.0023/1000
 
 dual 8.2K 5% 63mW resistors
 P/N: YC122-JR-078K2L
