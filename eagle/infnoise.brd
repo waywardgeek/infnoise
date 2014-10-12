@@ -667,11 +667,10 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="14.9098" y1="3.0988" x2="17.907" y2="1.143" width="0.6096" layer="16"/>
 <via x="17.907" y="1.1684" extent="1-16" drill="0.3302"/>
 <polygon width="0.4064" layer="16" isolate="0.254" orphans="yes">
-<vertex x="9.7282" y="11.684"/>
+<vertex x="3.0988" y="11.684"/>
 <vertex x="33.9344" y="11.684"/>
 <vertex x="33.8836" y="0.3556"/>
-<vertex x="2.4892" y="0.4826"/>
-<vertex x="2.5146" y="11.5062"/>
+<vertex x="3.0734" y="0.6604"/>
 </polygon>
 <wire x1="22.2504" y1="1.905" x2="22.24344375" y2="3.7572875" width="0.254" layer="1"/>
 <contactref element="X1" pad="4"/>
