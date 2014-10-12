@@ -242,24 +242,17 @@ Source: http://www.onsemi.com/pub/Collateral/MC34164-D.PDF</description>
 </package>
 <package name="USB-A-CON">
 <description>USB CONNECTOR</description>
-<wire x1="-6.15" y1="-18.5" x2="-6.25" y2="-2.16" width="0.2032" layer="21"/>
-<wire x1="-6.35" y1="-2.2" x2="6.25" y2="-2.3" width="0.2032" layer="21"/>
-<wire x1="6.25" y1="-2.3" x2="6.15" y2="-18.5" width="0.2032" layer="21"/>
-<wire x1="-6.25" y1="-2.26" x2="-7.5" y2="-2.76" width="0.2032" layer="21"/>
-<wire x1="-7.5" y1="-2.76" x2="-7.5" y2="-4.26" width="0.2032" layer="21"/>
-<wire x1="-7.5" y1="-4.26" x2="-6.25" y2="-4.76" width="0.2032" layer="21"/>
-<wire x1="6.25" y1="-4.76" x2="7.5" y2="-4.26" width="0.2032" layer="21"/>
-<wire x1="7.5" y1="-4.26" x2="7.5" y2="-2.76" width="0.2032" layer="21"/>
-<wire x1="7.5" y1="-2.76" x2="6.25" y2="-2.26" width="0.2032" layer="21"/>
+<wire x1="-4.75" y1="-2.2098" x2="4.75" y2="-2.2098" width="0.254" layer="21"/>
 <smd name="3" x="-1" y="-1" dx="1.1" dy="2" layer="1"/>
 <smd name="2" x="1" y="-1" dx="1.1" dy="2" layer="1"/>
 <smd name="4" x="-3.5" y="-1" dx="1.1" dy="2" layer="1"/>
 <smd name="1" x="3.5" y="-1" dx="1.1" dy="2" layer="1"/>
-<text x="2.54" y="-4.87" size="1.27" layer="25" rot="R180">&gt;NAME</text>
-<text x="3.7" y="-3.1" size="1.016" layer="21" ratio="10" rot="R270">USB</text>
+<text x="0.3432" y="-5.3636" size="0.4064" layer="25" rot="R180">&gt;NAME</text>
+<text x="4.4" y="-5.8" size="0.6096" layer="21" ratio="10" rot="R90">USB</text>
 <pad name="H1" x="-2.3" y="-3.5" drill="1.1"/>
 <pad name="H2" x="2.3" y="-3.5" drill="1.1"/>
-<wire x1="3.41" y1="-6.4" x2="-3.74" y2="-6.4" width="0.2032" layer="21"/>
+<wire x1="-4.75" y1="-6.4" x2="-4.75" y2="-2.2098" width="0.2032" layer="21"/>
+<wire x1="4.75" y1="-6.4" x2="4.75" y2="-2.2098" width="0.2032" layer="21"/>
 </package>
 </packages>
 <symbols>
