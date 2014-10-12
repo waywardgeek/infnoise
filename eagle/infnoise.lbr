@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="1.27" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
+<grid distance="0.05" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -238,6 +238,27 @@ Source: http://www.onsemi.com/pub/Collateral/MC34164-D.PDF</description>
 <rectangle x1="-0.15" y1="-1.1" x2="0.15" y2="-0.6" layer="51"/>
 <rectangle x1="0.5" y1="-1.1" x2="0.8" y2="-0.6" layer="51"/>
 </package>
+<package name="USB-A-CON">
+<description>USB CONNECTOR</description>
+<wire x1="-6.15" y1="-18.5" x2="-6.25" y2="-2.16" width="0.2032" layer="21"/>
+<wire x1="-6.35" y1="-2.2" x2="6.25" y2="-2.3" width="0.2032" layer="21"/>
+<wire x1="6.25" y1="-2.3" x2="6.15" y2="-18.5" width="0.2032" layer="21"/>
+<wire x1="-6.25" y1="-2.26" x2="-7.5" y2="-2.76" width="0.2032" layer="21"/>
+<wire x1="-7.5" y1="-2.76" x2="-7.5" y2="-4.26" width="0.2032" layer="21"/>
+<wire x1="-7.5" y1="-4.26" x2="-6.25" y2="-4.76" width="0.2032" layer="21"/>
+<wire x1="6.25" y1="-4.76" x2="7.5" y2="-4.26" width="0.2032" layer="21"/>
+<wire x1="7.5" y1="-4.26" x2="7.5" y2="-2.76" width="0.2032" layer="21"/>
+<wire x1="7.5" y1="-2.76" x2="6.25" y2="-2.26" width="0.2032" layer="21"/>
+<smd name="3" x="-1" y="-1" dx="1.1" dy="2" layer="1"/>
+<smd name="2" x="1" y="-1" dx="1.1" dy="2" layer="1"/>
+<smd name="4" x="-3.5" y="-1" dx="1.1" dy="2" layer="1"/>
+<smd name="1" x="3.5" y="-1" dx="1.1" dy="2" layer="1"/>
+<text x="2.54" y="-4.87" size="1.27" layer="25" rot="R180">&gt;NAME</text>
+<text x="3.7" y="-3.1" size="1.016" layer="21" ratio="10" rot="R270">USB</text>
+<pad name="H1" x="-2.3" y="-3.5" drill="1.1"/>
+<pad name="H2" x="2.3" y="-3.5" drill="1.1"/>
+<wire x1="3.41" y1="-6.4" x2="-3.74" y2="-6.4" width="0.2032" layer="21"/>
+</package>
 </packages>
 <symbols>
 <symbol name="USB">
@@ -410,13 +431,7 @@ Source: http://www.onsemi.com/pub/Collateral/MC34164-D.PDF</description>
 <devicesets>
 <deviceset name="USB" prefix="X">
 <description>&lt;b&gt;USB Connectors&lt;/b&gt;
-&lt;p&gt;USB-B-PTH is fully proven SKU : PRT-00139
-&lt;p&gt;USB-miniB is fully proven SKU : PRT-00587
-&lt;p&gt;USB-A-PCB is untested.
-&lt;p&gt;USB-A-H is throughly reviewed, but untested. Spark Fun Electronics SKU : PRT-00437
-&lt;p&gt;USB-B-SMT is throughly reviewed, but untested. Needs silkscreen touching up.
-&lt;p&gt;USB-A-S has not been used/tested
-&lt;p&gt;USB-MB-H has not been used/tested</description>
+</description>
 <gates>
 <gate name="G$1" symbol="USB" x="0" y="0"/>
 </gates>
@@ -427,6 +442,17 @@ Source: http://www.onsemi.com/pub/Collateral/MC34164-D.PDF</description>
 <connect gate="G$1" pin="D-" pad="USB_M"/>
 <connect gate="G$1" pin="GND" pad="GND"/>
 <connect gate="G$1" pin="VBUS" pad="5V"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="CON" package="USB-A-CON">
+<connects>
+<connect gate="G$1" pin="D+" pad="3"/>
+<connect gate="G$1" pin="D-" pad="2"/>
+<connect gate="G$1" pin="GND" pad="4 H1 H2"/>
+<connect gate="G$1" pin="VBUS" pad="1"/>
 </connects>
 <technologies>
 <technology name=""/>

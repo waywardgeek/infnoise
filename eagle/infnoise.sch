@@ -208,18 +208,6 @@ chip</description>
 <rectangle x1="-0.554" y1="-0.3048" x2="-0.254" y2="0.2951" layer="51"/>
 <rectangle x1="0.2588" y1="-0.3048" x2="0.5588" y2="0.2951" layer="51"/>
 </package>
-<package name="USB-A-PCB">
-<wire x1="-5" y1="6" x2="3.7" y2="6" width="0.127" layer="51"/>
-<wire x1="3.7" y1="6" x2="3.7" y2="-6" width="0.127" layer="51"/>
-<wire x1="3.7" y1="-6" x2="-5" y2="-6" width="0.127" layer="51"/>
-<wire x1="-5" y1="-6" x2="-5" y2="6" width="0.127" layer="51"/>
-<smd name="5V" x="-0.2" y="-3.5" dx="7.5" dy="1.5" layer="1"/>
-<smd name="USB_M" x="0.3" y="-1" dx="6.5" dy="1" layer="1"/>
-<smd name="USB_P" x="0.3" y="1" dx="6.5" dy="1" layer="1"/>
-<smd name="GND" x="-0.2" y="3.5" dx="7.5" dy="1.5" layer="1"/>
-<text x="-1.27" y="5.08" size="0.4064" layer="25">&gt;Name</text>
-<text x="-1.27" y="-5.08" size="0.4064" layer="27">&gt;Value</text>
-</package>
 <package name="TSOP-5">
 <description>&lt;b&gt;TSOP-5&lt;/b&gt; PLASTIC PACKAGE CASE 483-02&lt;p&gt;
 Source: http://www.onsemi.com/pub/Collateral/MC34164-D.PDF</description>
@@ -239,6 +227,39 @@ Source: http://www.onsemi.com/pub/Collateral/MC34164-D.PDF</description>
 <rectangle x1="0.7" y1="-1.5" x2="1.2" y2="-0.825" layer="51"/>
 <rectangle x1="-0.25" y1="-1.5" x2="0.25" y2="-0.825" layer="51"/>
 <rectangle x1="-1.2" y1="-1.5" x2="-0.7" y2="-0.825" layer="51"/>
+</package>
+<package name="USB-A-PCB">
+<wire x1="-5" y1="6" x2="3.7" y2="6" width="0.127" layer="51"/>
+<wire x1="3.7" y1="6" x2="3.7" y2="-6" width="0.127" layer="51"/>
+<wire x1="3.7" y1="-6" x2="-5" y2="-6" width="0.127" layer="51"/>
+<wire x1="-5" y1="-6" x2="-5" y2="6" width="0.127" layer="51"/>
+<smd name="5V" x="-0.2" y="-3.5" dx="7.5" dy="1.5" layer="1"/>
+<smd name="USB_M" x="0.3" y="-1" dx="6.5" dy="1" layer="1"/>
+<smd name="USB_P" x="0.3" y="1" dx="6.5" dy="1" layer="1"/>
+<smd name="GND" x="-0.2" y="3.5" dx="7.5" dy="1.5" layer="1"/>
+<text x="-1.27" y="5.08" size="0.4064" layer="25">&gt;Name</text>
+<text x="-1.27" y="-5.08" size="0.4064" layer="27">&gt;Value</text>
+</package>
+<package name="USB-A-CON">
+<description>USB CONNECTOR</description>
+<wire x1="-6.15" y1="-18.5" x2="-6.25" y2="-2.16" width="0.2032" layer="21"/>
+<wire x1="-6.35" y1="-2.2" x2="6.25" y2="-2.3" width="0.2032" layer="21"/>
+<wire x1="6.25" y1="-2.3" x2="6.15" y2="-18.5" width="0.2032" layer="21"/>
+<wire x1="-6.25" y1="-2.26" x2="-7.5" y2="-2.76" width="0.2032" layer="21"/>
+<wire x1="-7.5" y1="-2.76" x2="-7.5" y2="-4.26" width="0.2032" layer="21"/>
+<wire x1="-7.5" y1="-4.26" x2="-6.25" y2="-4.76" width="0.2032" layer="21"/>
+<wire x1="6.25" y1="-4.76" x2="7.5" y2="-4.26" width="0.2032" layer="21"/>
+<wire x1="7.5" y1="-4.26" x2="7.5" y2="-2.76" width="0.2032" layer="21"/>
+<wire x1="7.5" y1="-2.76" x2="6.25" y2="-2.26" width="0.2032" layer="21"/>
+<smd name="3" x="-1" y="-1" dx="1.1" dy="2" layer="1"/>
+<smd name="2" x="1" y="-1" dx="1.1" dy="2" layer="1"/>
+<smd name="4" x="-3.5" y="-1" dx="1.1" dy="2" layer="1"/>
+<smd name="1" x="3.5" y="-1" dx="1.1" dy="2" layer="1"/>
+<text x="2.54" y="-4.87" size="1.27" layer="25" rot="R180">&gt;NAME</text>
+<text x="3.7" y="-3.1" size="1.016" layer="21" ratio="10" rot="R270">USB</text>
+<pad name="H1" x="-2.3" y="-3.5" drill="1.1"/>
+<pad name="H2" x="2.3" y="-3.5" drill="1.1"/>
+<wire x1="3.41" y1="-6.4" x2="-3.74" y2="-6.4" width="0.2032" layer="21"/>
 </package>
 </packages>
 <symbols>
@@ -589,13 +610,7 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 </deviceset>
 <deviceset name="USB" prefix="X">
 <description>&lt;b&gt;USB Connectors&lt;/b&gt;
-&lt;p&gt;USB-B-PTH is fully proven SKU : PRT-00139
-&lt;p&gt;USB-miniB is fully proven SKU : PRT-00587
-&lt;p&gt;USB-A-PCB is untested.
-&lt;p&gt;USB-A-H is throughly reviewed, but untested. Spark Fun Electronics SKU : PRT-00437
-&lt;p&gt;USB-B-SMT is throughly reviewed, but untested. Needs silkscreen touching up.
-&lt;p&gt;USB-A-S has not been used/tested
-&lt;p&gt;USB-MB-H has not been used/tested</description>
+</description>
 <gates>
 <gate name="G$1" symbol="USB" x="0" y="0"/>
 </gates>
@@ -606,6 +621,17 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <connect gate="G$1" pin="D-" pad="USB_M"/>
 <connect gate="G$1" pin="GND" pad="GND"/>
 <connect gate="G$1" pin="VBUS" pad="5V"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="CON" package="USB-A-CON">
+<connects>
+<connect gate="G$1" pin="D+" pad="3"/>
+<connect gate="G$1" pin="D-" pad="2"/>
+<connect gate="G$1" pin="GND" pad="4 H1 H2"/>
+<connect gate="G$1" pin="VBUS" pad="1"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -661,7 +687,6 @@ In this library the device names are the same as the pin names of the symbols, t
 </classes>
 <parts>
 <part name="U1" library="infnoise" deviceset="FT240X" device="Q"/>
-<part name="X1" library="infnoise" deviceset="USB" device="PCB"/>
 <part name="C4" library="infnoise" deviceset="CAP" device="0402-CAP" value="47pF"/>
 <part name="C5" library="infnoise" deviceset="CAP" device="0402-CAP" value="47pF"/>
 <part name="C6" library="infnoise" deviceset="CAP" device="0402-CAP" value="100nF"/>
@@ -686,6 +711,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <part name="R10" library="infnoise" deviceset="RESISTOR" device="0402-RES" value="8.2K"/>
 <part name="SW1" library="infnoise" deviceset="NS5B1G385" device="DFT2G"/>
 <part name="SW2" library="infnoise" deviceset="NS5B1G385" device="DFT2G"/>
+<part name="X1" library="infnoise" deviceset="USB" device="CON"/>
 </parts>
 <sheets>
 <sheet>
@@ -693,7 +719,6 @@ In this library the device names are the same as the pin names of the symbols, t
 </plain>
 <instances>
 <instance part="U1" gate="G$1" x="66.04" y="38.1" rot="R270"/>
-<instance part="X1" gate="G$1" x="-43.18" y="40.64" rot="R180"/>
 <instance part="C4" gate="G$1" x="5.08" y="17.78"/>
 <instance part="C5" gate="G$1" x="15.24" y="17.78"/>
 <instance part="C6" gate="G$1" x="30.48" y="-2.54"/>
@@ -718,6 +743,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <instance part="R10" gate="G$1" x="299.72" y="27.94" rot="R90"/>
 <instance part="SW1" gate="G$1" x="142.24" y="50.8"/>
 <instance part="SW2" gate="G$1" x="281.94" y="45.72" rot="MR0"/>
+<instance part="X1" gate="G$1" x="-43.18" y="40.64" rot="R180"/>
 </instances>
 <busses>
 </busses>
@@ -735,12 +761,12 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="10.16" y1="35.56" x2="5.08" y2="35.56" width="0.1524" layer="91"/>
 <wire x1="5.08" y1="35.56" x2="-27.94" y2="35.56" width="0.1524" layer="91"/>
 <wire x1="-27.94" y1="35.56" x2="-27.94" y2="33.02" width="0.1524" layer="91"/>
-<pinref part="X1" gate="G$1" pin="D+"/>
 <wire x1="-27.94" y1="33.02" x2="-40.64" y2="33.02" width="0.1524" layer="91"/>
 <pinref part="C4" gate="G$1" pin="1"/>
 <wire x1="5.08" y1="22.86" x2="5.08" y2="35.56" width="0.1524" layer="91"/>
 <label x="-5.08" y="35.56" size="1.778" layer="95"/>
 <junction x="5.08" y="35.56"/>
+<pinref part="X1" gate="G$1" pin="D+"/>
 </segment>
 </net>
 <net name="USB_P" class="0">
@@ -749,17 +775,16 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="17.78" y1="30.48" x2="15.24" y2="30.48" width="0.1524" layer="91"/>
 <wire x1="15.24" y1="30.48" x2="-33.02" y2="30.48" width="0.1524" layer="91"/>
 <wire x1="-33.02" y1="30.48" x2="-33.02" y2="35.56" width="0.1524" layer="91"/>
-<pinref part="X1" gate="G$1" pin="D-"/>
 <wire x1="-33.02" y1="35.56" x2="-40.64" y2="35.56" width="0.1524" layer="91"/>
 <pinref part="C5" gate="G$1" pin="1"/>
 <wire x1="15.24" y1="22.86" x2="15.24" y2="30.48" width="0.1524" layer="91"/>
 <label x="-5.08" y="30.48" size="1.778" layer="95"/>
 <junction x="15.24" y="30.48"/>
+<pinref part="X1" gate="G$1" pin="D-"/>
 </segment>
 </net>
 <net name="VCC5" class="0">
 <segment>
-<pinref part="X1" gate="G$1" pin="VBUS"/>
 <wire x1="-40.64" y1="38.1" x2="-20.32" y2="38.1" width="0.1524" layer="91"/>
 <wire x1="-20.32" y1="38.1" x2="-10.16" y2="38.1" width="0.1524" layer="91"/>
 <pinref part="C1" gate="G$1" pin="1"/>
@@ -768,6 +793,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <label x="-17.78" y="38.1" size="1.778" layer="95"/>
 <pinref part="L1" gate="G$1" pin="1"/>
 <wire x1="-10.16" y1="22.86" x2="-10.16" y2="38.1" width="0.1524" layer="91"/>
+<pinref part="X1" gate="G$1" pin="VBUS"/>
 </segment>
 </net>
 <net name="VCC" class="0">
@@ -792,7 +818,6 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="30.48" y1="-10.16" x2="66.04" y2="-10.16" width="0.1524" layer="91"/>
 <pinref part="SUPPLY1" gate="GND" pin="GND"/>
 <wire x1="66.04" y1="-12.7" x2="66.04" y2="-10.16" width="0.1524" layer="91"/>
-<pinref part="X1" gate="G$1" pin="GND"/>
 <wire x1="-40.64" y1="40.64" x2="-25.4" y2="40.64" width="0.1524" layer="91"/>
 <wire x1="-25.4" y1="40.64" x2="-25.4" y2="-10.16" width="0.1524" layer="91"/>
 <wire x1="-25.4" y1="-10.16" x2="-20.32" y2="-10.16" width="0.1524" layer="91"/>
@@ -871,6 +896,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <pinref part="R4" gate="G$1" pin="2"/>
 <wire x1="119.38" y1="5.08" x2="119.38" y2="-10.16" width="0.1524" layer="91"/>
 <junction x="119.38" y="-10.16"/>
+<pinref part="X1" gate="G$1" pin="GND"/>
 </segment>
 </net>
 <net name="VCC33" class="0">
