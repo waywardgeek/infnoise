@@ -24,7 +24,14 @@ Here's the board layout so far...
 ![Board layout of Infinite Noise Multiplier](eagle/infnoise_brd.png?raw=true "Infinite
 Noise Multiplier")
 
-This is a faster version that uses a more expensive op-amp from TI:
+If you are interested in building this version of the Infinite Noise Multiplier, you may
+be interested in opening BOM.ods in the git repo above.  It has all the Digikey and Mouser
+parts along with cost/1000 units.  The total for all the parts, including boards from OSH
+Park, come to $4.97 each, in 1,000 unit quantities.  However, that cost is dominated by
+USB related parts, particularly the FT240X chip, the USB connector, and the USB-stick
+enclosure.  Just the components for the INM come out to $0.87.
+
+Here is a faster version that uses a more expensive op-amp from TI:
 
 ![Schematic of Infinite Noise Multiplier](infnoise_small/schematic.png?raw=true "Infinite
 Noise Multiplier")
