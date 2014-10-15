@@ -8,20 +8,20 @@
 </settings>
 <grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
-<layer number="1" name="Top" color="4" fill="1" visible="yes" active="no"/>
-<layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="no"/>
-<layer number="17" name="Pads" color="2" fill="1" visible="yes" active="no"/>
-<layer number="18" name="Vias" color="2" fill="1" visible="yes" active="no"/>
-<layer number="19" name="Unrouted" color="6" fill="1" visible="yes" active="no"/>
-<layer number="20" name="Dimension" color="15" fill="1" visible="yes" active="no"/>
-<layer number="21" name="tPlace" color="7" fill="1" visible="yes" active="no"/>
-<layer number="22" name="bPlace" color="7" fill="1" visible="yes" active="no"/>
-<layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="no"/>
-<layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="no"/>
-<layer number="25" name="tNames" color="7" fill="1" visible="yes" active="no"/>
-<layer number="26" name="bNames" color="7" fill="1" visible="yes" active="no"/>
-<layer number="27" name="tValues" color="7" fill="1" visible="yes" active="no"/>
-<layer number="28" name="bValues" color="7" fill="1" visible="yes" active="no"/>
+<layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
+<layer number="16" name="Bottom" color="1" fill="1" visible="no" active="no"/>
+<layer number="17" name="Pads" color="2" fill="1" visible="no" active="no"/>
+<layer number="18" name="Vias" color="2" fill="1" visible="no" active="no"/>
+<layer number="19" name="Unrouted" color="6" fill="1" visible="no" active="no"/>
+<layer number="20" name="Dimension" color="15" fill="1" visible="no" active="no"/>
+<layer number="21" name="tPlace" color="7" fill="1" visible="no" active="no"/>
+<layer number="22" name="bPlace" color="7" fill="1" visible="no" active="no"/>
+<layer number="23" name="tOrigins" color="15" fill="1" visible="no" active="no"/>
+<layer number="24" name="bOrigins" color="15" fill="1" visible="no" active="no"/>
+<layer number="25" name="tNames" color="7" fill="1" visible="no" active="no"/>
+<layer number="26" name="bNames" color="7" fill="1" visible="no" active="no"/>
+<layer number="27" name="tValues" color="7" fill="1" visible="no" active="no"/>
+<layer number="28" name="bValues" color="7" fill="1" visible="no" active="no"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="no" active="no"/>
 <layer number="30" name="bStop" color="7" fill="6" visible="no" active="no"/>
 <layer number="31" name="tCream" color="7" fill="4" visible="no" active="no"/>
@@ -30,8 +30,8 @@
 <layer number="34" name="bFinish" color="6" fill="6" visible="no" active="no"/>
 <layer number="35" name="tGlue" color="7" fill="4" visible="no" active="no"/>
 <layer number="36" name="bGlue" color="7" fill="5" visible="no" active="no"/>
-<layer number="37" name="tTest" color="7" fill="1" visible="yes" active="no"/>
-<layer number="38" name="bTest" color="7" fill="1" visible="yes" active="no"/>
+<layer number="37" name="tTest" color="7" fill="1" visible="no" active="no"/>
+<layer number="38" name="bTest" color="7" fill="1" visible="no" active="no"/>
 <layer number="39" name="tKeepout" color="4" fill="11" visible="no" active="no"/>
 <layer number="40" name="bKeepout" color="1" fill="11" visible="no" active="no"/>
 <layer number="41" name="tRestrict" color="4" fill="10" visible="no" active="no"/>
@@ -39,12 +39,12 @@
 <layer number="43" name="vRestrict" color="2" fill="10" visible="no" active="no"/>
 <layer number="44" name="Drills" color="7" fill="1" visible="no" active="no"/>
 <layer number="45" name="Holes" color="7" fill="1" visible="no" active="no"/>
-<layer number="46" name="Milling" color="3" fill="1" visible="yes" active="no"/>
-<layer number="47" name="Measures" color="7" fill="1" visible="yes" active="no"/>
-<layer number="48" name="Document" color="7" fill="1" visible="yes" active="no"/>
-<layer number="49" name="Reference" color="7" fill="1" visible="yes" active="no"/>
-<layer number="51" name="tDocu" color="7" fill="1" visible="yes" active="no"/>
-<layer number="52" name="bDocu" color="7" fill="1" visible="yes" active="no"/>
+<layer number="46" name="Milling" color="3" fill="1" visible="no" active="no"/>
+<layer number="47" name="Measures" color="7" fill="1" visible="no" active="no"/>
+<layer number="48" name="Document" color="7" fill="1" visible="no" active="no"/>
+<layer number="49" name="Reference" color="7" fill="1" visible="no" active="no"/>
+<layer number="51" name="tDocu" color="7" fill="1" visible="no" active="no"/>
+<layer number="52" name="bDocu" color="7" fill="1" visible="no" active="no"/>
 <layer number="90" name="Modules" color="5" fill="1" visible="yes" active="yes"/>
 <layer number="91" name="Nets" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="92" name="Busses" color="1" fill="1" visible="yes" active="yes"/>
@@ -60,21 +60,20 @@
 <library name="infnoise">
 <description>Parts for the Infinite Noise Generator</description>
 <packages>
-<package name="0402">
-<description>&lt;b&gt;Chip Ferrite Bead for GHz Noise&lt;/b&gt;&lt;p&gt;
-</description>
-<wire x1="-0.245" y1="0.224" x2="0.245" y2="0.224" width="0.1524" layer="51"/>
-<wire x1="0.245" y1="-0.224" x2="-0.245" y2="-0.224" width="0.1524" layer="51"/>
-<wire x1="-1.473" y1="0.483" x2="1.473" y2="0.483" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="0.483" x2="1.473" y2="-0.483" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="-0.483" x2="-1.473" y2="-0.483" width="0.0508" layer="39"/>
-<wire x1="-1.473" y1="-0.483" x2="-1.473" y2="0.483" width="0.0508" layer="39"/>
-<smd name="1" x="-0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
-<smd name="2" x="0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
-<text x="-0.635" y="0.735" size="0.4064" layer="25">&gt;NAME</text>
-<rectangle x1="-0.554" y1="-0.3048" x2="-0.254" y2="0.2951" layer="51"/>
-<rectangle x1="0.2588" y1="-0.3048" x2="0.5588" y2="0.2951" layer="51"/>
-<rectangle x1="-0.1999" y1="-0.4001" x2="0.1999" y2="0.4001" layer="35"/>
+<package name="0603-IND">
+<wire x1="-1.473" y1="0.983" x2="1.473" y2="0.983" width="0.0508" layer="39"/>
+<wire x1="1.473" y1="0.983" x2="1.473" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="1.473" y1="-0.983" x2="-1.473" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="-1.473" y1="-0.983" x2="-1.473" y2="0.983" width="0.0508" layer="39"/>
+<wire x1="-0.356" y1="0.432" x2="0.356" y2="0.432" width="0.1016" layer="51"/>
+<wire x1="-0.356" y1="-0.419" x2="0.356" y2="-0.419" width="0.1016" layer="51"/>
+<wire x1="0" y1="0.0305" x2="0" y2="-0.0305" width="0.4064" layer="21"/>
+<smd name="1" x="-0.85" y="0" dx="1.1" dy="1" layer="1"/>
+<smd name="2" x="0.85" y="0" dx="1.1" dy="1" layer="1"/>
+<text x="-0.4318" y="0.635" size="0.4064" layer="25" font="vector">&gt;NAME</text>
+<rectangle x1="-0.8382" y1="-0.4699" x2="-0.3381" y2="0.4801" layer="51"/>
+<rectangle x1="0.3302" y1="-0.4699" x2="0.8303" y2="0.4801" layer="51"/>
+<rectangle x1="-0.1999" y1="-0.3" x2="0.1999" y2="0.3" layer="35"/>
 </package>
 <package name="QFN24-4X4">
 <description>&lt;b&gt;UF Package 24-Lead (4mm × 4mm) Plastic QFN&lt;/b&gt;&lt;p&gt;
@@ -127,7 +126,7 @@ Source: http://www.linear.com/pc/downloadDocument.do?navId=H0,C1,C1003,C1042,C10
 <smd name="4" x="0.75" y="-1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
 <smd name="5" x="0.75" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
 <smd name="6" x="0.25" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
-<text x="-0.005" y="1.705" size="0.6096" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="-1.2478" y="0.0204" size="0.4064" layer="25" rot="R90" align="bottom-center">&gt;NAME</text>
 <rectangle x1="-0.777" y1="-0.517" x2="-0.227" y2="-0.392" layer="21"/>
 <smd name="7" x="-0.25" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
 <smd name="8" x="-0.75" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
@@ -172,41 +171,28 @@ Source: http://www.linear.com/pc/downloadDocument.do?navId=H0,C1,C1003,C1042,C10
 <wire x1="-1.473" y1="-0.983" x2="-1.473" y2="0.983" width="0.0508" layer="39"/>
 <wire x1="-0.356" y1="0.432" x2="0.356" y2="0.432" width="0.1016" layer="51"/>
 <wire x1="-0.356" y1="-0.419" x2="0.356" y2="-0.419" width="0.1016" layer="51"/>
+<wire x1="0" y1="0.0305" x2="0" y2="-0.0305" width="0.4064" layer="21"/>
 <smd name="1" x="-0.85" y="0" dx="1.1" dy="1" layer="1"/>
 <smd name="2" x="0.85" y="0" dx="1.1" dy="1" layer="1"/>
-<text x="-0.889" y="0.762" size="0.4064" layer="25" font="vector">&gt;NAME</text>
+<text x="-0.889" y="0.6096" size="0.4064" layer="25" font="vector">&gt;NAME</text>
 <rectangle x1="-0.8382" y1="-0.4699" x2="-0.3381" y2="0.4801" layer="51"/>
 <rectangle x1="0.3302" y1="-0.4699" x2="0.8303" y2="0.4801" layer="51"/>
+<rectangle x1="-0.1999" y1="-0.3" x2="0.1999" y2="0.3" layer="35"/>
 </package>
-<package name="0402-CAP">
-<description>&lt;b&gt;CAPACITOR&lt;/b&gt;&lt;p&gt;
-chip</description>
-<wire x1="-0.245" y1="0.224" x2="0.245" y2="0.224" width="0.1524" layer="51"/>
-<wire x1="0.245" y1="-0.224" x2="-0.245" y2="-0.224" width="0.1524" layer="51"/>
-<wire x1="-1.473" y1="0.483" x2="1.473" y2="0.483" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="0.483" x2="1.473" y2="-0.483" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="-0.483" x2="-1.473" y2="-0.483" width="0.0508" layer="39"/>
-<wire x1="-1.473" y1="-0.483" x2="-1.473" y2="0.483" width="0.0508" layer="39"/>
-<smd name="1" x="-0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
-<smd name="2" x="0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
-<text x="-0.889" y="0.6985" size="0.4064" layer="25">&gt;NAME</text>
-<rectangle x1="-0.554" y1="-0.3048" x2="-0.254" y2="0.2951" layer="51"/>
-<rectangle x1="0.2588" y1="-0.3048" x2="0.5588" y2="0.2951" layer="51"/>
-</package>
-<package name="0402-RES">
-<description>&lt;b&gt;RESISTOR&lt;/b&gt;&lt;p&gt;
-chip</description>
-<wire x1="-0.245" y1="0.224" x2="0.245" y2="0.224" width="0.1524" layer="51"/>
-<wire x1="0.245" y1="-0.224" x2="-0.245" y2="-0.224" width="0.1524" layer="51"/>
-<wire x1="-1.473" y1="0.483" x2="1.473" y2="0.483" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="0.483" x2="1.473" y2="-0.483" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="-0.483" x2="-1.473" y2="-0.483" width="0.0508" layer="39"/>
-<wire x1="-1.473" y1="-0.483" x2="-1.473" y2="0.483" width="0.0508" layer="39"/>
-<smd name="1" x="-0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
-<smd name="2" x="0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
-<text x="-0.889" y="0.6985" size="0.4064" layer="25">&gt;NAME</text>
-<rectangle x1="-0.554" y1="-0.3048" x2="-0.254" y2="0.2951" layer="51"/>
-<rectangle x1="0.2588" y1="-0.3048" x2="0.5588" y2="0.2951" layer="51"/>
+<package name="0603-RES">
+<wire x1="-1.473" y1="0.983" x2="1.473" y2="0.983" width="0.0508" layer="39"/>
+<wire x1="1.473" y1="0.983" x2="1.473" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="1.473" y1="-0.983" x2="-1.473" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="-1.473" y1="-0.983" x2="-1.473" y2="0.983" width="0.0508" layer="39"/>
+<wire x1="-0.356" y1="0.432" x2="0.356" y2="0.432" width="0.1016" layer="51"/>
+<wire x1="-0.356" y1="-0.419" x2="0.356" y2="-0.419" width="0.1016" layer="51"/>
+<smd name="1" x="-0.85" y="0" dx="1.1" dy="1" layer="1"/>
+<smd name="2" x="0.85" y="0" dx="1.1" dy="1" layer="1"/>
+<text x="-0.2032" y="0.762" size="0.4064" layer="25" font="vector">&gt;NAME</text>
+<rectangle x1="-0.8382" y1="-0.4699" x2="-0.3381" y2="0.4801" layer="51"/>
+<rectangle x1="0.3302" y1="-0.4699" x2="0.8303" y2="0.4801" layer="51"/>
+<rectangle x1="-0.1999" y1="-0.3" x2="0.1999" y2="0.3" layer="35"/>
+<rectangle x1="-0.2032" y1="-0.381" x2="0.2032" y2="0.381" layer="21"/>
 </package>
 <package name="TSOP-5">
 <description>&lt;b&gt;TSOP-5&lt;/b&gt; PLASTIC PACKAGE CASE 483-02&lt;p&gt;
@@ -227,32 +213,6 @@ Source: http://www.onsemi.com/pub/Collateral/MC34164-D.PDF</description>
 <rectangle x1="0.7" y1="-1.5" x2="1.2" y2="-0.825" layer="51"/>
 <rectangle x1="-0.25" y1="-1.5" x2="0.25" y2="-0.825" layer="51"/>
 <rectangle x1="-1.2" y1="-1.5" x2="-0.7" y2="-0.825" layer="51"/>
-</package>
-<package name="USB-A-PCB">
-<wire x1="-5" y1="6" x2="3.7" y2="6" width="0.127" layer="51"/>
-<wire x1="3.7" y1="6" x2="3.7" y2="-6" width="0.127" layer="51"/>
-<wire x1="3.7" y1="-6" x2="-5" y2="-6" width="0.127" layer="51"/>
-<wire x1="-5" y1="-6" x2="-5" y2="6" width="0.127" layer="51"/>
-<smd name="5V" x="-0.2" y="-3.5" dx="7.5" dy="1.5" layer="1"/>
-<smd name="USB_M" x="0.3" y="-1" dx="6.5" dy="1" layer="1"/>
-<smd name="USB_P" x="0.3" y="1" dx="6.5" dy="1" layer="1"/>
-<smd name="GND" x="-0.2" y="3.5" dx="7.5" dy="1.5" layer="1"/>
-<text x="-1.27" y="5.08" size="0.4064" layer="25">&gt;Name</text>
-<text x="-1.27" y="-5.08" size="0.4064" layer="27">&gt;Value</text>
-</package>
-<package name="USB-A-CON">
-<description>USB CONNECTOR</description>
-<wire x1="-4.75" y1="-2.2098" x2="4.75" y2="-2.2098" width="0.254" layer="21"/>
-<smd name="3" x="-1" y="-1" dx="1.1" dy="2" layer="1"/>
-<smd name="2" x="1" y="-1" dx="1.1" dy="2" layer="1"/>
-<smd name="4" x="-3.5" y="-1" dx="1.1" dy="2" layer="1"/>
-<smd name="1" x="3.5" y="-1" dx="1.1" dy="2" layer="1"/>
-<text x="0.3432" y="-5.3636" size="0.4064" layer="25" rot="R180">&gt;NAME</text>
-<text x="4.4" y="-5.8" size="0.6096" layer="21" ratio="10" rot="R90">USB</text>
-<pad name="H1" x="-2.3" y="-3.5" drill="1.1"/>
-<pad name="H2" x="2.3" y="-3.5" drill="1.1"/>
-<wire x1="-4.75" y1="-6.4" x2="-4.75" y2="-2.2098" width="0.2032" layer="21"/>
-<wire x1="4.75" y1="-6.4" x2="4.75" y2="-2.2098" width="0.2032" layer="21"/>
 </package>
 <package name="USB-A-SMT-MALE">
 <wire x1="6" y1="14.58" x2="-6" y2="14.58" width="0.2032" layer="51"/>
@@ -287,6 +247,78 @@ Source: http://www.onsemi.com/pub/Collateral/MC34164-D.PDF</description>
 <hole x="5.85" y="-3.85" drill="0.8"/>
 <hole x="5.85" y="-2.65" drill="0.8"/>
 <hole x="5.85" y="-2.25" drill="0.8"/>
+</package>
+<package name="0402">
+<description>&lt;b&gt;Chip Ferrite Bead for GHz Noise&lt;/b&gt;&lt;p&gt;
+</description>
+<wire x1="-0.245" y1="0.224" x2="0.245" y2="0.224" width="0.1524" layer="51"/>
+<wire x1="0.245" y1="-0.224" x2="-0.245" y2="-0.224" width="0.1524" layer="51"/>
+<wire x1="-1.473" y1="0.483" x2="1.473" y2="0.483" width="0.0508" layer="39"/>
+<wire x1="1.473" y1="0.483" x2="1.473" y2="-0.483" width="0.0508" layer="39"/>
+<wire x1="1.473" y1="-0.483" x2="-1.473" y2="-0.483" width="0.0508" layer="39"/>
+<wire x1="-1.473" y1="-0.483" x2="-1.473" y2="0.483" width="0.0508" layer="39"/>
+<smd name="1" x="-0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
+<smd name="2" x="0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
+<text x="-0.635" y="0.735" size="0.4064" layer="25">&gt;NAME</text>
+<rectangle x1="-0.554" y1="-0.3048" x2="-0.254" y2="0.2951" layer="51"/>
+<rectangle x1="0.2588" y1="-0.3048" x2="0.5588" y2="0.2951" layer="51"/>
+<rectangle x1="-0.1999" y1="-0.4001" x2="0.1999" y2="0.4001" layer="35"/>
+</package>
+<package name="0402-CAP">
+<description>&lt;b&gt;CAPACITOR&lt;/b&gt;&lt;p&gt;
+chip</description>
+<wire x1="-0.245" y1="0.224" x2="0.245" y2="0.224" width="0.1524" layer="51"/>
+<wire x1="0.245" y1="-0.224" x2="-0.245" y2="-0.224" width="0.1524" layer="51"/>
+<wire x1="-1.473" y1="0.483" x2="1.473" y2="0.483" width="0.0508" layer="39"/>
+<wire x1="1.473" y1="0.483" x2="1.473" y2="-0.483" width="0.0508" layer="39"/>
+<wire x1="1.473" y1="-0.483" x2="-1.473" y2="-0.483" width="0.0508" layer="39"/>
+<wire x1="-1.473" y1="-0.483" x2="-1.473" y2="0.483" width="0.0508" layer="39"/>
+<smd name="1" x="-0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
+<smd name="2" x="0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
+<text x="-0.889" y="0.6985" size="0.4064" layer="25">&gt;NAME</text>
+<rectangle x1="-0.554" y1="-0.3048" x2="-0.254" y2="0.2951" layer="51"/>
+<rectangle x1="0.2588" y1="-0.3048" x2="0.5588" y2="0.2951" layer="51"/>
+</package>
+<package name="0402-RES">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;&lt;p&gt;
+chip</description>
+<wire x1="-0.245" y1="0.224" x2="0.245" y2="0.224" width="0.1524" layer="51"/>
+<wire x1="0.245" y1="-0.224" x2="-0.245" y2="-0.224" width="0.1524" layer="51"/>
+<wire x1="-1.473" y1="0.483" x2="1.473" y2="0.483" width="0.0508" layer="39"/>
+<wire x1="1.473" y1="0.483" x2="1.473" y2="-0.483" width="0.0508" layer="39"/>
+<wire x1="1.473" y1="-0.483" x2="-1.473" y2="-0.483" width="0.0508" layer="39"/>
+<wire x1="-1.473" y1="-0.483" x2="-1.473" y2="0.483" width="0.0508" layer="39"/>
+<smd name="1" x="-0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
+<smd name="2" x="0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
+<text x="-0.889" y="0.6985" size="0.4064" layer="25">&gt;NAME</text>
+<rectangle x1="-0.554" y1="-0.3048" x2="-0.254" y2="0.2951" layer="51"/>
+<rectangle x1="0.2588" y1="-0.3048" x2="0.5588" y2="0.2951" layer="51"/>
+</package>
+<package name="USB-A-PCB">
+<wire x1="-5" y1="6" x2="3.7" y2="6" width="0.127" layer="51"/>
+<wire x1="3.7" y1="6" x2="3.7" y2="-6" width="0.127" layer="51"/>
+<wire x1="3.7" y1="-6" x2="-5" y2="-6" width="0.127" layer="51"/>
+<wire x1="-5" y1="-6" x2="-5" y2="6" width="0.127" layer="51"/>
+<smd name="5V" x="-0.2" y="-3.5" dx="7.5" dy="1.5" layer="1"/>
+<smd name="USB_M" x="0.3" y="-1" dx="6.5" dy="1" layer="1"/>
+<smd name="USB_P" x="0.3" y="1" dx="6.5" dy="1" layer="1"/>
+<smd name="GND" x="-0.2" y="3.5" dx="7.5" dy="1.5" layer="1"/>
+<text x="-1.27" y="5.08" size="0.4064" layer="25">&gt;Name</text>
+<text x="-1.27" y="-5.08" size="0.4064" layer="27">&gt;Value</text>
+</package>
+<package name="USB-A-CON">
+<description>USB CONNECTOR</description>
+<wire x1="-4.75" y1="-2.2098" x2="4.75" y2="-2.2098" width="0.254" layer="21"/>
+<smd name="3" x="-1" y="-1" dx="1.1" dy="2" layer="1"/>
+<smd name="2" x="1" y="-1" dx="1.1" dy="2" layer="1"/>
+<smd name="4" x="-3.5" y="-1" dx="1.1" dy="2" layer="1"/>
+<smd name="1" x="3.5" y="-1" dx="1.1" dy="2" layer="1"/>
+<text x="0.3432" y="-5.3636" size="0.4064" layer="25" rot="R180">&gt;NAME</text>
+<text x="4.4" y="-5.8" size="0.6096" layer="21" ratio="10" rot="R90">USB</text>
+<pad name="H1" x="-2.3" y="-3.5" drill="1.1"/>
+<pad name="H2" x="2.3" y="-3.5" drill="1.1"/>
+<wire x1="-4.75" y1="-6.4" x2="-4.75" y2="-2.2098" width="0.2032" layer="21"/>
+<wire x1="4.75" y1="-6.4" x2="4.75" y2="-2.2098" width="0.2032" layer="21"/>
 </package>
 </packages>
 <symbols>
@@ -458,14 +490,23 @@ Source: http://www.onsemi.com/pub/Collateral/MC34164-D.PDF</description>
 </symbol>
 </symbols>
 <devicesets>
-<deviceset name="CIM05U601NC" prefix="L">
+<deviceset name="FERRITE-BEAD" prefix="L">
 <description>&lt;b&gt;Chip Ferrite Bead for GHz Noise&lt;/b&gt;&lt;p&gt;
 </description>
 <gates>
 <gate name="G$1" symbol="L" x="0" y="0"/>
 </gates>
 <devices>
-<device name="" package="0402">
+<device name="0402-IND" package="0402">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="0603-IND" package="0603-IND">
 <connects>
 <connect gate="G$1" pin="1" pad="1"/>
 <connect gate="G$1" pin="2" pad="2"/>
@@ -633,6 +674,15 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <technology name=""/>
 </technologies>
 </device>
+<device name="0603-RES" package="0603-RES">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
 </devices>
 </deviceset>
 <deviceset name="USB" prefix="X">
@@ -725,28 +775,28 @@ In this library the device names are the same as the pin names of the symbols, t
 </classes>
 <parts>
 <part name="U1" library="infnoise" deviceset="FT240X" device="Q"/>
-<part name="C4" library="infnoise" deviceset="CAP" device="0402-CAP" value="47pF"/>
-<part name="C5" library="infnoise" deviceset="CAP" device="0402-CAP" value="47pF"/>
-<part name="C6" library="infnoise" deviceset="CAP" device="0402-CAP" value="100nF"/>
+<part name="C4" library="infnoise" deviceset="CAP" device="0603-CAP" value="47pF"/>
+<part name="C5" library="infnoise" deviceset="CAP" device="0603-CAP" value="47pF"/>
+<part name="C6" library="infnoise" deviceset="CAP" device="0603-CAP" value="100nF"/>
 <part name="C2" library="infnoise" deviceset="CAP" device="0603-CAP" value="4.7uF"/>
-<part name="C3" library="infnoise" deviceset="CAP" device="0402-CAP" value="100nF"/>
-<part name="C7" library="infnoise" deviceset="CAP" device="0402-CAP" value="100pF"/>
-<part name="C8" library="infnoise" deviceset="CAP" device="0402-CAP" value="100pF"/>
-<part name="C1" library="infnoise" deviceset="CAP" device="0402-CAP" value="10nF"/>
-<part name="L1" library="infnoise" deviceset="CIM05U601NC" device=""/>
-<part name="R1" library="infnoise" deviceset="RESISTOR" device="0402-RES" value="27"/>
-<part name="R2" library="infnoise" deviceset="RESISTOR" device="0402-RES" value="27"/>
-<part name="R6" library="infnoise" deviceset="RESISTOR" device="0402-RES" value="8.2K"/>
-<part name="R5" library="infnoise" deviceset="RESISTOR" device="0402-RES" value="10K"/>
-<part name="R7" library="infnoise" deviceset="RESISTOR" device="0402-RES" value="8.2K"/>
-<part name="R8" library="infnoise" deviceset="RESISTOR" device="0402-RES" value="10K"/>
-<part name="R3" library="infnoise" deviceset="RESISTOR" device="0402-RES" value="10K"/>
-<part name="R4" library="infnoise" deviceset="RESISTOR" device="0402-RES" value="10K"/>
+<part name="C3" library="infnoise" deviceset="CAP" device="0603-CAP" value="100nF"/>
+<part name="C7" library="infnoise" deviceset="CAP" device="0603-CAP" value="100pF"/>
+<part name="C8" library="infnoise" deviceset="CAP" device="0603-CAP" value="100pF"/>
+<part name="C1" library="infnoise" deviceset="CAP" device="0603-CAP" value="10nF"/>
+<part name="L1" library="infnoise" deviceset="FERRITE-BEAD" device="0603-IND"/>
+<part name="R1" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="27"/>
+<part name="R2" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="27"/>
+<part name="R6" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="8.2K"/>
+<part name="R5" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="10K"/>
+<part name="R7" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="8.2K"/>
+<part name="R8" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="10K"/>
+<part name="R3" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="10K"/>
+<part name="R4" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="10K"/>
 <part name="AMP" library="infnoise" deviceset="TSV912" device="IQ2T"/>
 <part name="CMP" library="infnoise" deviceset="TC75W57" device="FK"/>
 <part name="SUPPLY1" library="supply2" deviceset="GND" device=""/>
-<part name="R9" library="infnoise" deviceset="RESISTOR" device="0402-RES" value="8.2K"/>
-<part name="R10" library="infnoise" deviceset="RESISTOR" device="0402-RES" value="8.2K"/>
+<part name="R9" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="8.2K"/>
+<part name="R10" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="8.2K"/>
 <part name="SW1" library="infnoise" deviceset="NS5B1G385" device="DFT2G"/>
 <part name="SW2" library="infnoise" deviceset="NS5B1G385" device="DFT2G"/>
 <part name="X1" library="infnoise" deviceset="USB" device="SMT-MALE"/>
@@ -766,7 +816,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <instance part="C8" gate="G$1" x="269.24" y="35.56" rot="R180"/>
 <instance part="C1" gate="G$1" x="-20.32" y="17.78"/>
 <instance part="L1" gate="G$1" x="-10.16" y="17.78" rot="R270"/>
-<instance part="R1" gate="G$1" x="15.24" y="35.56"/>
+<instance part="R1" gate="G$1" x="12.7" y="35.56" rot="R180"/>
 <instance part="R2" gate="G$1" x="22.86" y="30.48"/>
 <instance part="R6" gate="G$1" x="172.72" y="60.96"/>
 <instance part="R5" gate="G$1" x="167.64" y="38.1" rot="R90"/>
@@ -786,25 +836,18 @@ In this library the device names are the same as the pin names of the symbols, t
 <busses>
 </busses>
 <nets>
-<net name="USBDP" class="0">
-<segment>
-<pinref part="R1" gate="G$1" pin="2"/>
-<pinref part="U1" gate="G$1" pin="USBDP"/>
-<wire x1="20.32" y1="35.56" x2="38.1" y2="35.56" width="0.1524" layer="91"/>
-</segment>
-</net>
 <net name="USB_M" class="0">
 <segment>
-<pinref part="R1" gate="G$1" pin="1"/>
-<wire x1="10.16" y1="35.56" x2="5.08" y2="35.56" width="0.1524" layer="91"/>
 <wire x1="5.08" y1="35.56" x2="-27.94" y2="35.56" width="0.1524" layer="91"/>
 <wire x1="-27.94" y1="35.56" x2="-27.94" y2="33.02" width="0.1524" layer="91"/>
 <wire x1="-27.94" y1="33.02" x2="-40.64" y2="33.02" width="0.1524" layer="91"/>
 <pinref part="C4" gate="G$1" pin="1"/>
 <wire x1="5.08" y1="22.86" x2="5.08" y2="35.56" width="0.1524" layer="91"/>
 <label x="-5.08" y="35.56" size="1.778" layer="95"/>
-<junction x="5.08" y="35.56"/>
 <pinref part="X1" gate="G$1" pin="D+"/>
+<pinref part="R1" gate="G$1" pin="2"/>
+<wire x1="5.08" y1="35.56" x2="7.62" y2="35.56" width="0.1524" layer="91"/>
+<junction x="5.08" y="35.56"/>
 </segment>
 </net>
 <net name="USB_P" class="0">
@@ -1148,6 +1191,13 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="99.06" y1="-10.16" x2="99.06" y2="35.56" width="0.1524" layer="91"/>
 <pinref part="U1" gate="G$1" pin="D0"/>
 <wire x1="99.06" y1="35.56" x2="93.98" y2="35.56" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$2" class="0">
+<segment>
+<pinref part="R1" gate="G$1" pin="1"/>
+<pinref part="U1" gate="G$1" pin="USBDP"/>
+<wire x1="17.78" y1="35.56" x2="38.1" y2="35.56" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
