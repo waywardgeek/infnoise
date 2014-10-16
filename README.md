@@ -25,7 +25,7 @@ Here's the board layout so far...
 Noise Multiplier")
 
 If you are interested in building this version of the Infinite Noise Multiplier, you may
-be interested in opening BOM.ods in the git repo above.  It has all the Digikey and Mouser
+be interested in opening eagle/BOM.ods in the git repo above.  It has all the Digikey and Mouser
 parts along with cost/1000 units.  The total for all the parts, including boards from OSH
 Park, come to $4.97 each, in 1,000 unit quantities.  However, that cost is dominated by
 USB related parts, particularly the FT240X chip, the USB connector, and the USB-stick
