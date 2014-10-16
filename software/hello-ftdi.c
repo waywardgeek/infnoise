@@ -10,6 +10,13 @@
 #define BUFLEN 64
 //#define BUFLEN 1
 
+#define COMP1 1
+#define COMP2 4
+#define SWEN1 2
+#define SWEN2 0
+// Add bits are outputs, except COMP1 and COMP2
+#define MASK (0xff & ~(1 << COMP1) & ~(1 << COMP2))
+
 int main()
 {
     struct ftdi_context ftdic;
@@ -38,7 +45,7 @@ int main()
 
     /* Enable bitbang mode with 4 out, 4 in */
     //rc = ftdi_set_bitmode(&ftdic, 0xf, BITMODE_BITBANG);
-    rc = ftdi_set_bitmode(&ftdic, 0xf, BITMODE_SYNCBB);
+    rc = ftdi_set_bitmode(&ftdic, MASK, BITMODE_SYNCBB);
     if(rc == -1) {
         puts("Can't enable bit-bang mode\n");
         return -1;
@@ -51,12 +58,20 @@ int main()
     int i = 0;
     unsigned char outBuf[BUFLEN], inBuf[BUFLEN];
     for(i = 0; i < BUFLEN; i++) {
-        outBuf[i] = i & 1? 1 : 2; // Alternate Ph1 and Ph2 - maybe should have both off in between
+        // Alternate Ph1 and Ph2 - maybe should have both off in between
+        outBuf[i] = i & 1?  (1 << SWEN2) : (1 << SWEN1);
+        //outBuf[i] = i;
     }
     i = 0;
     for(;;) {
-        ftdi_write_data(&ftdic, outBuf, BUFLEN);
-        ftdi_read_data(&ftdic, inBuf, BUFLEN);
+        if(ftdi_write_data(&ftdic, outBuf, BUFLEN) != BUFLEN) {
+            puts("USB write failed\n");
+            return -1;
+        }
+        if(ftdi_read_data(&ftdic, inBuf, BUFLEN) != BUFLEN) {
+            puts("USB read failed\n");
+            return -1;
+        }
         i++;
         if((i & 0xfff) == 0) {
             printf("read %u, last byte == %u\n", 4096*BUFLEN, inBuf[BUFLEN-1]);

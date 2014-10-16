@@ -1182,7 +1182,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="27.94" y1="30.48" x2="38.1" y2="30.48" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="N$1" class="0">
+<net name="SW2EN" class="0">
 <segment>
 <pinref part="SW2" gate="G$1" pin="IN"/>
 <wire x1="281.94" y1="55.88" x2="292.1" y2="55.88" width="0.1524" layer="91"/>
@@ -1191,6 +1191,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="99.06" y1="-10.16" x2="99.06" y2="35.56" width="0.1524" layer="91"/>
 <pinref part="U1" gate="G$1" pin="D0"/>
 <wire x1="99.06" y1="35.56" x2="93.98" y2="35.56" width="0.1524" layer="91"/>
+<label x="96.52" y="35.56" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$2" class="0">
