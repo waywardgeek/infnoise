@@ -360,6 +360,28 @@ we should be able to keep the output generating close to 1 bit of entropy per cl
 this example, both noise samples had over 10X the minimum resolution in unpreditable
 noise, and easily contributed a bit of entropy each to our 31-ish bit entropy pool.
 
+### Whitening the Right Way
+
+Data coming from true random number generators is never 100% random.  I am aware of no
+exceptions.  Whitening is required in all cases before the data is suitable for use in
+cryptography.
+
+Most TRNGs build whitening into the hardware.  This is a _mistake_, at least if the
+whitening cannot be turned off.  Respectable TRNGs, such as [OneRNG](http://onerng.info/)
+and [Entropy Key](http://www.entropykey.co.uk/) provide hardware whitening, but also
+provide access to the raw data streams for health analysis.
+
+I prefer to follow the KISS rule when it comes to security.  The more complex the TRNG
+key, the more likely it is insecure.  Therefore, the initial Infinite Noise Multiplier
+does not even have a microcontroller onboard, and only returns raw data, direct from the
+noise source.  Whitening is done in the INM driver.
+
+The INM driver uses the reference versoin of the SHA3 "sponge" with a 1600 bit state.  The
+state of the sponge needs to be made unpredictable.  It is initialized with 3200 bits of
+entropy before any data is output.  After that, reading bytes from the SHA3 sponge blocks
+until twice as many bytes of entropy have been fed into the sponge from the INM.  Data is
+fed into the sponge 64-bits at a time.
+
 ### Non-Power-of-Two Multiplication
 
 The circuit shown in infnoise_fast multiplies by 1.82 every clock rather than 2.0.  As
@@ -391,6 +413,33 @@ The ratio of the clocks it takes with amplification 2 vs K is:
 
 It takes log(2)/log(K) more cycles to insure the output is different.
 the entropy shifted out with exactly 2X amplification will be 1 bit per clock.
+
+### Health Monitoring
+
+Infinite Noise Multipliers output entropy at a predictable rate, which is measured
+continually.  If the entropy per bit deviates from the theoretical value of log(K)/log(2)
+by more than 5% during the previous 20,000 bits, then the driver exits with an error code.
+Some deviation is expected, since K is dependent on two resistor values, which can be off
+by 1% each.  Also, a significant amplitude noise in the system can cause more entropy to
+be output than predicted.  The estimated entropy per bit are continually estimated and
+compared to expected values.
+
+Entropy of a string of bits is measured as 1 over the probability of that string occuring.
+The previous 12 bits of data are used to guess the next bit, based on the history of what
+comes next.
+
+Also, sequences of 1's or 0's longer than the max predicted are detected and cause the
+driver to exit with a failure code.  For the board level implementation above, With 1%
+resistors we should see a gain of no higher than 1.86.  The maximum Vref possible is
+Vsupply(1.01/(1.01 + 1/1.01)) = Vsupply\*0.505.  So the maximum value after multipling a
+value below Vref is 0.94\*Vsupply, or equivalently 0.06\*Vsupply.  If synchronous noise is
+injected that subtracts more than 0.028\*Vsupply, then this noise could hold the signal at
+0V forever.  This is over 90mV, so we should be OK.  Assuming no more than 50mV of
+negative synchronous signal is injected, we get the sequence 0.045\*Vsupply,
+0.069\*Vsupply, 0.113\*Vsupply, .195\*Vsupply, 0.347\*Vsupply, and finally 0.631\*Vsupply.
+This is a total of 5 sequential 0's.  Therefore, any sequence of 6 zeros or ones causes
+the driver to abort with an error condision.  The maximum length depends on the components
+used.
 
 ### Free As in Freedom
 
