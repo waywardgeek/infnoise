@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <ftdi.h>
+#include "healthcheck.h"
 
 #define BUFLEN 64
 //#define BUFLEN 1
@@ -26,7 +27,7 @@ int main()
 
     /* Open FTDI device based on FT232R vendor & product IDs */
     if(ftdi_usb_open(&ftdic, 0x0403, 0x6015) < 0) {
-        puts("Can't open device");
+        puts("Can't find Infinite Noise Multiplier");
         return 1;
     }
 
@@ -39,7 +40,7 @@ int main()
         puts("Setting baud rate failed\n");
         return -1;
     } else if(rc == -3) {
-        puts("USB device unavailable\n");
+        puts("Infinite Noise Multiplier unavailable\n");
         return -1;
     }
 
@@ -50,7 +51,7 @@ int main()
         puts("Can't enable bit-bang mode\n");
         return -1;
     } else if(rc == -2) {
-        puts("USB device unavailable\n");
+        puts("Infinite Noise Multiplier unavailable\n");
         return -1;
     }
 

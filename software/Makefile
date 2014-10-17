@@ -1,10 +1,10 @@
-all: hello-ftdi healthcheck
+all: infnoise healthcheck
 
-hello-ftdi: hello-ftdi.c
-	gcc -Wall -std=c11 -O3 -m64 -march=native -o hello-ftdi hello-ftdi.c -lftdi
+infnoise: infnoise.c healthcheck.c KeccakF-1600-reference.c brg_endian.h
+	gcc -Wall -std=c11 -O3 -m64 -march=native -o infnoise infnoise.c healthcheck.c KeccakF-1600-reference.c -lftdi -lm
 
 healthcheck: healthcheck.c
-	gcc -Wall -std=c11 -g -m64 -march=native -o healthcheck healthcheck.c -lm
+	gcc -Wall -std=c11 -g -m64 -march=native -D TEST_HEALTHCHECK -o healthcheck healthcheck.c -lm
 
 clean:
-	rm -f healthcheck hello-ftdi
+	rm -f healthcheck infnoise

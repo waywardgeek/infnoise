@@ -376,7 +376,7 @@ key, the more likely it is insecure.  Therefore, the initial Infinite Noise Mult
 does not even have a microcontroller onboard, and only returns raw data, direct from the
 noise source.  Whitening is done in the INM driver.
 
-The INM driver uses the reference versoin of the SHA3 "sponge" with a 1600 bit state.  The
+The INM driver uses the reference version of the SHA3 "sponge" with a 1600 bit state.  The
 state of the sponge needs to be made unpredictable.  It is initialized with 3200 bits of
 entropy before any data is output.  After that, reading bytes from the SHA3 sponge blocks
 until twice as many bytes of entropy have been fed into the sponge from the INM.  Data is
