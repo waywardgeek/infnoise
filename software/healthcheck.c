@@ -28,7 +28,7 @@ confirmed.
 #include <time.h>
 
 #define INM_MIN_SAMPLE_SIZE 100
-#define INM_ACCURACY 1.1
+#define INM_ACCURACY 1.05
 
 static uint8_t inmN;
 static uint32_t inmPrevBits;
@@ -246,12 +246,12 @@ static inline bool computeRandBit(double *A, double K, double noiseAmplitude) {
 
 int main() {
     //double K = sqrt(2.0);
-    //double K = 1.82;
     double K = 1.82;
-    inmHealthCheckerStart(14, K);
+    uint8_t N = 12;
+    inmHealthCheckerStart(N, K);
     srand(time(NULL));
     double A = (double)rand()/RAND_MAX; // Simulating INM
-    double noiseAmplitude = 1.0/(1 << 12);
+    double noiseAmplitude = 1.0/(1 << 10);
     uint32_t i;
     for(i = 0; i < 1 << 26; i++) {
         bool bit = computeRandBit(&A, K, noiseAmplitude);
