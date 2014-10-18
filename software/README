@@ -1,0 +1,34 @@
+The infnoise application reads random data from the Infinite Noise USB key and writes
+binary data to stdout.  To complile it in Linux, make sure you have the libftdi-dev
+package installed, and just type "make".
+
+To run the infnoise application, make sure the Infinite Noise USB stick is
+plugged in, and from a shell, type:
+
+    sudo ./infnoise > randbytes
+
+This will fill the file randbytes with random data endlessly, so hit Ctrl+C to kill it
+after a while.  If all you want to do is verify the output using the dieharder tests, you
+can use:
+
+    sudo ./infnoise | dieharder -g 200 -a
+
+The Infinite Noise USB driver uses the open source FTDI driver documented at:
+
+    http://www.intra2net.com/en/developer/libftdi/documentation/group__libftdi.html
+
+This talks to the FT240X USB 2.0 interface chip on the USB stick.  It uses "bitbang" mode
+to drive the clock signals of the Infinite Noise Multiplier, and receives one random bit
+of output per byte written to the device.  These bits are collected into bytes, and sent
+through a "health checker", which verifies that the bits look basically like INM output,
+with about the expected level of entropy.
+
+If the measured level of entropy deviates from the theoretical value by more than 5%, then
+the infnoise application exits with an error message.  If this happens, you can see the
+raw data from the INM for yourself by running
+
+    sudo infnoise --raw > randbytes
+
+Kill it after a while, and check it out with with a program like hexdump.  In general,
+there should be random 0's and 1's, and no more than 5 1's or 0's in a row.  When the
+health checker sees long strings of 0's or 1's, it exits.
