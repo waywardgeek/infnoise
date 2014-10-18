@@ -28,10 +28,13 @@ confirmed.
 #include <time.h>
 #include "healthcheck.h"
 
+#define INM_MIN_DATA 10000
 #define INM_MIN_SAMPLE_SIZE 100
 #define INM_ACCURACY 1.05
 #define INM_MAX_SEQUENCE 5
 #define INM_MAX_COUNT (1 << 14)
+// Matches the Keccac sponge size
+#define INM_MAX_ENTROPY 1600
 
 static uint8_t inmN;
 static uint32_t inmPrevBits;
@@ -44,6 +47,7 @@ static uint32_t inmNumBitsOfEntropy;
 static double inmCurrentProbability;
 static uint64_t inmTotalBits;
 static bool inmPrevBit;
+static uint32_t inmEntropyLevel;
 
 // Free memory used by the health check.
 void inmHealthCheckStop(void) {
@@ -61,6 +65,7 @@ static void resetStats(void) {
     inmNumBitsCounted = 0;
     inmCurrentProbability = 1.0;
     inmNumBitsOfEntropy = 0;
+    inmEntropyLevel = 0;
 }
 
 // Initialize the health check.  N is the number of bits used to predict the next bit.
@@ -97,10 +102,10 @@ static void scaleStats(void) {
         inmZeros[i] >>= 1;
         inmOnes[i] >>= 1;
     }
-    if(inmNumBitsSampled > 20000) {
-        inmNumBitsCounted = inmNumBitsCounted*(uint64_t)20000/inmNumBitsSampled;
-        inmNumBitsOfEntropy = inmNumBitsOfEntropy*(uint64_t)20000/inmNumBitsSampled;
-        inmNumBitsSampled = 20000;
+    if(inmNumBitsSampled > 2*INM_MIN_DATA) {
+        inmNumBitsCounted = inmNumBitsCounted*(uint64_t)2*INM_MIN_DATA/inmNumBitsSampled;
+        inmNumBitsOfEntropy = inmNumBitsOfEntropy*(uint64_t)2*INM_MIN_DATA/inmNumBitsSampled;
+        inmNumBitsSampled = 2*INM_MIN_DATA;
     }
 }
 
@@ -122,6 +127,9 @@ bool inmHealthCheckAddBit(bool bit) {
         while(inmCurrentProbability <= 0.5) {
             inmCurrentProbability *= 2.0;
             inmNumBitsOfEntropy++;
+            if(inmHealthCheckOkToUseData() && inmEntropyLevel < INM_MAX_ENTROPY) {
+                inmEntropyLevel++;
+            }
         }
         //printf("probability:%f\n", inmCurrentProbability);
         inmNumBitsCounted++;
@@ -145,15 +153,15 @@ bool inmHealthCheckAddBit(bool bit) {
         return false;
     }
     //printf("prevBits: %x\n", inmPrevBits);
-    if(inmNumBitsSampled < 10000) {
+    if(inmNumBitsSampled < INM_MIN_DATA) {
         return true; // Not enough data yet to test
     }
-    if(inmNumBitsSampled == 10000 && inmNumBitsCounted < 9900) {
+    if(inmNumBitsSampled == INM_MIN_DATA && inmNumBitsCounted < INM_MIN_DATA*0.99) {
         // Wait until we have enough data to start measuring entropy
         resetStats();
         return true;
     }
-    if(inmNumBitsSampled == 10000) {
+    if(inmNumBitsSampled == INM_MIN_DATA) {
         printf("Generated a total of %lu bits to initialize health check\n", inmTotalBits);
     }
     // Check the entropy is in line with expectations
@@ -169,7 +177,7 @@ bool inmHealthCheckAddBit(bool bit) {
 // Once we have enough samples, we know that entropyPerBit = log(K)/log(2), so
 // K must be 2^entryopPerBit.
 double inmHealthCheckEstimateK(void) {
-    if(inmNumBitsOfEntropy <= 10000) {
+    if(inmNumBitsOfEntropy < INM_MIN_DATA) {
         return inmK;
     }
     double entropyPerBit = (double)inmNumBitsOfEntropy/inmNumBitsCounted;
@@ -179,10 +187,29 @@ double inmHealthCheckEstimateK(void) {
 // Once we have enough samples, we know that entropyPerBit = log(K)/log(2), so
 // K must be 2^entryopPerBit.
 double inmHealthCheckEstimateEntropyPerBit(void) {
-    if(inmNumBitsOfEntropy <= 10000) {
+    if(inmNumBitsSampled < INM_MIN_DATA) {
         return inmExpectedEntropyPerBit;
     }
     return (double)inmNumBitsOfEntropy/inmNumBitsCounted;
+}
+
+// Return true if the health checker has enough data to verify proper operation of the INM.
+bool inmHealthCheckOkToUseData(void) {
+    return inmNumBitsSampled >= INM_MIN_DATA;
+}
+
+// Just return the entropy level added so far in bytes;
+uint32_t inmHealthCheckGetEntropyLevel(void) {
+    return inmEntropyLevel/8;
+}
+
+// Reduce the entropy level by numBytes.
+void inmHealthCheckReduceEntropyLevel(uint32_t numBytes) {
+    if(numBytes*8 > inmEntropyLevel) {
+        fprintf(stderr, "Entropy pool underflow\n");
+        exit(1);
+    }
+    inmEntropyLevel -=  numBytes*8;
 }
 
 #ifdef TEST_HEALTHCHECK
