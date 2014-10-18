@@ -381,16 +381,6 @@ state of the sponge needs to be made unpredictable.  It is initialized with 3200
 entropy before any data is output.  After that, reading bytes from the SHA3 sponge blocks
 until twice as many bytes of entropy have been fed into the sponge from the INM.
 
-Entropy per bit is measured as the log2 of the probability of seeing a specific output
-sequence from the INM.  The probability of any given output bit is estimated by keeping a
-history of outputs, given the previous 7 bits.  Simulations with K=1.82 show that using 16
-bits rather than 7 gives only a 0.16% improvement in prediction accuracy, so only 7 are
-used.
-
-A health checker estimates how much entropy per bit is comming from the INM USB key, and
-compares that to log(K)/log(2).  If they differ by more than 5%, it reports an error and
-exits.
-
 ### Non-Power-of-Two Multiplication
 
 The circuit shown in infnoise_fast multiplies by 1.82 every clock rather than 2.0.  As
@@ -433,9 +423,11 @@ by 1% each.  Also, a significant amplitude noise in the system can cause more en
 be output than predicted.  The estimated entropy per bit are continually estimated and
 compared to expected values.
 
-Entropy of a string of bits is measured as 1 over the probability of that string occuring.
-The previous 12 bits of data are used to guess the next bit, based on the history of what
-comes next.
+Entropy per bit is measured as the log2 of one over the probability of seeing a specific
+output sequence from the INM.  The probability of any given output bit is estimated by
+keeping a history of results, given the previous 7 bits.  Simulations with K=1.82 show
+that using 16 bits rather than 7 gives only a 0.16% improvement in prediction accuracy, so
+only 7 are used.
 
 Also, sequences of 1's or 0's longer than the max predicted are detected and cause the
 driver to exit with a failure code.  For the board level implementation above, With 1%
@@ -447,8 +439,7 @@ injected that subtracts more than 0.028\*Vsupply, then this noise could hold the
 negative synchronous signal is injected, we get the sequence 0.045\*Vsupply,
 0.069\*Vsupply, 0.113\*Vsupply, .195\*Vsupply, 0.347\*Vsupply, and finally 0.631\*Vsupply.
 This is a total of 5 sequential 0's.  Therefore, any sequence of 6 zeros or ones causes
-the driver to abort with an error condision.  The maximum length depends on the components
-used.
+the driver to abort with an error condision.
 
 ### Free As in Freedom
 
