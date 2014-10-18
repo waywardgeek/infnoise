@@ -379,8 +379,17 @@ noise source.  Whitening is done in the INM driver.
 The INM driver uses the reference version of the SHA3 "sponge" with a 1600 bit state.  The
 state of the sponge needs to be made unpredictable.  It is initialized with 3200 bits of
 entropy before any data is output.  After that, reading bytes from the SHA3 sponge blocks
-until twice as many bytes of entropy have been fed into the sponge from the INM.  Data is
-fed into the sponge 64-bits at a time.
+until twice as many bytes of entropy have been fed into the sponge from the INM.
+
+Entropy per bit is measured as the log2 of the probability of seeing a specific output
+sequence from the INM.  The probability of any given output bit is estimated by keeping a
+history of outputs, given the previous 7 bits.  Simulations with K=1.82 show that using 16
+bits rather than 7 gives only a 0.16% improvement in prediction accuracy, so only 7 are
+used.
+
+A health checker estimates how much entropy per bit is comming from the INM USB key, and
+compares that to log(K)/log(2).  If they differ by more than 5%, it reports an error and
+exits.
 
 ### Non-Power-of-Two Multiplication
 

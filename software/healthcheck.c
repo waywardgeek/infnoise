@@ -289,7 +289,7 @@ static inline bool computeRandBit(double *A, double K, double noiseAmplitude) {
 int main() {
     //double K = sqrt(2.0);
     double K = 1.82;
-    uint8_t N = 7;
+    uint8_t N = 16;
     inmHealthCheckStart(N, K);
     srand(time(NULL));
     double A = (double)rand()/RAND_MAX; // Simulating INM
@@ -299,7 +299,7 @@ int main() {
         // Throw away some initial bits.
         computeRandBit(&A, K, noiseAmplitude);
     }
-    for(i = 0; i < 1 << 24; i++) {
+    for(i = 0; i < 1 << 28; i++) {
         bool bit = computeRandBit(&A, K, noiseAmplitude);
         if(!inmHealthCheckAddBit(bit)) {
             printf("Failed health check!\n");
