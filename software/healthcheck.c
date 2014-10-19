@@ -31,7 +31,7 @@ confirmed.
 #define INM_MIN_DATA 10000
 #define INM_MIN_SAMPLE_SIZE 100
 #define INM_ACCURACY 1.05
-#define INM_MAX_SEQUENCE 5
+#define INM_MAX_SEQUENCE 20
 #define INM_MAX_COUNT (1 << 14)
 // Matches the Keccac sponge size
 #define INM_MAX_ENTROPY 1600
@@ -48,6 +48,7 @@ static double inmCurrentProbability;
 static uint64_t inmTotalBits;
 static bool inmPrevBit;
 static uint32_t inmEntropyLevel;
+static uint32_t inmNumSequentialZeros, inmNumSequentialOnes;
 
 // Free memory used by the health check.
 void inmHealthCheckStop(void) {
@@ -85,6 +86,8 @@ bool inmHealthCheckStart(uint8_t N, double K) {
     inmExpectedEntropyPerBit = log(K)/log(2.0);
     inmTotalBits = 0;
     inmPrevBit = false;
+    inmNumSequentialZeros = 0;
+    inmNumSequentialOnes = 0;
     resetStats();
     if(inmOnes == NULL || inmZeros == NULL) {
         inmHealthCheckStop();
@@ -112,6 +115,32 @@ static void scaleStats(void) {
 // This should be called for each bit generated.
 bool inmHealthCheckAddBit(bool bit) {
     inmTotalBits++;
+    if((inmTotalBits & 0xfff) == 0) {
+        printf("Estimated entropy per bit: %f, estimated K: %f\n", inmHealthCheckEstimateEntropyPerBit(),
+            inmHealthCheckEstimateK());
+    }
+    inmPrevBits = (inmPrevBits << 1) & ((1 << inmN)-1);
+    if(inmPrevBit) {
+        inmPrevBits |= 1;
+    }
+    inmPrevBit = bit;
+    if(inmNumBitsSampled > 100) {
+        if(bit) {
+            inmNumSequentialOnes++;
+            inmNumSequentialZeros = 0;
+            if(inmNumSequentialOnes > INM_MAX_SEQUENCE) {
+                printf("Maximum sequence of %d 1's exceeded\n", INM_MAX_SEQUENCE);
+                exit(1);
+            }
+        } else {
+            inmNumSequentialZeros++;
+            inmNumSequentialOnes = 0;
+            if(inmNumSequentialZeros > INM_MAX_SEQUENCE) {
+                printf("Maximum sequence of %d 0's exceeded\n", INM_MAX_SEQUENCE);
+                exit(1);
+            }
+        }
+    }
     if(inmOnes[inmPrevBits] > INM_MIN_SAMPLE_SIZE ||
             inmZeros[inmPrevBits] > INM_MIN_SAMPLE_SIZE) {
         uint32_t total = inmZeros[inmPrevBits] + inmOnes[inmPrevBits];
@@ -146,12 +175,6 @@ bool inmHealthCheckAddBit(bool bit) {
             scaleStats();
         }
     }
-    // Check for max sequence of 0's or 1's.
-    uint32_t lowBits = inmPrevBits & ((1 << (INM_MAX_SEQUENCE+1))-1);
-    if(lowBits == 0 || lowBits == ((1 << (INM_MAX_SEQUENCE+1))-1)) {
-        printf("Maximum sequence of %d 0's or 1's exceeded\n", INM_MAX_SEQUENCE);
-        return false;
-    }
     //printf("prevBits: %x\n", inmPrevBits);
     if(inmNumBitsSampled < INM_MIN_DATA) {
         return true; // Not enough data yet to test
@@ -177,9 +200,6 @@ bool inmHealthCheckAddBit(bool bit) {
 // Once we have enough samples, we know that entropyPerBit = log(K)/log(2), so
 // K must be 2^entryopPerBit.
 double inmHealthCheckEstimateK(void) {
-    if(inmNumBitsOfEntropy < INM_MIN_DATA) {
-        return inmK;
-    }
     double entropyPerBit = (double)inmNumBitsOfEntropy/inmNumBitsCounted;
     return pow(2.0, entropyPerBit);
 }
@@ -187,9 +207,6 @@ double inmHealthCheckEstimateK(void) {
 // Once we have enough samples, we know that entropyPerBit = log(K)/log(2), so
 // K must be 2^entryopPerBit.
 double inmHealthCheckEstimateEntropyPerBit(void) {
-    if(inmNumBitsSampled < INM_MIN_DATA) {
-        return inmExpectedEntropyPerBit;
-    }
     return (double)inmNumBitsOfEntropy/inmNumBitsCounted;
 }
 
@@ -277,13 +294,8 @@ static inline bool updateA(double *A, double K, double noise) {
 }
 
 static inline bool computeRandBit(double *A, double K, double noiseAmplitude) {
-    inmPrevBits = (inmPrevBits << 1) & ((1 << inmN)-1);
-    if(inmPrevBit) {
-        inmPrevBits |= 1;
-    }
     double noise = noiseAmplitude*(((double)rand()/RAND_MAX) - 0.5);
-    inmPrevBit = updateA(A, K, noise);
-    return inmPrevBit;
+    return updateA(A, K, noise);
 }
 
 int main() {

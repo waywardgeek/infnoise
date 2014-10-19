@@ -27,26 +27,23 @@ static void extractBytes(uint8_t *bytes, uint8_t *inBuf, bool raw) {
         uint32_t j;
         uint8_t byte = 0;
         for(j = 0; j < 8; j++) {
-            byte <<= 1;
-            uint8_t bit = 0;
+            //printf("%x ", inBuf[i*8 + j] & ~MASK);
+            uint8_t val = inBuf[i*8 + j];
+            uint8_t bit;
             if(j & 1) {
-                // SWEN2 is enabled on odd cycles.  We should read COMP1 since it's stable
-                if(bytes[i*8 + j] & (1 << COMP1)) {
-                    bit = 1;
-                }
+                bit = (val >> COMP1) & 1;
             } else {
-                // SWEN1 is enabled on even cycles.  We should read COMP2 since it's stable
-                if(bytes[i*8 + j] & (1 << COMP1)) {
-                    bit = 1;
-                }
+                bit = (val >> COMP2) & 1;
             }
-            byte |= bit;
+            byte = (byte << 1) | bit;
             // This is a good place to feed the bit from the INM to the health checker.
+            //printf("Adding bit %u\n", bit);
             if(!raw && !inmHealthCheckAddBit(bit)) {
                 fprintf(stderr, "Health check of Infinite Noise Multiplier failed!\n");
                 exit(1);
             }
         }
+        //printf("extracted byte:%x\n", byte);
         bytes[i] = byte;
     }
 }
@@ -58,10 +55,12 @@ static void processBytes(uint8_t *keccakState, uint8_t *bytes, bool raw) {
     if(raw) {
         // In raw mode, we disable the health check and whitening, and just output raw
         // data from the INM.
+        /*
         if(fwrite(bytes, 1, BUFLEN/8, stdout) != BUFLEN/8) {
             fprintf(stderr, "Unable to write output from Infinite Noise Multiplier\n");
             exit(1);
         }
+        */
         return;
     }
     uint32_t i;
@@ -73,10 +72,12 @@ static void processBytes(uint8_t *keccakState, uint8_t *bytes, bool raw) {
             // Also, we output data at 1/2 the rate of entropy added to the sponge
             uint8_t dataOut[8];
             KeccakExtract(keccakState, dataOut, 1);
+            /*
             if(fwrite(dataOut, 1, 8, stdout) != 8) {
                 fprintf(stderr, "Unable to write output from Infinite Noise Multiplier\n");
                 exit(1);
             }
+            */
             inmHealthCheckReduceEntropyLevel(16);
         }
     }
@@ -98,7 +99,7 @@ int main(int argc, char **argv)
 
     // Initialize FTDI context
     ftdi_init(&ftdic);
-    if(!inmHealthCheckStart(7, 1.82)) {
+    if(!inmHealthCheckStart(9, 1.82)) {
         puts("Can't intialize health checker\n");
         return 1;
     }
@@ -112,7 +113,8 @@ int main(int argc, char **argv)
     }
 
     // Set high baud rate
-    int rc = ftdi_set_baudrate(&ftdic, 3000000);
+    int rc = 0;
+    //rc = ftdi_set_baudrate(&ftdic, 3000000);
     if(rc == -1) {
         puts("Invalid baud rate\n");
         return -1;
@@ -134,15 +136,27 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    /* Endless loop: invert LED state, write output, pause 1 second */
+    // Endless loop: set SW1EN and SW2EN alternately
     uint32_t i;
     uint8_t outBuf[BUFLEN], inBuf[BUFLEN];
     for(i = 0; i < BUFLEN; i++) {
         // Alternate Ph1 and Ph2 - maybe should have both off in between
         outBuf[i] = i & 1?  (1 << SWEN2) : (1 << SWEN1);
-        //outBuf[i] = i;
     }
+    //outBuf[BUFLEN-1] = 0;
+
     while(true) {
+        for(i = 0; i < BUFLEN; i++) {
+            if(ftdi_write_data(&ftdic, outBuf + i, 1) != 1) {
+                puts("USB write failed\n");
+                return -1;
+            }
+            if(ftdi_read_data(&ftdic, inBuf + i, 1) != 1) {
+                puts("USB read failed\n");
+                return -1;
+            }
+        }
+        /*
         if(ftdi_write_data(&ftdic, outBuf, BUFLEN) != BUFLEN) {
             puts("USB write failed\n");
             return -1;
@@ -151,9 +165,10 @@ int main(int argc, char **argv)
             puts("USB read failed\n");
             return -1;
         }
+        */
         uint8_t bytes[BUFLEN/8];
         extractBytes(bytes, inBuf, raw);
-        processBytes(keccakState, bytes, raw);
+        //processBytes(keccakState, bytes, raw);
     }
     return 0;
 }
