@@ -28,7 +28,7 @@ confirmed.
 #include <time.h>
 #include "healthcheck.h"
 
-#define INM_MIN_DATA 10000
+#define INM_MIN_DATA 80000
 #define INM_MIN_SAMPLE_SIZE 100
 #define INM_ACCURACY 1.05
 #define INM_MAX_SEQUENCE 20
@@ -38,7 +38,7 @@ confirmed.
 
 static uint8_t inmN;
 static uint32_t inmPrevBits;
-static uint32_t inmNumBitsCounted, inmNumBitsSampled;
+static uint32_t inmNumBitsSampled;
 static uint32_t *inmOnes, *inmZeros;
 static double inmK, inmExpectedEntropyPerBit;
 // The total probability of generating the string of states we did is
@@ -63,7 +63,6 @@ void inmHealthCheckStop(void) {
 // Reset the statistics.
 static void resetStats(void) {
     inmNumBitsSampled = 0;
-    inmNumBitsCounted = 0;
     inmCurrentProbability = 1.0;
     inmNumBitsOfEntropy = 0;
     inmEntropyLevel = 0;
@@ -105,17 +104,20 @@ static void scaleStats(void) {
         inmZeros[i] >>= 1;
         inmOnes[i] >>= 1;
     }
-    if(inmNumBitsSampled > 2*INM_MIN_DATA) {
-        inmNumBitsCounted = inmNumBitsCounted*(uint64_t)2*INM_MIN_DATA/inmNumBitsSampled;
-        inmNumBitsOfEntropy = inmNumBitsOfEntropy*(uint64_t)2*INM_MIN_DATA/inmNumBitsSampled;
-        inmNumBitsSampled = 2*INM_MIN_DATA;
-    }
+}
+
+// If running continuously, it is possible to start overflowing the 32-bit counters for
+// zeros and ones.  Check for this, and scale the stats if needed.
+static void scaleEntropy(void) {
+    printf("Scaling entropy...\n");
+    inmNumBitsOfEntropy = inmNumBitsOfEntropy*(uint64_t)INM_MIN_DATA/(2*inmNumBitsSampled);
+    inmNumBitsSampled = INM_MIN_DATA/2;
 }
 
 // This should be called for each bit generated.
 bool inmHealthCheckAddBit(bool bit) {
     inmTotalBits++;
-    if((inmTotalBits & 0xfff) == 0) {
+    if((inmTotalBits & 0xffff) == 0) {
         printf("Estimated entropy per bit: %f, estimated K: %f\n", inmHealthCheckEstimateEntropyPerBit(),
             inmHealthCheckEstimateK());
     }
@@ -141,28 +143,24 @@ bool inmHealthCheckAddBit(bool bit) {
             }
         }
     }
-    if(inmOnes[inmPrevBits] > INM_MIN_SAMPLE_SIZE ||
-            inmZeros[inmPrevBits] > INM_MIN_SAMPLE_SIZE) {
-        uint32_t total = inmZeros[inmPrevBits] + inmOnes[inmPrevBits];
-        if(bit) {
-            if(inmOnes[inmPrevBits] != 0) {
-                inmCurrentProbability *= (double)inmOnes[inmPrevBits]/total;
-            }
-        } else {
-            if(inmZeros[inmPrevBits] != 0) {
-                inmCurrentProbability *= (double)inmZeros[inmPrevBits]/total;
-            }
+    uint32_t total = inmZeros[inmPrevBits] + inmOnes[inmPrevBits];
+    if(bit) {
+        if(inmOnes[inmPrevBits] != 0) {
+            inmCurrentProbability *= (double)inmOnes[inmPrevBits]/total;
         }
-        while(inmCurrentProbability <= 0.5) {
-            inmCurrentProbability *= 2.0;
-            inmNumBitsOfEntropy++;
-            if(inmHealthCheckOkToUseData() && inmEntropyLevel < INM_MAX_ENTROPY) {
-                inmEntropyLevel++;
-            }
+    } else {
+        if(inmZeros[inmPrevBits] != 0) {
+            inmCurrentProbability *= (double)inmZeros[inmPrevBits]/total;
         }
-        //printf("probability:%f\n", inmCurrentProbability);
-        inmNumBitsCounted++;
     }
+    while(inmCurrentProbability <= 0.5) {
+        inmCurrentProbability *= 2.0;
+        inmNumBitsOfEntropy++;
+        if(inmHealthCheckOkToUseData() && inmEntropyLevel < INM_MAX_ENTROPY) {
+            inmEntropyLevel++;
+        }
+    }
+    //printf("probability:%f\n", inmCurrentProbability);
     inmNumBitsSampled++;
     if(bit) {
         inmOnes[inmPrevBits]++;
@@ -175,24 +173,8 @@ bool inmHealthCheckAddBit(bool bit) {
             scaleStats();
         }
     }
-    //printf("prevBits: %x\n", inmPrevBits);
-    if(inmNumBitsSampled < INM_MIN_DATA) {
-        return true; // Not enough data yet to test
-    }
-    if(inmNumBitsSampled == INM_MIN_DATA && inmNumBitsCounted < INM_MIN_DATA*0.99) {
-        // Wait until we have enough data to start measuring entropy
-        resetStats();
-        return true;
-    }
     if(inmNumBitsSampled == INM_MIN_DATA) {
-        printf("Generated a total of %lu bits to initialize health check\n", inmTotalBits);
-    }
-    // Check the entropy is in line with expectations
-    uint32_t expectedEntropy = inmExpectedEntropyPerBit*inmNumBitsCounted;
-    if(inmNumBitsOfEntropy > expectedEntropy*INM_ACCURACY || inmNumBitsOfEntropy < expectedEntropy/INM_ACCURACY) {
-        printf("entropy:%u, expected entropy:%u, num bits counted:%u, num bits sampled:%u\n",
-            inmNumBitsOfEntropy, expectedEntropy, inmNumBitsCounted, inmNumBitsSampled);
-        return false;
+        scaleEntropy();
     }
     return true;
 }
@@ -200,14 +182,14 @@ bool inmHealthCheckAddBit(bool bit) {
 // Once we have enough samples, we know that entropyPerBit = log(K)/log(2), so
 // K must be 2^entryopPerBit.
 double inmHealthCheckEstimateK(void) {
-    double entropyPerBit = (double)inmNumBitsOfEntropy/inmNumBitsCounted;
+    double entropyPerBit = (double)inmNumBitsOfEntropy/inmNumBitsSampled;
     return pow(2.0, entropyPerBit);
 }
 
 // Once we have enough samples, we know that entropyPerBit = log(K)/log(2), so
 // K must be 2^entryopPerBit.
 double inmHealthCheckEstimateEntropyPerBit(void) {
-    return (double)inmNumBitsOfEntropy/inmNumBitsCounted;
+    return (double)inmNumBitsOfEntropy/inmNumBitsSampled;
 }
 
 // Return true if the health checker has enough data to verify proper operation of the INM.

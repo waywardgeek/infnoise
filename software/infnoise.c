@@ -9,7 +9,9 @@
 #include "KeccakF-1600-interface.h"
 
 // Must be multiple of 64
-#define BUFLEN 64
+//#define BUFLEN 64
+// The FT240X has a 512 byte buffer
+#define BUFLEN 512
 
 #define COMP1 1
 #define COMP2 4
@@ -99,7 +101,7 @@ int main(int argc, char **argv)
 
     // Initialize FTDI context
     ftdi_init(&ftdic);
-    if(!inmHealthCheckStart(9, 1.82)) {
+    if(!inmHealthCheckStart(14, 1.82)) {
         puts("Can't intialize health checker\n");
         return 1;
     }
@@ -114,7 +116,7 @@ int main(int argc, char **argv)
 
     // Set high baud rate
     int rc = 0;
-    //rc = ftdi_set_baudrate(&ftdic, 3000000);
+    rc = ftdi_set_baudrate(&ftdic, 3000000);
     if(rc == -1) {
         puts("Invalid baud rate\n");
         return -1;
@@ -146,6 +148,7 @@ int main(int argc, char **argv)
     //outBuf[BUFLEN-1] = 0;
 
     while(true) {
+        /*
         for(i = 0; i < BUFLEN; i++) {
             if(ftdi_write_data(&ftdic, outBuf + i, 1) != 1) {
                 puts("USB write failed\n");
@@ -156,7 +159,7 @@ int main(int argc, char **argv)
                 return -1;
             }
         }
-        /*
+        */
         if(ftdi_write_data(&ftdic, outBuf, BUFLEN) != BUFLEN) {
             puts("USB write failed\n");
             return -1;
@@ -165,7 +168,6 @@ int main(int argc, char **argv)
             puts("USB read failed\n");
             return -1;
         }
-        */
         uint8_t bytes[BUFLEN/8];
         extractBytes(bytes, inBuf, raw);
         //processBytes(keccakState, bytes, raw);
