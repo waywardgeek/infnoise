@@ -24,7 +24,10 @@ Here's the board layout so far...
 ![Board layout of Infinite Noise Multiplier](eagle/infnoise_brd.png?raw=true "Infinite
 Noise Multiplier")
 
-The breadboard works!
+The breadboard works!  It generates 300,000 bits per second, resulting in 112,000 bits per
+second after whitening.  Estimated entropy per bit is 0.836.  By design, it should be
+0.796, so it's about 5% higher than predicted.  This is likely due to high sources of
+noise (such as EMI from my computer), and comonent tolerance.
 
 ![Breadboard of Infinite Noise Multiplier](infnoise_breadboard.jpg?raw=true "Infinite
 Noise Multiplier")

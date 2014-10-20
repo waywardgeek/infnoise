@@ -116,7 +116,8 @@ int main(int argc, char **argv)
 
     // Set high baud rate
     int rc = 0;
-    rc = ftdi_set_baudrate(&ftdic, 3000000);
+    //rc = ftdi_set_baudrate(&ftdic, 3000000);
+    rc = ftdi_set_baudrate(&ftdic, 500000);
     if(rc == -1) {
         puts("Invalid baud rate\n");
         return -1;
