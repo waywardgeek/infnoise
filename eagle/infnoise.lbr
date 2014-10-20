@@ -455,7 +455,7 @@ Source: http://www.onsemi.com/pub/Collateral/MC34164-D.PDF</description>
 <text x="-7.62" y="17.78" size="1.778" layer="95">&gt;NAME</text>
 <text x="-7.62" y="-12.7" size="1.778" layer="96">&gt;VALUE</text>
 </symbol>
-<symbol name="NS5B1G385DTT1G">
+<symbol name="MC74VHC1G66DFT1G">
 <circle x="2.54" y="0.381" radius="0.381" width="0.254" layer="94"/>
 <pin name="COM" x="-7.62" y="0" visible="pad" length="middle"/>
 <pin name="NO" x="7.62" y="0" visible="pad" length="middle" rot="R180"/>
@@ -643,24 +643,12 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 </device>
 </devices>
 </deviceset>
-<deviceset name="NS5B1G385" prefix="SW">
+<deviceset name="MC74VHC1G66" prefix="SW">
 <gates>
-<gate name="G$1" symbol="NS5B1G385DTT1G" x="0" y="-2.54"/>
+<gate name="G$1" symbol="MC74VHC1G66DFT1G" x="0" y="-2.54"/>
 </gates>
 <devices>
-<device name="DTT1G" package="TSOP-5">
-<connects>
-<connect gate="G$1" pin="COM" pad="1"/>
-<connect gate="G$1" pin="GND" pad="3"/>
-<connect gate="G$1" pin="IN" pad="4"/>
-<connect gate="G$1" pin="NO" pad="2"/>
-<connect gate="G$1" pin="VCC" pad="5"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-<device name="DFT2G" package="SC70-5L">
+<device name="DFT1G" package="SC70-5L">
 <connects>
 <connect gate="G$1" pin="COM" pad="1"/>
 <connect gate="G$1" pin="GND" pad="3"/>
