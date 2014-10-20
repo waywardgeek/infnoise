@@ -240,7 +240,8 @@ double inmHealthCheckEstimateEntropyPerBit(void) {
 
 // Return true if the health checker has enough data to verify proper operation of the INM.
 bool inmHealthCheckOkToUseData(void) {
-    return inmTotalBits >= INM_MIN_DATA;
+    double entropy = inmHealthCheckEstimateEntropyPerBit();
+    return inmTotalBits >= INM_MIN_DATA && entropy*INM_ACCURACY >= inmExpectedEntropyPerBit;
 }
 
 // Just return the entropy level added so far in bytes;

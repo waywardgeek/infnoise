@@ -24,10 +24,13 @@ Here's the board layout so far...
 ![Board layout of Infinite Noise Multiplier](eagle/infnoise_brd.png?raw=true "Infinite
 Noise Multiplier")
 
-The breadboard works!  It generates 300,000 bits per second, resulting in 112,000 bits per
+The breadboard works!  It generates 300,000 bits per second, resulting in 121,000 bits per
 second after whitening.  Estimated entropy per bit is 0.836.  By design, it should be
-0.796, so it's about 5% higher than predicted.  This is likely due to high sources of
+0.81, so it's about 3.2% higher than predicted.  This is likely due to high sources of
 noise (such as EMI from my computer), and comonent tolerance.
+
+The breadboard proved out much of the theory of operation, as well os providing raw data
+for entropy testing.
 
 ![Breadboard of Infinite Noise Multiplier](infnoise_breadboard.jpg?raw=true "Infinite
 Noise Multiplier")
@@ -145,13 +148,13 @@ Infinite Noise Multiplier")
 ![Simulation of fast Infinite Noise Multiplier](infnoise_fast/longsim.png?raw=true "Fast
 Infinite Noise Multiplier")
 
-### Designing Infinite Noise Multipliers
+### Theory of Operation
 
 The ideal case is easy to understand.  Each clock cycle the value A is multiplied by 2X.
-If the result is above Vref (typically 1/2 supply), then the comparitor will output a 1,
-and if it is below Vref, it will output a 0.  Both should occur with equal probability,
-with no correlation between bits.  This has been verified to some extent with a C
-simulation and dieharder.
+If this results in A being above Vsupply, then Vsupply is subtracted.  If the result is
+above Vref (typically 1/2 supply), then the comparitor will output a 1, and if it is below
+Vref, it will output a 0.  Both should occur with equal probability, with no correlation
+between bits.  This has been verified C simulations and dieharder.
 
 However, due to accuracy limitations on real components, we cannot multiply by exactly 2X
 every cycle.  When the loop amplification is < 2X, the entropy per output bit is reduced,
@@ -162,7 +165,7 @@ then:
 
 This provides a simple way to calculate the entropy added to an entropy pool per bit.
 The program infnoise.c directly measures the entropy of INM output, and compares this to
-the estimated value.  Simulations show that they correlate well.
+the estimated value.  Both simulations and actual hardware show that they correlate well.
 
 There are two significant variations on the INM architecture so far.  The first one, done
 with CMOS transistors, which is suitable for an IC implementation, does a multiply by 2 by
@@ -170,16 +173,19 @@ stacking capacitors, and if the result is greather than Vref, it subtracts a val
 a capacitor again) to reduce the value to below Vref.  This is a literal implementation of
 multiplication mod Vref.
 
-The board level versions were simplified using a couple of tricks.  First, multiplication
-by 2 modulo Vsup is accomplished by multiplying relative to either GND or Vsup.  When
-multiplying relative to GND, a 0.2V signal becomes 0.4V.  When multiplying relative to a
-3V Vsup, a 2.8V signal becomes 2.6V.  The math comes out the same as if I'd multiplied
-relative to GND, and simply subtracted Vsup if the result was > Vsup:
+The "fast" board level version uses two op-amps and comparator to impliment a modular
+multiplication using a couple of tricks.  First, multiplication by 2 modulo Vsup is
+accomplished by multiplying relative to either GND or Vsup.  When multiplying relative to
+GND, a 0.2V signal becomes 0.4V.  When multiplying relative to a 3V Vsup, a 2.8V signal
+becomes 2.6V.  The math comes out the same as if I'd multiplied relative to GND, and
+simply subtracted Vsup if the result was > Vsup:
 
     Vsup - 2*(Vsup - A) = Vsup = 2*Vsup + 2*A = 2*A - Vsup
+        = 2*A mod Vsup
 
 So, we multiply by 2 either way, and only subtract out Vsup if needed.  This is identical
-to multiplication modulo Vsup.
+to multiplication modulo Vsup.  The comparator simply selects the output of one of the wo
+op-amps.
 
 A second trick used to create the "small" version was to notice that the output of the
 comparator could be used to combine both multiplier op-amps into 1.  This abuse of the
@@ -187,8 +193,7 @@ comparator output needs to be carefully checked.  In particular, the output is g
 treated as a digital signal, but in this case, it is used as an analog singal.  Care
 should be taken not to load the OUT signal significantly, and also to be sure the
 comparator can drive the resistive load with no more droop than the buffer driving signal
-A.  However, don't be concerned about noise.  Cross-talk is OK.  It can only add to the
-entropy.
+A.
 
 ### Analisys of Analog Modular Multiplication
 
@@ -303,7 +308,7 @@ A(30) would have been, he cannot control the result.  He can only make it more r
 The value of A acts as an entropy pool, collecting entropy from all signals that impact
 it's value.
 
-### We Don't Need the Zener
+### We Don't Need Zener Noise
 
 In reality, there are many sources of unpredictable noise in every circuit.  There's large
 predictable and controlable noise, like power supply noise, and tiny 1/f noise in the
@@ -384,10 +389,11 @@ key, the more likely it is insecure.  Therefore, the initial Infinite Noise Mult
 does not even have a microcontroller onboard, and only returns raw data, direct from the
 noise source.  Whitening is done in the INM driver.
 
-The INM driver uses the reference version of the SHA3 "sponge" with a 1600 bit state.  The
-state of the sponge needs to be made unpredictable.  It is initialized with 3200 bits of
-entropy before any data is output.  After that, reading bytes from the SHA3 sponge blocks
-until twice as many bytes of entropy have been fed into the sponge from the INM.
+The INM driver uses the reference version of the SHA3 "sponge", called Keccak, with a 1600
+bit state.  To make the state of the sponge unpredictable, it is initialized with 20,000
+bits of of INM data before any data is output.  After that, reading bytes from the SHA3
+sponge blocks until twice as many bytes of entropy have been fed into the sponge from the
+INM.
 
 ### Non-Power-of-Two Multiplication
 
