@@ -108,7 +108,7 @@ bool inmHealthCheckStart(uint8_t N, double K) {
 // zeros and ones.  Check for this, and scale the stats if needed.
 static void scaleStats(void) {
     uint32_t i;
-    printf("Scaling stats...\n");
+    //printf("Scaling stats...\n");
     for(i = 0; i < (1 << inmN); i++) {
         inmZerosEven[i] >>= 1;
         inmOnesEven[i] >>= 1;
@@ -129,11 +129,13 @@ static void scaleEntropy(void) {
 bool inmHealthCheckAddBit(bool bit, bool even) {
     inmTotalBits++;
     if((inmTotalBits & 0xfffff) == 0) {
-        printf("Generated %lu bots.  Estimated entropy per bit: %f, estimated K: %f\n",
-            inmTotalBits, inmHealthCheckEstimateEntropyPerBit(), inmHealthCheckEstimateK());
+        //printf("Generated %lu bits.  Estimated entropy per bit: %f, estimated K: %f\n",
+            //inmTotalBits, inmHealthCheckEstimateEntropyPerBit(), inmHealthCheckEstimateK());
+        /*
         if(inmTotalBits > 3000000) {
             exit(0);
         }
+        */
     }
     inmPrevBits = (inmPrevBits << 1) & ((1 << inmN)-1);
     if(inmPrevBit) {
@@ -145,15 +147,15 @@ bool inmHealthCheckAddBit(bool bit, bool even) {
             inmNumSequentialOnes++;
             inmNumSequentialZeros = 0;
             if(inmNumSequentialOnes > INM_MAX_SEQUENCE) {
-                printf("Maximum sequence of %d 1's exceeded\n", INM_MAX_SEQUENCE);
-                //exit(1);
+                fprintf(stderr, "Maximum sequence of %d 1's exceeded\n", INM_MAX_SEQUENCE);
+                exit(1);
             }
         } else {
             inmNumSequentialZeros++;
             inmNumSequentialOnes = 0;
             if(inmNumSequentialZeros > INM_MAX_SEQUENCE) {
-                printf("Maximum sequence of %d 0's exceeded\n", INM_MAX_SEQUENCE);
-                //exit(1);
+                fprintf(stderr, "Maximum sequence of %d 0's exceeded\n", INM_MAX_SEQUENCE);
+                exit(1);
             }
         }
     }
@@ -230,7 +232,7 @@ double inmHealthCheckEstimateEntropyPerBit(void) {
 
 // Return true if the health checker has enough data to verify proper operation of the INM.
 bool inmHealthCheckOkToUseData(void) {
-    return inmNumBitsSampled >= INM_MIN_DATA;
+    return inmTotalBits >= INM_MIN_DATA;
 }
 
 // Just return the entropy level added so far in bytes;

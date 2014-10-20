@@ -57,12 +57,10 @@ static void processBytes(uint8_t *keccakState, uint8_t *bytes, bool raw) {
     if(raw) {
         // In raw mode, we disable the health check and whitening, and just output raw
         // data from the INM.
-        /*
         if(fwrite(bytes, 1, BUFLEN/8, stdout) != BUFLEN/8) {
             fprintf(stderr, "Unable to write output from Infinite Noise Multiplier\n");
             exit(1);
         }
-        */
         return;
     }
     uint32_t i;
@@ -72,14 +70,16 @@ static void processBytes(uint8_t *keccakState, uint8_t *bytes, bool raw) {
         if(inmHealthCheckOkToUseData() && inmHealthCheckGetEntropyLevel() >= 16) {
             // Only output byes if we have enough entropy and health check passes
             // Also, we output data at 1/2 the rate of entropy added to the sponge
+            //uint32_t j;
+            //for(j = 0; j < 1 << 24; j++) {
             uint8_t dataOut[8];
+            KeccakPermutation(keccakState);
             KeccakExtract(keccakState, dataOut, 1);
-            /*
             if(fwrite(dataOut, 1, 8, stdout) != 8) {
                 fprintf(stderr, "Unable to write output from Infinite Noise Multiplier\n");
                 exit(1);
             }
-            */
+            //}
             inmHealthCheckReduceEntropyLevel(16);
         }
     }
@@ -171,7 +171,7 @@ int main(int argc, char **argv)
         }
         uint8_t bytes[BUFLEN/8];
         extractBytes(bytes, inBuf, raw);
-        //processBytes(keccakState, bytes, raw);
+        processBytes(keccakState, bytes, raw);
     }
     return 0;
 }
