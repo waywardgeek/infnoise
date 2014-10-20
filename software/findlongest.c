@@ -4,8 +4,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
-#define MAX_STRING_SIZE 35
+#define MAX_STRING_SIZE 34
+
+// Generate random data for use in testing.
+static bool *generateRandomData(uint32_t size) {
+    bool *data = calloc(size, sizeof(bool));
+    srand(time(NULL));
+    uint32_t i;
+    for(i = 0; i < size; ) {
+        uint32_t randVal = rand();
+        uint32_t j;
+        for(j = 0; j < 16; j++) {
+            if(randVal & 1) {
+                data[i] = true;
+            }
+            i++;
+            randVal >>= 1;
+        }
+    }
+    return data;
+}
 
 static bool *readDataFromFile(char *fileName, uint64_t *length) {
     printf("Reading data\n");
@@ -61,12 +81,23 @@ static bool hasSubstringOfLength(uint32_t substringLen, bool *data, uint32_t dat
 }
 
 int main(int argc, char **argv) {
+    bool test = false;
     if(argc != 2) {
-        fprintf(stderr, "Usage: findlongest file\n");
+        fprintf(stderr, "Usage: findlongest file\n"
+                        "       findlongest --test\n");
         return 1;
     }
+    if(!strcmp(argv[1], "--test")) {
+        test = true;
+    }
     uint64_t dataLen;
-    bool *data = readDataFromFile(argv[1], &dataLen);
+    bool *data;
+    if(test) {
+        dataLen = 1 << 24;
+        data = generateRandomData(dataLen);
+    } else {
+        data = readDataFromFile(argv[1], &dataLen);
+    }
     uint8_t *stringsSeen = calloc((uint64_t)1 << (MAX_STRING_SIZE-3), sizeof(uint8_t));
     uint32_t len;
     for(len = 4; len <= MAX_STRING_SIZE; len++) {

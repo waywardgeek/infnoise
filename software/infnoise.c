@@ -8,9 +8,7 @@
 #include "healthcheck.h"
 #include "KeccakF-1600-interface.h"
 
-// Must be multiple of 64
-//#define BUFLEN 64
-// The FT240X has a 512 byte buffer
+// The FT240X has a 512 byte buffer.  Must be multiple of 64
 #define BUFLEN 512
 
 #define COMP1 1
@@ -89,19 +87,29 @@ int main(int argc, char **argv)
 {
     struct ftdi_context ftdic;
     bool raw = false;
+    bool debug = false;
 
     // Process arguments
-    if(argc > 2 || (argc == 2 && strcmp(argv[1], "--raw"))) {
-        fprintf(stderr, "Usage: infnoise [--raw]\n");
+    if(argc > 2) {
+        fprintf(stderr, "Usage: infnoise [--raw]\n"
+                        "       infnoise --debug\n");
         return 1;
     }
     if(argc == 2) {
-        raw = true;
+        if(!strcmp(argv[1], "--raw")) {
+            raw = true;
+        } else if(!strcmp(argv[1], "--debug")) {
+            debug = true;
+        } else {
+            fprintf(stderr, "Usage: infnoise [--raw]\n"
+                            "       infnoise --debug\n");
+            return 1;
+        }
     }
 
     // Initialize FTDI context
     ftdi_init(&ftdic);
-    if(!inmHealthCheckStart(14, 1.82)) {
+    if(!inmHealthCheckStart(14, 1.82, debug)) {
         puts("Can't intialize health checker\n");
         return 1;
     }
@@ -116,7 +124,6 @@ int main(int argc, char **argv)
 
     // Set high baud rate
     int rc = 0;
-    //rc = ftdi_set_baudrate(&ftdic, 3000000);
     rc = ftdi_set_baudrate(&ftdic, 500000);
     if(rc == -1) {
         puts("Invalid baud rate\n");
@@ -171,7 +178,9 @@ int main(int argc, char **argv)
         }
         uint8_t bytes[BUFLEN/8];
         extractBytes(bytes, inBuf, raw);
-        processBytes(keccakState, bytes, raw);
+        if(!debug) {
+            processBytes(keccakState, bytes, raw);
+        }
     }
     return 0;
 }

@@ -50,6 +50,7 @@ static uint64_t inmTotalBits;
 static bool inmPrevBit;
 static uint32_t inmEntropyLevel;
 static uint32_t inmNumSequentialZeros, inmNumSequentialOnes;
+static bool inmDebug;
 
 // Free memory used by the health check.
 void inmHealthCheckStop(void) {
@@ -78,10 +79,11 @@ static void resetStats(void) {
 // Initialize the health check.  N is the number of bits used to predict the next bit.
 // At least 8 bits must be used, and no more than 30.  In general, we should use bits
 // large enough so that INM output will be uncorrelated with bits N samples back in time.
-bool inmHealthCheckStart(uint8_t N, double K) {
+bool inmHealthCheckStart(uint8_t N, double K, bool debug) {
     if(N < 1 || N > 30) {
         return false;
     }
+    inmDebug = debug;
     inmNumBitsOfEntropy = 0;
     inmCurrentProbability = 1.0;
     inmK = K;
@@ -108,7 +110,9 @@ bool inmHealthCheckStart(uint8_t N, double K) {
 // zeros and ones.  Check for this, and scale the stats if needed.
 static void scaleStats(void) {
     uint32_t i;
-    //printf("Scaling stats...\n");
+    if(inmDebug) {
+        printf("Scaling stats...\n");
+    }
     for(i = 0; i < (1 << inmN); i++) {
         inmZerosEven[i] >>= 1;
         inmOnesEven[i] >>= 1;
@@ -120,7 +124,9 @@ static void scaleStats(void) {
 // If running continuously, it is possible to start overflowing the 32-bit counters for
 // zeros and ones.  Check for this, and scale the stats if needed.
 static void scaleEntropy(void) {
-    //printf("Scaling entropy...\n");
+    if(inmDebug) {
+        printf("Scaling entropy...\n");
+    }
     inmNumBitsOfEntropy = inmNumBitsOfEntropy*(uint64_t)INM_MIN_DATA/(2*inmNumBitsSampled);
     inmNumBitsSampled = INM_MIN_DATA/2;
 }
@@ -128,9 +134,11 @@ static void scaleEntropy(void) {
 // This should be called for each bit generated.
 bool inmHealthCheckAddBit(bool bit, bool even) {
     inmTotalBits++;
-    if((inmTotalBits & 0xfffff) == 0) {
-        //printf("Generated %lu bits.  Estimated entropy per bit: %f, estimated K: %f\n",
-            //inmTotalBits, inmHealthCheckEstimateEntropyPerBit(), inmHealthCheckEstimateK());
+    if((inmTotalBits & 0xffff) == 0) {
+        if(inmDebug) {
+            printf("Generated %lu bits.  Estimated entropy per bit: %f, estimated K: %f\n",
+                inmTotalBits, inmHealthCheckEstimateEntropyPerBit(), inmHealthCheckEstimateK());
+        }
         /*
         if(inmTotalBits > 3000000) {
             exit(0);
@@ -322,7 +330,7 @@ int main() {
     //double K = sqrt(2.0);
     double K = 1.82;
     uint8_t N = 16;
-    inmHealthCheckStart(N, K);
+    inmHealthCheckStart(N, K, true);
     srand(time(NULL));
     double A = (double)rand()/RAND_MAX; // Simulating INM
     double noiseAmplitude = 1.0/(1 << 10);

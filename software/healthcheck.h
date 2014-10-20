@@ -1,4 +1,4 @@
-bool inmHealthCheckStart(uint8_t N, double K);
+bool inmHealthCheckStart(uint8_t N, double K, bool debug);
 void inmHealthCheckStop(void);
 bool inmHealthCheckAddBit(bool bit, bool even);
 bool inmHealthCheckOkToUseData(void);
