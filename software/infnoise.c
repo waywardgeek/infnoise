@@ -40,7 +40,7 @@ static void extractBytes(uint8_t *bytes, uint8_t *inBuf, bool raw) {
             byte = (byte << 1) | bit;
             // This is a good place to feed the bit from the INM to the health checker.
             //printf("Adding bit %u\n", bit);
-            if(!raw && !inmHealthCheckAddBit(bit)) {
+            if(!raw && !inmHealthCheckAddBit(bit, j & 1)) {
                 fprintf(stderr, "Health check of Infinite Noise Multiplier failed!\n");
                 exit(1);
             }

@@ -39,7 +39,8 @@ confirmed.
 static uint8_t inmN;
 static uint32_t inmPrevBits;
 static uint32_t inmNumBitsSampled;
-static uint32_t *inmOnes, *inmZeros;
+static uint32_t *inmOnesEven, *inmZerosEven;
+static uint32_t *inmOnesOdd, *inmZerosOdd;
 static double inmK, inmExpectedEntropyPerBit;
 // The total probability of generating the string of states we did is
 // 1/(2^inmNumBitsOfEntropy * inmCurrentProbability).
@@ -52,11 +53,17 @@ static uint32_t inmNumSequentialZeros, inmNumSequentialOnes;
 
 // Free memory used by the health check.
 void inmHealthCheckStop(void) {
-    if(inmOnes != NULL) {
-        free(inmOnes);
+    if(inmOnesEven != NULL) {
+        free(inmOnesEven);
     }
-    if(inmZeros != NULL) {
-        free(inmZeros);
+    if(inmZerosEven != NULL) {
+        free(inmZerosEven);
+    }
+    if(inmOnesOdd != NULL) {
+        free(inmOnesOdd);
+    }
+    if(inmZerosOdd != NULL) {
+        free(inmZerosOdd);
     }
 }
 
@@ -80,15 +87,17 @@ bool inmHealthCheckStart(uint8_t N, double K) {
     inmK = K;
     inmN = N;
     inmPrevBits = 0;
-    inmOnes = calloc(1u << N, sizeof(uint32_t));
-    inmZeros = calloc(1u << N, sizeof(uint32_t));
+    inmOnesEven = calloc(1u << N, sizeof(uint32_t));
+    inmZerosEven = calloc(1u << N, sizeof(uint32_t));
+    inmOnesOdd = calloc(1u << N, sizeof(uint32_t));
+    inmZerosOdd = calloc(1u << N, sizeof(uint32_t));
     inmExpectedEntropyPerBit = log(K)/log(2.0);
     inmTotalBits = 0;
     inmPrevBit = false;
     inmNumSequentialZeros = 0;
     inmNumSequentialOnes = 0;
     resetStats();
-    if(inmOnes == NULL || inmZeros == NULL) {
+    if(inmOnesEven == NULL || inmZerosEven == NULL || inmOnesOdd == NULL || inmZerosOdd == NULL) {
         inmHealthCheckStop();
         return false;
     }
@@ -101,21 +110,23 @@ static void scaleStats(void) {
     uint32_t i;
     printf("Scaling stats...\n");
     for(i = 0; i < (1 << inmN); i++) {
-        inmZeros[i] >>= 1;
-        inmOnes[i] >>= 1;
+        inmZerosEven[i] >>= 1;
+        inmOnesEven[i] >>= 1;
+        inmZerosOdd[i] >>= 1;
+        inmOnesOdd[i] >>= 1;
     }
 }
 
 // If running continuously, it is possible to start overflowing the 32-bit counters for
 // zeros and ones.  Check for this, and scale the stats if needed.
 static void scaleEntropy(void) {
-    printf("Scaling entropy...\n");
+    //printf("Scaling entropy...\n");
     inmNumBitsOfEntropy = inmNumBitsOfEntropy*(uint64_t)INM_MIN_DATA/(2*inmNumBitsSampled);
     inmNumBitsSampled = INM_MIN_DATA/2;
 }
 
 // This should be called for each bit generated.
-bool inmHealthCheckAddBit(bool bit) {
+bool inmHealthCheckAddBit(bool bit, bool even) {
     inmTotalBits++;
     if((inmTotalBits & 0xffff) == 0) {
         printf("Estimated entropy per bit: %f, estimated K: %f\n", inmHealthCheckEstimateEntropyPerBit(),
@@ -132,25 +143,33 @@ bool inmHealthCheckAddBit(bool bit) {
             inmNumSequentialZeros = 0;
             if(inmNumSequentialOnes > INM_MAX_SEQUENCE) {
                 printf("Maximum sequence of %d 1's exceeded\n", INM_MAX_SEQUENCE);
-                exit(1);
+                //exit(1);
             }
         } else {
             inmNumSequentialZeros++;
             inmNumSequentialOnes = 0;
             if(inmNumSequentialZeros > INM_MAX_SEQUENCE) {
                 printf("Maximum sequence of %d 0's exceeded\n", INM_MAX_SEQUENCE);
-                exit(1);
+                //exit(1);
             }
         }
     }
-    uint32_t total = inmZeros[inmPrevBits] + inmOnes[inmPrevBits];
+    uint32_t zeros, ones;
+    if(even) {
+        zeros = inmZerosEven[inmPrevBits];
+        ones = inmOnesEven[inmPrevBits];
+    } else {
+        zeros = inmZerosOdd[inmPrevBits];
+        ones = inmOnesOdd[inmPrevBits];
+    }
+    uint32_t total = zeros + ones;
     if(bit) {
-        if(inmOnes[inmPrevBits] != 0) {
-            inmCurrentProbability *= (double)inmOnes[inmPrevBits]/total;
+        if(ones != 0) {
+            inmCurrentProbability *= (double)ones/total;
         }
     } else {
-        if(inmZeros[inmPrevBits] != 0) {
-            inmCurrentProbability *= (double)inmZeros[inmPrevBits]/total;
+        if(zeros != 0) {
+            inmCurrentProbability *= (double)zeros/total;
         }
     }
     while(inmCurrentProbability <= 0.5) {
@@ -163,14 +182,28 @@ bool inmHealthCheckAddBit(bool bit) {
     //printf("probability:%f\n", inmCurrentProbability);
     inmNumBitsSampled++;
     if(bit) {
-        inmOnes[inmPrevBits]++;
-        if(inmOnes[inmPrevBits] == INM_MAX_COUNT) {
-            scaleStats();
+        if(even) {
+            inmOnesEven[inmPrevBits]++;
+            if(inmOnesEven[inmPrevBits] == INM_MAX_COUNT) {
+                scaleStats();
+            }
+        } else {
+            inmOnesOdd[inmPrevBits]++;
+            if(inmOnesOdd[inmPrevBits] == INM_MAX_COUNT) {
+                scaleStats();
+            }
         }
     } else {
-        inmZeros[inmPrevBits]++;
-        if(inmZeros[inmPrevBits] == INM_MAX_COUNT) {
-            scaleStats();
+        if(even) {
+            inmZerosEven[inmPrevBits]++;
+            if(inmZerosEven[inmPrevBits] == INM_MAX_COUNT) {
+                scaleStats();
+            }
+        } else {
+            inmZerosOdd[inmPrevBits]++;
+            if(inmZerosOdd[inmPrevBits] == INM_MAX_COUNT) {
+                scaleStats();
+            }
         }
     }
     if(inmNumBitsSampled == INM_MIN_DATA) {
@@ -218,11 +251,11 @@ static void inmDumpStats(void) {
     uint32_t i;
     for(i = 0; i < 1 << inmN; i++) {
         //if(inmOnes[i] > 0 || inmZeros[i] > 0) {
-            printf("%x ones:%u zeros:%u\n", i, inmOnes[i], inmZeros[i]);
+            printf("%x onesEven:%u zerosEven:%u onesOdd:%u zerosOdd:%u\n",
+                i, inmOnesEven[i], inmZerosEven[i], inmOnesOdd[i], inmZerosOdd[i]);
         //}
     }
 }
-
 
 // Compare the ability to predict with 1 fewer bits and see how much less accurate we are.
 static void checkLSBStatsForNBits(uint8_t N) {
@@ -235,9 +268,9 @@ static void checkLSBStatsForNBits(uint8_t N) {
         uint32_t ones = 0;
         for(j = 0; j < (1 << (inmN - N)); j++) {
             uint32_t pos = i + j*(1 << N);
-            total += inmZeros[pos] + inmOnes[pos];
-            zeros += inmZeros[pos];
-            ones += inmOnes[pos];
+            total += inmZerosEven[pos] + inmOnesEven[pos];
+            zeros += inmZerosEven[pos];
+            ones += inmOnesEven[pos];
         }
         if(zeros >= ones) {
             totalRight += zeros;
@@ -295,7 +328,7 @@ int main() {
     }
     for(i = 0; i < 1 << 28; i++) {
         bool bit = computeRandBit(&A, K, noiseAmplitude);
-        if(!inmHealthCheckAddBit(bit)) {
+        if(!inmHealthCheckAddBit(bit, true)) {
             printf("Failed health check!\n");
             return 1;
         }

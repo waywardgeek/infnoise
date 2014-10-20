@@ -24,6 +24,11 @@ Here's the board layout so far...
 ![Board layout of Infinite Noise Multiplier](eagle/infnoise_brd.png?raw=true "Infinite
 Noise Multiplier")
 
+The breadboard works!
+
+![Breadboard of Infinite Noise Multiplier](infnoise_breadboard.jpg?raw=true "Infinite
+Noise Multiplier")
+
 If you are interested in building this version of the Infinite Noise Multiplier, you may
 be interested in opening eagle/BOM.ods in the git repo above.  It has all the Digikey and Mouser
 parts along with cost/1000 units.  The total for all the parts, including boards from OSH
