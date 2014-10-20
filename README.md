@@ -32,9 +32,9 @@ Noise Multiplier")
 If you are interested in building this version of the Infinite Noise Multiplier, you may
 be interested in opening eagle/BOM.ods in the git repo above.  It has all the Digikey and Mouser
 parts along with cost/1000 units.  The total for all the parts, including boards from OSH
-Park, come to $4.97 each, in 1,000 unit quantities.  However, that cost is dominated by
+Park, come to $5.44 each, in 1,000 unit quantities.  However, that cost is dominated by
 USB related parts, particularly the FT240X chip, the USB connector, and the USB-stick
-enclosure.  Just the components for the INM come out to $0.87.
+enclosure.  Just the components for the INM come out to $0.99.
 
 Here is a faster version that uses a more expensive op-amp from TI:
 
