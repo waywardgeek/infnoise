@@ -150,27 +150,36 @@ Infinite Noise Multiplier")
 
 ### Theory of Operation
 
-The ideal case is easy to understand.  Consider how a successive-aproximation A/D
-converter works.  Each clock, we compare the input voltage to the output of a D/A
-converter, and if it's higher, the next bit is 0, and if lower, it's a 0.  We use binary
-search to zero-in on the analog input value.  Here is a block diagram from Wikipedia for a
-SAR A/D:
+Consider how a successive-aproximation A/D converter works.  Each clock cycle, we compare
+the input voltage to the output of a D/A converter, and if it's higher, the next bit out
+is 1, and if lower, it's a 0.  We use binary search to zero-in on the analog input value.
+Here is a block diagram from Wikipedia:
 
 ![Successive aproximation A/D block diagram](images/SA_ADC_block_diagram.png?raw=true "SAR
 A/D Block Diagram")
 
 There is another way to build a successive-aproximation A/D that eliminates the D/A
-converter.  Compare the input to Vref as before, but if it is larger, subtract Vref.  Then
-multiply by 2X.  Every cycle, we get one more bit out.  We eliminate the D/A conveter, and
-can continue estimating lower and lower bits, as long as we want.  What are we measuring
-when we get down to bits higher than 30?  It's just noise in the circuit.
+converter.  Compare the input to Vref (1/2 supply), and if it is larger, subtract Vref
+from the input.  Then multiply by 2X.  The bit out is the value of the comparator.
 
-If this A/D converter was perfect, both 0's and 1's should occur with equal probability,
-with no correlation between bits.  This has been verified C simulations and dieharder.
-However, due to accuracy limitations on real components, we cannot multiply by exactly 2X
-every cycle.  When the loop amplification is < 2X, the entropy per output bit is reduced,
-but can be easily computed.  If E is the entropy per bit, and K is the loop amplification,
-then:
+    Vin' = Vin >= Vref? Vin - Vref : Vref
+
+This eliminates the D/A conveter, and has no limit on how many bits we shift out.  In
+reality, the only reason we do not use this architecture for real A/D converters is that
+it's accuracy depends on the accuracy of the multiply by 2X operation.  A simple circuit
+with 1% resistors would only achieve about a 7 bit resolution.
+
+However, just because the bits are not accurate does not mean we can't keep shifting them
+out.  What are we measuring after shifting 30 times?  It's just noise in the circuit, with
+no correlation to the original Vin.  It's totally random unpredictable nonsense.  This is
+the idea behind the Infinite Noise Multiplier.
+
+If this A/D converter was perfect, both 0's and 1's should shift out with equal
+probability, with no correlation between bits.  This has been verified C simulations and
+dieharder.  However, due to accuracy limitations on real components, we cannot multiply by
+exactly 2X every cycle.  When the loop amplification is < 2X, the entropy per output bit
+is reduced, but can be easily computed.  If E is the entropy per bit, and K is the loop
+amplification, then:
 
     E = log(K)/log(2)
 
@@ -182,21 +191,16 @@ This provides a simple way to calculate the entropy added to an entropy pool per
 The program infnoise.c directly measures the entropy of INM output, and compares this to
 the estimated value.  Both simulations and actual hardware show that they correlate well.
 
-There are two significant variations on the INM architecture so far.  The first one, done
-with CMOS transistors, which is suitable for an IC implementation, does a multiply by 2 by
-stacking capacitors, and if the result is greather than Vref, it subtracts a value (using
-a capacitor again) to reduce the value to below Vref.  This is a literal implementation of
-multiplication mod Vref.
-
 The "fast" board level version uses two op-amps and comparator to impliment a modular
 multiplication using a couple of tricks.  First, multiplication by 2 modulo Vsup is
 accomplished by multiplying relative to either GND or Vsup.  When multiplying relative to
 GND, a 0.2V signal becomes 0.4V.  When multiplying relative to a 3V Vsup, a 2.8V signal
-becomes 2.6V.  The math comes out the same as if I'd multiplied relative to GND, and
-simply subtracted Vsup if the result was > Vsup:
+becomes 2.6V, because 2.8V is 0.2V below 3V, and after 2X, it's 0.4V below 3V.  The math
+comes out the same as if I'd multiplied relative to GND, and simply subtracted Vsup if the
+result was > Vsup:
 
-    Vsup - 2*(Vsup - A) = Vsup = 2*Vsup + 2*A = 2*A - Vsup
-        = 2*A mod Vsup
+    Vsup - 2*(Vsup - Vin) = Vsup = 2*Vsup + 2*Vin = 2*Vin - Vsup
+        = 2*Vin mod Vsup
 
 So, we multiply by 2 either way, and only subtract out Vsup if needed.  This is identical
 to multiplication modulo Vsup.  The comparator simply selects the output of one of the two
@@ -206,9 +210,7 @@ A second trick used to create the "small" version was to notice that the output 
 comparator could be used to combine both multiplier op-amps into 1.  This abuse of the
 comparator output needs to be carefully checked.  In particular, the output is generally
 treated as a digital signal, but in this case, it is used as an analog singal.  Care
-should be taken not to load the OUT signal significantly, and also to be sure the
-comparator can drive the resistive load with no more droop than the buffer driving signal
-A.
+should be taken not to load the OUT signal significantly.
 
 ### Analisys of Analog Modular Multiplication
 
