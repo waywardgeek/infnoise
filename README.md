@@ -199,7 +199,7 @@ becomes 2.6V, because 2.8V is 0.2V below 3V, and after 2X, it's 0.4V below 3V.  
 comes out the same as if I'd multiplied relative to GND, and simply subtracted Vsup if the
 result was > Vsup:
 
-    Vsup - 2*(Vsup - Vin) = Vsup = 2*Vsup + 2*Vin = 2*Vin - Vsup
+    Vsup - 2*(Vsup - Vin) = Vsup - 2*Vsup + 2*Vin = 2*Vin - Vsup
         = 2*Vin mod Vsup
 
 So, we multiply by 2 either way, and only subtract out Vsup if needed.  This is identical
@@ -237,7 +237,7 @@ a way to add his signal to Vzener, then the circuit does this:
 
 If Vmallory is always just a bit larger than Vzener in magnitued, then Mallory can
 completely determine the output, because Mallory can make Vzener + Vmallory greater or
-less than zero will, and after multiplying by 1e9 it the amplifier will saturate in the
+less than zero at will, and after multiplying by 1e9 it the amplifier will saturate in the
 direction of the sign of Vmallory.
 
 What if we used modular multiplication instead?  Assume we represent Vzener now as a
@@ -265,22 +265,6 @@ Vz is unpredicably distributed between 0 and Vsupply, hopefully somewhat uniform
 How can Mallory determine what to add to it to control the output?  He can not.
 His interference can only _increase_ the entropy of the output, since Mallory's attack is
 itself an entropy source, further randomizing the result.
-
-### A Workable Modular Multiplying Amplifier
-
-It turns out to be difficult to build an amplifier than can represent Vzener\*1e9 with a
-real voltage that wont hurt anybody.  Fortunately, we can compute the modular
-multiplication by multipling by 2X in each amplifier stage, and subtracting Vsupply if
-the result is > Vsupply:
-
-    Vout = 2*Vin mod Vsupply
-
-Cascading 30 of these stages gets us 2^30 amplification, or just a bit over 1e9.  There is
-one complication.  In order to compare 2\*Vin with Vsupply, we have to hold the
-signal steady for a while.  A sample-and-hold circuit is required.  This is why Infinite
-Noise Multipliers are "switched-capacitor" circuits.  Basically, all the switches do is
-hold the value of 2\*Vin until we have time to compare it to Vsupply.  In reality, we
-compare Vin to Vsupply/2, so we never have to deal wth voltages > Vsupply.
 
 ### Rolling Up the Loop
 
@@ -333,11 +317,11 @@ multi-gigahertz range.  Shot noise, thermal noise, EMI, cross-talk... you name i
 matter where we look, there's noise.  Infinite noise multipliers amplify them all in
 parallel, and adds them together effectively in an tiny entropy pool.  Zener noise would
 be just one more source of noise in a symphony of existing noise sources, and will not
-enhance the resultin entropy enough to bother.
+enhance the resulting entropy enough to bother.
 
-An INM will amplify _every_ source of niose large enough to captue is amplified until it
-is larger than Vsupply.  It adds them together and amplifies them in parallel.  Every
-device in the signal path loop contributes. 
+An INM will amplify _every_ source of niose and amplify it until it is larger than
+Vsupply.  It adds them together and amplifies them in parallel.  Every device in the
+signal path loop contributes. 
 
 With N sources of noise, the output looks like:
 
