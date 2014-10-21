@@ -720,12 +720,13 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="15.4432" y1="1.6764" x2="15.4432" y2="1.7018" width="0.254" layer="16"/>
 <wire x1="15.4178" y1="1.7018" x2="15.4432" y2="1.6764" width="0.254" layer="16"/>
 <wire x1="15.4178" y1="1.7018" x2="15.167684375" y2="1.8793" width="0.254" layer="16"/>
+<wire x1="4.0894" y1="1.0668" x2="1.4732" y2="1.0668" width="1.6764" layer="16"/>
 <wire x1="11.7856" y1="10.6172" x2="11.7602" y2="10.6172" width="0" layer="19" extent="1-16"/>
 <wire x1="5.87" y1="10.231" x2="5.8928" y2="10.2362" width="0" layer="19" extent="1-1"/>
 <wire x1="3.05" y1="12.5302" x2="3.0226" y2="12.5476" width="0" layer="19" extent="16-16"/>
 <wire x1="3.05" y1="0.8302" x2="3.2004" y2="1.0414" width="0" layer="19" extent="16-16"/>
+<wire x1="4.0894" y1="1.0668" x2="3.7592" y2="1.0414" width="0" layer="19" extent="16-16"/>
 <wire x1="3.8862" y1="12.2936" x2="3.05" y2="12.5302" width="0" layer="19" extent="16-16"/>
-<wire x1="4.0894" y1="1.0668" x2="1.4732" y2="1.0668" width="1.6764" layer="16"/>
 </signal>
 <signal name="VCC33">
 <contactref element="USB1" pad="24"/>
@@ -973,9 +974,9 @@ Please make sure your boards conform to these design rules.</description>
 <contactref element="R8" pad="2"/>
 <wire x1="25.6858" y1="4.2418" x2="26.778" y2="4.2418" width="0.2032" layer="1"/>
 <wire x1="27.9718" y1="7.6454" x2="25.6858" y2="4.2418" width="0.254" layer="16"/>
-<wire x1="30.1816" y1="8.1026" x2="27.9718" y2="7.6454" width="0.254" layer="1"/>
+<wire x1="30.2324" y1="7.6454" x2="27.9718" y2="7.6454" width="0.254" layer="1"/>
 <wire x1="26.778" y1="4.2418" x2="26.7818" y2="4.2378" width="0.2032" layer="1"/>
-<wire x1="30.1816" y1="8.1026" x2="30.4356" y2="8.0146" width="0.254" layer="1"/>
+<wire x1="30.2324" y1="7.6454" x2="30.4356" y2="8.0146" width="0.254" layer="1"/>
 <via x="25.6858" y="4.2418" extent="1-16" drill="0.3302"/>
 <via x="27.9718" y="7.6454" extent="1-16" drill="0.3302"/>
 <wire x1="21.444" y1="3.2004" x2="18.015" y2="4.2926" width="0.254" layer="16"/>
