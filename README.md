@@ -32,7 +32,7 @@ noise (such as EMI from my computer), and comonent tolerance.
 The breadboard proved out much of the theory of operation, as well os providing raw data
 for entropy testing.
 
-![Breadboard of Infinite Noise Multiplier](infnoise_breadboard.jpg?raw=true "Infinite
+![Breadboard of Infinite Noise Multiplier](images/infnoise_breadboard.jpg?raw=true "Infinite
 Noise Multiplier")
 
 If you are interested in building this version of the Infinite Noise Multiplier, you may
