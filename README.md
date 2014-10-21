@@ -16,12 +16,12 @@ estimation of bits added to an entropy pool.
 
 Here's the schematic so far...
 
-![Schematic of Infinite Noise Multiplier](eagle/infnoise.png?raw=true "Infinite
+![Schematic of Infinite Noise Multiplier](images/infnoise.png?raw=true "Infinite
 Noise Multiplier")
 
 Here's the board layout so far...
 
-![Board layout of Infinite Noise Multiplier](eagle/infnoise_brd.png?raw=true "Infinite
+![Board layout of Infinite Noise Multiplier](images/infnoise_brd.png?raw=true "Infinite
 Noise Multiplier")
 
 The breadboard works!  It generates 300,000 bits per second, resulting in 121,000 bits per
@@ -150,18 +150,33 @@ Infinite Noise Multiplier")
 
 ### Theory of Operation
 
-The ideal case is easy to understand.  Each clock cycle the value A is multiplied by 2X.
-If this results in A being above Vsupply, then Vsupply is subtracted.  If the result is
-above Vref (typically 1/2 supply), then the comparitor will output a 1, and if it is below
-Vref, it will output a 0.  Both should occur with equal probability, with no correlation
-between bits.  This has been verified C simulations and dieharder.
+The ideal case is easy to understand.  Consider how a successive-aproximation A/D
+converter works.  Each clock, we compare the input voltage to the output of a D/A
+converter, and if it's higher, the next bit is 0, and if lower, it's a 0.  We use binary
+search to zero-in on the analog input value.  Here is a block diagram from Wikipedia for a
+SAR A/D:
 
+![Successive aproximation A/D block diagram](images/SA_ADC_block_diagram.png?raw=true "SAR
+A/D Block Diagram")
+
+There is another way to build a successive-aproximation A/D that eliminates the D/A
+converter.  Compare the input to Vref as before, but if it is larger, subtract Vref.  Then
+multiply by 2X.  Every cycle, we get one more bit out.  We eliminate the D/A conveter, and
+can continue estimating lower and lower bits, as long as we want.  What are we measuring
+when we get down to bits higher than 30?  It's just noise in the circuit.
+
+If this A/D converter was perfect, both 0's and 1's should occur with equal probability,
+with no correlation between bits.  This has been verified C simulations and dieharder.
 However, due to accuracy limitations on real components, we cannot multiply by exactly 2X
 every cycle.  When the loop amplification is < 2X, the entropy per output bit is reduced,
 but can be easily computed.  If E is the entropy per bit, and K is the loop amplification,
 then:
 
     E = log(K)/log(2)
+
+or equivalently:
+
+    E = log2(K)
 
 This provides a simple way to calculate the entropy added to an entropy pool per bit.
 The program infnoise.c directly measures the entropy of INM output, and compares this to
@@ -184,8 +199,8 @@ simply subtracted Vsup if the result was > Vsup:
         = 2*A mod Vsup
 
 So, we multiply by 2 either way, and only subtract out Vsup if needed.  This is identical
-to multiplication modulo Vsup.  The comparator simply selects the output of one of the wo
-op-amps.
+to multiplication modulo Vsup.  The comparator simply selects the output of one of the two
+op-amps.  This is the basic analog modular multiplier.
 
 A second trick used to create the "small" version was to notice that the output of the
 comparator could be used to combine both multiplier op-amps into 1.  This abuse of the

@@ -124,9 +124,6 @@ static void scaleStats(void) {
 // If running continuously, it is possible to start overflowing the 32-bit counters for
 // zeros and ones.  Check for this, and scale the stats if needed.
 static void scaleEntropy(void) {
-    if(inmDebug) {
-        printf("Scaling entropy...\n");
-    }
     inmNumBitsOfEntropy = inmNumBitsOfEntropy*(uint64_t)INM_MIN_DATA/(2*inmNumBitsSampled);
     inmNumBitsSampled = INM_MIN_DATA/2;
 }
@@ -134,7 +131,7 @@ static void scaleEntropy(void) {
 // This should be called for each bit generated.
 bool inmHealthCheckAddBit(bool bit, bool even) {
     inmTotalBits++;
-    if((inmTotalBits & 0xffff) == 0) {
+    if((inmTotalBits & 0xfffff) == 0) {
         if(inmDebug) {
             printf("Generated %lu bits.  Estimated entropy per bit: %f, estimated K: %f\n",
                 inmTotalBits, inmHealthCheckEstimateEntropyPerBit(), inmHealthCheckEstimateK());
