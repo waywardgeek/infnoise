@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ftdi.h>
-#include "healthcheck.h"
+#include "infnoise.h"
 #include "KeccakF-1600-interface.h"
 
 // The FT240X has a 512 byte buffer.  Must be multiple of 64
@@ -20,8 +20,10 @@
 
 // Extract the INM output from the data received.  Basically, either COMP1 or COMP2
 // changes, not both, so alternate reading bits from them.  We get 1 INM bit of output
-// per byte read.  Feed bits from the INM to the health checker.
-static void extractBytes(uint8_t *bytes, uint8_t *inBuf, bool raw) {
+// per byte read.  Feed bits from the INM to the health checker.  Return the expected
+// bits of entropy.
+static uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, bool raw) {
+    inmClearEntropyLevel();
     uint32_t i;
     for(i = 0; i < BUFLEN/8; i++) {
         uint32_t j;
@@ -38,7 +40,7 @@ static void extractBytes(uint8_t *bytes, uint8_t *inBuf, bool raw) {
             byte = (byte << 1) | bit;
             // This is a good place to feed the bit from the INM to the health checker.
             //printf("Adding bit %u\n", bit);
-            if(!raw && !inmHealthCheckAddBit(bit, j & 1)) {
+            if(!inmHealthCheckAddBit(bit, j & 1)) {
                 fprintf(stderr, "Health check of Infinite Noise Multiplier failed!\n");
                 exit(1);
             }
@@ -46,41 +48,39 @@ static void extractBytes(uint8_t *bytes, uint8_t *inBuf, bool raw) {
         //printf("extracted byte:%x\n", byte);
         bytes[i] = byte;
     }
+    return inmGetEntropyLevel();
+}
+
+// Write the bytes to either stdout, or /dev/random.  Cut the entropy estimate in half to
+// be conservative.
+static void outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom) {
+    if(!writeDevRandom) {
+        if(fwrite(bytes, 1, length, stdout) != length) {
+            fprintf(stderr, "Unable to write output from Infinite Noise Multiplier\n");
+            exit(1);
+        }
+    } else {
+        inmWaitForPoolToHaveRoom();
+        inmWriteEntropyToPool(bytes, length, entropy);
+    }
 }
 
 // Send the new bytes through the health checker and also into the Keccak sponge.
 // Output bytes from the sponge only if the health checker says it's OK, and only
 // output half the entropy we get from the INM, just to be paranoid.
-static void processBytes(uint8_t *keccakState, uint8_t *bytes, bool raw) {
+static void processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entropy, bool raw, bool writeDevRandom) {
     if(raw) {
-        // In raw mode, we disable the health check and whitening, and just output raw
-        // data from the INM.
-        if(fwrite(bytes, 1, BUFLEN/8, stdout) != BUFLEN/8) {
-            fprintf(stderr, "Unable to write output from Infinite Noise Multiplier\n");
-            exit(1);
-        }
+        // In raw mode, we just output raw data from the INM.
+        outputBytes(bytes, BUFLEN/8, entropy, writeDevRandom);
         return;
     }
-    uint32_t i;
-    for(i = 0; i < BUFLEN/64; i++) {
-        // It's always OK to absorb bytes, even if they are not verified for randomness
-        KeccakAbsorb(keccakState, bytes + i*8, 1);
-        if(inmHealthCheckOkToUseData() && inmHealthCheckGetEntropyLevel() >= 16) {
-            // Only output byes if we have enough entropy and health check passes
-            // Also, we output data at 1/2 the rate of entropy added to the sponge
-            //uint32_t j;
-            //for(j = 0; j < 1 << 24; j++) {
-            uint8_t dataOut[8];
-            KeccakPermutation(keccakState);
-            KeccakExtract(keccakState, dataOut, 1);
-            if(fwrite(dataOut, 1, 8, stdout) != 8) {
-                fprintf(stderr, "Unable to write output from Infinite Noise Multiplier\n");
-                exit(1);
-            }
-            //}
-            inmHealthCheckReduceEntropyLevel(16);
-        }
-    }
+    KeccakAbsorb(keccakState, bytes, BUFLEN/64);
+    KeccakPermutation(keccakState);
+    // Only output byes if we have enough entropy and health check passes
+    // Also, we output data at 1/2 the rate of entropy added to the sponge
+    uint8_t dataOut[BUFLEN/8];
+    KeccakExtract(keccakState, dataOut, BUFLEN/64);
+    outputBytes(dataOut, BUFLEN/8, entropy, writeDevRandom);
 }
 
 int main(int argc, char **argv)
@@ -88,27 +88,41 @@ int main(int argc, char **argv)
     struct ftdi_context ftdic;
     bool raw = false;
     bool debug = false;
+    bool writeDevRandom = false;
+    bool noOutput = false;
 
     // Process arguments
-    if(argc > 2) {
-        fprintf(stderr, "Usage: infnoise [--raw]\n"
-                        "       infnoise --debug\n");
-        return 1;
-    }
-    if(argc == 2) {
-        if(!strcmp(argv[1], "--raw")) {
+    while(argc > 1) {
+        argc--;
+        if(!strcmp(argv[argc], "--raw")) {
             raw = true;
-        } else if(!strcmp(argv[1], "--debug")) {
+        } else if(!strcmp(argv[argc], "--debug")) {
             debug = true;
+        } else if(!strcmp(argv[argc], "--dev-random")) {
+            writeDevRandom = true;
+        } else if(!strcmp(argv[argc], "--no-output")) {
+            noOutput = true;
         } else {
-            fprintf(stderr, "Usage: infnoise [--raw]\n"
-                            "       infnoise --debug\n");
+            fprintf(stderr, "Usage: infnoise [options]\n"
+                            "Options are:\n"
+                            "    --debug - turn on some debug output\n"
+                            "    --dev-random - write entropy to /dev/random instead of stdout\n"
+                            "    --raw - do not whiten the output\n"
+                            "    --no-output - do not write random output data\n");
             return 1;
         }
     }
 
+    if(debug && !writeDevRandom) {
+        // No sense writing data to stdout if debug is on
+        noOutput = true;
+    }
+
     // Initialize FTDI context
     ftdi_init(&ftdic);
+    if(writeDevRandom) {
+        inmWriteEntropyStart(BUFLEN/8, debug);
+    }
     if(!inmHealthCheckStart(14, 1.82, debug)) {
         puts("Can't intialize health checker\n");
         return 1;
@@ -177,9 +191,9 @@ int main(int argc, char **argv)
             return -1;
         }
         uint8_t bytes[BUFLEN/8];
-        extractBytes(bytes, inBuf, raw);
-        if(!debug) {
-            processBytes(keccakState, bytes, raw);
+        uint32_t entropy = extractBytes(bytes, inBuf, raw);
+        if(!noOutput && inmHealthCheckOkToUseData()) {
+            processBytes(keccakState, bytes, entropy, raw, writeDevRandom);
         }
     }
     return 0;

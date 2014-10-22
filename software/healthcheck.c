@@ -20,13 +20,11 @@ confirmed.
 
 */
 
-#include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#include "healthcheck.h"
+#include "infnoise.h"
 
 #define INM_MIN_DATA 80000
 #define INM_MIN_SAMPLE_SIZE 100
@@ -242,17 +240,13 @@ bool inmHealthCheckOkToUseData(void) {
 }
 
 // Just return the entropy level added so far in bytes;
-uint32_t inmHealthCheckGetEntropyLevel(void) {
-    return inmEntropyLevel/8;
+uint32_t inmGetEntropyLevel(void) {
+    return inmEntropyLevel;
 }
 
 // Reduce the entropy level by numBytes.
-void inmHealthCheckReduceEntropyLevel(uint32_t numBytes) {
-    if(numBytes*8 > inmEntropyLevel) {
-        fprintf(stderr, "Entropy pool underflow\n");
-        exit(1);
-    }
-    inmEntropyLevel -=  numBytes*8;
+void inmClearEntropyLevel(void) {
+    inmEntropyLevel = 0;
 }
 
 #ifdef TEST_HEALTHCHECK
