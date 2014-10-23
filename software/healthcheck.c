@@ -129,16 +129,9 @@ static void scaleEntropy(void) {
 // This should be called for each bit generated.
 bool inmHealthCheckAddBit(bool bit, bool even) {
     inmTotalBits++;
-    if((inmTotalBits & 0xfffff) == 0) {
-        if(inmDebug) {
-            printf("Generated %lu bits.  Estimated entropy per bit: %f, estimated K: %f\n",
-                inmTotalBits, inmHealthCheckEstimateEntropyPerBit(), inmHealthCheckEstimateK());
-        }
-        /*
-        if(inmTotalBits > 3000000) {
-            exit(0);
-        }
-        */
+    if(inmDebug && (inmTotalBits & 0xfffff) == 0) {
+        printf("Generated %lu bits.  Estimated entropy per bit: %f, estimated K: %f\n",
+            inmTotalBits, inmHealthCheckEstimateEntropyPerBit(), inmHealthCheckEstimateK());
     }
     inmPrevBits = (inmPrevBits << 1) & ((1 << inmN)-1);
     if(inmPrevBit) {

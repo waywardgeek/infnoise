@@ -62,7 +62,6 @@ void inmWriteEntropyStart(uint32_t bufLen, bool debug) {
 
 // Block until either the entropy pool has room, or 1 second has passed.
 void inmWaitForPoolToHaveRoom(void) {
-    printf("starting select\n");
     int ent_count;
     struct pollfd pfd = {
         fd:   inmDevRandomFD,
@@ -70,12 +69,10 @@ void inmWaitForPoolToHaveRoom(void) {
     };
     int64_t timeout_usec;
     if (ioctl(inmDevRandomFD, RNDGETENTCNT, &ent_count) == 0 && ent_count < inmFillWatermark) {
-        printf("Not full\n");
         return;
     }
     timeout_usec = 1000; // One second
     poll(&pfd, 1, timeout_usec);
-    printf("Finished select\n");
 }
 
 // Add the bytes to the entropy pool.  This can be unwhitenened, but the estimated bits of
