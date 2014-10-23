@@ -440,8 +440,8 @@ Please make sure your boards conform to these design rules.</description>
 </autorouter>
 <elements>
 <element name="AMP" library="infnoise" package="DFN6-2X3" value="TSV912IQ2T" x="25.7366" y="8.8392" rot="R270"/>
-<element name="C8" library="infnoise" package="0603-CAP" value="100pF" x="23.7046" y="6.604"/>
-<element name="C9" library="infnoise" package="0603-CAP" value="100pF" x="27.159" y="6.5278"/>
+<element name="C8" library="infnoise" package="0603-CAP" value="220pF" x="23.7046" y="6.604"/>
+<element name="C9" library="infnoise" package="0603-CAP" value="220pF" x="27.159" y="6.5278"/>
 <element name="C4" library="infnoise" package="0603-CAP" value="47pF" x="8.2106" y="10.0076" rot="R90"/>
 <element name="C5" library="infnoise" package="0603-CAP" value="47pF" x="9.0742" y="5.461"/>
 <element name="C6" library="infnoise" package="0603-CAP" value="100nF" x="13.6208" y="11.5824" rot="R180"/>
@@ -465,7 +465,7 @@ Please make sure your boards conform to these design rules.</description>
 <element name="SW2" library="infnoise" package="SC70-5L" value="MC74VHC1G66DFT1G" x="29.7244" y="4.5974" rot="R270"/>
 <element name="X1" library="infnoise" package="USB-A-SMT-MALE" value="USBSMT-MALE" x="0" y="6.6802" rot="R90"/>
 <element name="R9" library="infnoise" package="0603-RES" value="1K" x="21.463" y="11.684" rot="R180"/>
-<element name="C7" library="infnoise" package="0603-CAP" value="100nF" x="18.0848" y="1.8034" rot="R180"/>
+<element name="C7" library="infnoise" package="0603-CAP" value="10nF" x="18.0848" y="1.8034" rot="R180"/>
 </elements>
 <signals>
 <signal name="USB_P">

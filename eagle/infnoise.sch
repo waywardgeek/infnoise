@@ -720,8 +720,8 @@ In this library the device names are the same as the pin names of the symbols, t
 <part name="C6" library="infnoise" deviceset="CAP" device="0603-CAP" value="100nF"/>
 <part name="C2" library="infnoise" deviceset="CAP" device="0603-CAP" value="4.7uF"/>
 <part name="C3" library="infnoise" deviceset="CAP" device="0603-CAP" value="100nF"/>
-<part name="C8" library="infnoise" deviceset="CAP" device="0603-CAP" value="100pF"/>
-<part name="C9" library="infnoise" deviceset="CAP" device="0603-CAP" value="100pF"/>
+<part name="C8" library="infnoise" deviceset="CAP" device="0603-CAP" value="220pF"/>
+<part name="C9" library="infnoise" deviceset="CAP" device="0603-CAP" value="220pF"/>
 <part name="C1" library="infnoise" deviceset="CAP" device="0603-CAP" value="10nF"/>
 <part name="L1" library="infnoise" deviceset="FERRITE-BEAD" device="0603-IND"/>
 <part name="R1" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="27"/>
@@ -741,7 +741,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <part name="SW2" library="infnoise" deviceset="MC74VHC1G66" device="DFT1G"/>
 <part name="X1" library="infnoise" deviceset="USB" device="SMT-MALE"/>
 <part name="R9" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="1K"/>
-<part name="C7" library="infnoise" deviceset="CAP" device="0603-CAP" value="100nF"/>
+<part name="C7" library="infnoise" deviceset="CAP" device="0603-CAP" value="10nF"/>
 </parts>
 <sheets>
 <sheet>
