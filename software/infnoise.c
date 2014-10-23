@@ -9,7 +9,8 @@
 #include "KeccakF-1600-interface.h"
 
 // The FT240X has a 512 byte buffer.  Must be multiple of 64
-#define BUFLEN 512
+//#define BUFLEN 512
+#define BUFLEN (64*8)
 
 #define COMP1 1
 #define COMP2 4
@@ -31,17 +32,15 @@ static uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, bool raw) {
         for(j = 0; j < 8; j++) {
             //printf("%x ", inBuf[i*8 + j] & ~MASK);
             uint8_t val = inBuf[i*8 + j];
-            uint8_t bit;
-            if(j & 1) {
-                bit = (val >> COMP1) & 1;
-            } else {
-                bit = (val >> COMP2) & 1;
-            }
+            uint8_t evenBit = (val >> COMP2) & 1;
+            uint8_t oddBit = (val >> COMP1) & 1;
+            bool even = j & 1; // Use the even bit if j is odd
+            uint8_t bit = even? oddBit : evenBit;
             byte = (byte << 1) | bit;
             // This is a good place to feed the bit from the INM to the health checker.
-            //printf("Adding bit %u\n", bit);
-            if(!inmHealthCheckAddBit(bit, j & 1)) {
-                fprintf(stderr, "Health check of Infinite Noise Multiplier failed!\n");
+            //printf("Adding evenBit:%u oddBit:%u even:%u\n", evenBit, oddBit, even);
+            if(!inmHealthCheckAddBit(evenBit, oddBit, even)) {
+                fputs("Health check of Infinite Noise Multiplier failed!\n", stderr);
                 exit(1);
             }
         }
@@ -56,7 +55,7 @@ static uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, bool raw) {
 static void outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom) {
     if(!writeDevRandom) {
         if(fwrite(bytes, 1, length, stdout) != length) {
-            fprintf(stderr, "Unable to write output from Infinite Noise Multiplier\n");
+            fputs("Unable to write output from Infinite Noise Multiplier\n", stderr);
             exit(1);
         }
     } else {
@@ -83,6 +82,55 @@ static void processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entropy,
     outputBytes(dataOut, BUFLEN/8, entropy, writeDevRandom);
 }
 
+// Initialize the Infinite Noise Multiplier USB ineterface.
+static bool initializeUSB(struct ftdi_context *ftdic, char **message) {
+    *message = NULL;
+
+    // Initialize FTDI context
+    ftdi_init(ftdic);
+    // Open FTDI device based on FT240X vendor & product IDs
+    if(ftdi_usb_open(ftdic, 0x0403, 0x6015) < 0) {
+        *message = "Can't find Infinite Noise Multiplier";
+        return false;
+    }
+
+    // Set high baud rate
+    int rc = ftdi_set_baudrate(ftdic, 30000);
+    if(rc == -1) {
+        *message = "Invalid baud rate\n";
+        return false;
+    } else if(rc == -2) {
+        *message = "Setting baud rate failed\n";
+        return false;
+    } else if(rc == -3) {
+        *message = "Infinite Noise Multiplier unavailable\n";
+        return false;
+    }
+
+    // Enable syncrhonous bitbang mode
+    rc = ftdi_set_bitmode(ftdic, MASK, BITMODE_SYNCBB);
+    if(rc == -1) {
+        *message = "Can't enable bit-bang mode\n";
+        return false;
+    } else if(rc == -2) {
+        *message = "Infinite Noise Multiplier unavailable\n";
+        return false;
+    }
+    
+    // Just test to see that we can write and read.
+    uint8_t buf[64] = {0,};
+    if(ftdi_write_data(ftdic, buf, 64) != 64) {
+        *message = "USB write failed\n";
+        return false;
+    }
+    if(ftdi_read_data(ftdic, buf, 64) != 64) {
+        *message = "USB read failed\n";
+        return false;
+    }
+    return true;
+}
+
+
 int main(int argc, char **argv)
 {
     struct ftdi_context ftdic;
@@ -103,61 +151,34 @@ int main(int argc, char **argv)
         } else if(!strcmp(argv[argc], "--no-output")) {
             noOutput = true;
         } else {
-            fprintf(stderr, "Usage: infnoise [options]\n"
+            fputs("Usage: infnoise [options]\n"
                             "Options are:\n"
                             "    --debug - turn on some debug output\n"
                             "    --dev-random - write entropy to /dev/random instead of stdout\n"
                             "    --raw - do not whiten the output\n"
-                            "    --no-output - do not write random output data\n");
+                            "    --no-output - do not write random output data\n", stderr);
             return 1;
         }
     }
 
-    if(debug && !writeDevRandom) {
-        // No sense writing data to stdout if debug is on
-        noOutput = true;
-    }
-
-    // Initialize FTDI context
-    ftdi_init(&ftdic);
     if(writeDevRandom) {
         inmWriteEntropyStart(BUFLEN/8, debug);
     }
-    if(!inmHealthCheckStart(14, 1.82, debug)) {
-        puts("Can't intialize health checker\n");
+    if(!inmHealthCheckStart(14, 1.736, debug)) {
+        fputs("Can't intialize health checker\n", stderr);
         return 1;
     }
     uint8_t keccakState[KeccakPermutationSizeInBytes];
     KeccakInitializeState(keccakState);
 
-    /* Open FTDI device based on FT232R vendor & product IDs */
-    if(ftdi_usb_open(&ftdic, 0x0403, 0x6015) < 0) {
-        puts("Can't find Infinite Noise Multiplier");
-        return 1;
-    }
-
-    // Set high baud rate
-    int rc = 0;
-    rc = ftdi_set_baudrate(&ftdic, 500000);
-    if(rc == -1) {
-        puts("Invalid baud rate\n");
-        return -1;
-    } else if(rc == -2) {
-        puts("Setting baud rate failed\n");
-        return -1;
-    } else if(rc == -3) {
-        puts("Infinite Noise Multiplier unavailable\n");
-        return -1;
-    }
-
-    // Enable syncrhonous bitbang mode
-    rc = ftdi_set_bitmode(&ftdic, MASK, BITMODE_SYNCBB);
-    if(rc == -1) {
-        puts("Can't enable bit-bang mode\n");
-        return -1;
-    } else if(rc == -2) {
-        puts("Infinite Noise Multiplier unavailable\n");
-        return -1;
+    char *message;
+    if(!initializeUSB(&ftdic, &message)) {
+        // Sometimes have to do it twice - not sure why
+        ftdi_usb_close(&ftdic);
+        if(!initializeUSB(&ftdic, &message)) {
+            fputs(message, stderr);
+            return 1;
+        }
     }
 
     // Endless loop: set SW1EN and SW2EN alternately
@@ -167,27 +188,14 @@ int main(int argc, char **argv)
         // Alternate Ph1 and Ph2 - maybe should have both off in between
         outBuf[i] = i & 1?  (1 << SWEN2) : (1 << SWEN1);
     }
-    //outBuf[BUFLEN-1] = 0;
 
     while(true) {
-        /*
-        for(i = 0; i < BUFLEN; i++) {
-            if(ftdi_write_data(&ftdic, outBuf + i, 1) != 1) {
-                puts("USB write failed\n");
-                return -1;
-            }
-            if(ftdi_read_data(&ftdic, inBuf + i, 1) != 1) {
-                puts("USB read failed\n");
-                return -1;
-            }
-        }
-        */
         if(ftdi_write_data(&ftdic, outBuf, BUFLEN) != BUFLEN) {
-            puts("USB write failed\n");
+            fputs("USB write failed\n", stderr);
             return -1;
         }
         if(ftdi_read_data(&ftdic, inBuf, BUFLEN) != BUFLEN) {
-            puts("USB read failed\n");
+            fputs("USB read failed\n", stderr);
             return -1;
         }
         uint8_t bytes[BUFLEN/8];

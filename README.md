@@ -25,9 +25,18 @@ Here's the board layout so far...
 Noise Multiplier")
 
 The breadboard works!  It generates 300,000 bits per second, resulting in 121,000 bits per
-second after whitening.  Estimated entropy per bit is 0.836.  By design, it should be
-0.81, so it's about 3.2% higher than predicted.  This is likely due to high sources of
-noise (such as EMI from my computer), and comonent tolerance.
+second after whitening.  Estimated entropy per bit is 0.81.  By design, it should be
+0.80, so it is very close to the prediction!  Part of what it took to get it working so
+closely with the model was tuning the hold capacitors (now 200pF, rather than 100pF), and
+the baud rate of the FT240X USB interface chip, which controls the speed of clocking the
+INM.  Slowing the clocks down by setting the baud rate to 30,000 and increasing the hold
+capacitors seems to have helped reduce what I call "misfires" by about 7X.  If the voltage
+on a hold cap is still moving when we open the switch, it is likely that the comparator
+feeding the op-amp has not yet settled, likely because it's inputs are close in value.
+It will continue moving after the switch closes, and may settle to the opposite of the
+digital value we read.  This is an unpredictable situation not dealth with in the model,
+so reducing it improved matching with the model.  Misfires were occuring 9% of the time,
+and now occur about 1.2% of the time.
 
 The breadboard proved out much of the theory of operation, as well os providing raw data
 for entropy testing.

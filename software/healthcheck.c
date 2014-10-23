@@ -48,6 +48,9 @@ static uint64_t inmTotalBits;
 static bool inmPrevBit;
 static uint32_t inmEntropyLevel;
 static uint32_t inmNumSequentialZeros, inmNumSequentialOnes;
+static uint32_t inmTotalOnes, inmTotalZeros;
+static uint32_t inmEvenMisfires, inmOddMisfires;
+static bool inmPrevEven, inmPrevOdd;
 static bool inmDebug;
 
 // Free memory used by the health check.
@@ -72,6 +75,10 @@ static void resetStats(void) {
     inmCurrentProbability = 1.0;
     inmNumBitsOfEntropy = 0;
     inmEntropyLevel = 0;
+    inmTotalOnes = 0;
+    inmTotalZeros = 0;
+    inmEvenMisfires = 0;
+    inmOddMisfires = 0;
 }
 
 // Initialize the health check.  N is the number of bits used to predict the next bit.
@@ -108,9 +115,6 @@ bool inmHealthCheckStart(uint8_t N, double K, bool debug) {
 // zeros and ones.  Check for this, and scale the stats if needed.
 static void scaleStats(void) {
     uint32_t i;
-    if(inmDebug) {
-        printf("Scaling stats...\n");
-    }
     for(i = 0; i < (1 << inmN); i++) {
         inmZerosEven[i] >>= 1;
         inmOnesEven[i] >>= 1;
@@ -122,16 +126,48 @@ static void scaleStats(void) {
 // If running continuously, it is possible to start overflowing the 32-bit counters for
 // zeros and ones.  Check for this, and scale the stats if needed.
 static void scaleEntropy(void) {
-    inmNumBitsOfEntropy = inmNumBitsOfEntropy*(uint64_t)INM_MIN_DATA/(2*inmNumBitsSampled);
-    inmNumBitsSampled = INM_MIN_DATA/2;
+    if(inmNumBitsSampled == INM_MIN_DATA) {
+        inmNumBitsOfEntropy >>= 1;
+        inmNumBitsSampled >>= 1;
+        inmEvenMisfires >>= 1;
+        inmOddMisfires >>= 1;
+    }
+}
+
+// If running continuously, it is possible to start overflowing the 32-bit counters for
+// zeros and ones.  Check for this, and scale the stats if needed.
+static void scaleZeroOneCounts(void) {
+    uint64_t maxVal = inmTotalZeros >= inmTotalOnes? inmTotalZeros : inmTotalOnes;
+    if(maxVal == INM_MIN_DATA) {
+        inmTotalZeros >>= 1;
+        inmTotalOnes >>= 1;
+    }
 }
 
 // This should be called for each bit generated.
-bool inmHealthCheckAddBit(bool bit, bool even) {
+bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even) {
+    bool bit;
+    if(even) {
+        bit = evenBit;
+        if(evenBit != inmPrevEven) {
+            inmEvenMisfires++;
+        }
+    } else {
+        bit = oddBit;
+        if(oddBit != inmPrevOdd) {
+            inmOddMisfires++;
+        }
+    }
+    inmPrevEven = evenBit;
+    inmPrevOdd = oddBit;
     inmTotalBits++;
     if(inmDebug && (inmTotalBits & 0xfffff) == 0) {
-        printf("Generated %lu bits.  Estimated entropy per bit: %f, estimated K: %f\n",
-            inmTotalBits, inmHealthCheckEstimateEntropyPerBit(), inmHealthCheckEstimateK());
+        fprintf(stderr, "Generated %lu bits.  %s to use data.  Estimated entropy per bit: %f, estimated K: %f\n",
+            inmTotalBits, inmHealthCheckOkToUseData()? "OK" : "NOT OK", inmHealthCheckEstimateEntropyPerBit(),
+            inmHealthCheckEstimateK());
+        fprintf(stderr, "num1s:%f%%, even misfires:%f%%, odd misfires:%f%%\n",
+            inmTotalOnes*100.0/(inmTotalZeros + inmTotalOnes),
+            inmEvenMisfires*100.0/inmNumBitsSampled, inmOddMisfires*100.0/inmNumBitsSampled);
     }
     inmPrevBits = (inmPrevBits << 1) & ((1 << inmN)-1);
     if(inmPrevBit) {
@@ -140,6 +176,7 @@ bool inmHealthCheckAddBit(bool bit, bool even) {
     inmPrevBit = bit;
     if(inmNumBitsSampled > 100) {
         if(bit) {
+            inmTotalOnes++;
             inmNumSequentialOnes++;
             inmNumSequentialZeros = 0;
             if(inmNumSequentialOnes > INM_MAX_SEQUENCE) {
@@ -147,6 +184,7 @@ bool inmHealthCheckAddBit(bool bit, bool even) {
                 exit(1);
             }
         } else {
+            inmTotalZeros++;
             inmNumSequentialZeros++;
             inmNumSequentialOnes = 0;
             if(inmNumSequentialZeros > INM_MAX_SEQUENCE) {
@@ -207,9 +245,8 @@ bool inmHealthCheckAddBit(bool bit, bool even) {
             }
         }
     }
-    if(inmNumBitsSampled == INM_MIN_DATA) {
-        scaleEntropy();
-    }
+    scaleEntropy();
+    scaleZeroOneCounts();
     return true;
 }
 
@@ -324,9 +361,17 @@ int main() {
         // Throw away some initial bits.
         computeRandBit(&A, K, noiseAmplitude);
     }
+    bool evenBit = false;
+    bool oddBit = false;
     for(i = 0; i < 1 << 28; i++) {
         bool bit = computeRandBit(&A, K, noiseAmplitude);
-        if(!inmHealthCheckAddBit(bit, true)) {
+        bool even = !(i & 1);
+        if(even) {
+            evenBit = bit;
+        } else {
+            oddBit = bit;
+        }
+        if(!inmHealthCheckAddBit(evenBit, oddBit, even)) {
             printf("Failed health check!\n");
             return 1;
         }
