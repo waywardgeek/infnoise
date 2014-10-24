@@ -11,6 +11,8 @@
 // The FT240X has a 512 byte buffer.  Must be multiple of 64
 //#define BUFLEN 512
 #define BUFLEN (64*8)
+#define DESIGN_K 1.736
+#define PREDICTION_BITS 14
 
 #define COMP1 1
 #define COMP2 4
@@ -164,7 +166,7 @@ int main(int argc, char **argv)
     if(writeDevRandom) {
         inmWriteEntropyStart(BUFLEN/8, debug);
     }
-    if(!inmHealthCheckStart(14, 1.736, debug)) {
+    if(!inmHealthCheckStart(PREDICTION_BITS, DESIGN_K, debug)) {
         fputs("Can't intialize health checker\n", stderr);
         return 1;
     }

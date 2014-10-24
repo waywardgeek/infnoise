@@ -44,6 +44,16 @@ for entropy testing.
 ![Breadboard of Infinite Noise Multiplier](images/infnoise_breadboard.jpg?raw=true "Infinite
 Noise Multiplier")
 
+Here's the voltage on the left hold cap:
+
+![Traces on left hold cap](images/infnoise.png?raw=true "Traces on left hold cap")
+
+![Schematic of Infinite Noise Multiplier](images/CAP1.jpg?raw=true "Infinite
+
+Here's the voltage on the right hold cap:
+
+![Traces on right hold cap](images/CAP2.jpg?raw=true "Traces on right hold cap")
+
 If you are interested in building this version of the Infinite Noise Multiplier, you may
 be interested in opening eagle/BOM.ods in the git repo above.  It has all the Digikey and Mouser
 parts along with cost/1000 units.  The total for all the parts, including boards from OSH
@@ -441,29 +451,17 @@ the entropy shifted out with exactly 2X amplification will be 1 bit per clock.
 
 Infinite Noise Multipliers output entropy at a predictable rate, which is measured
 continually.  If the entropy per bit deviates from the theoretical value of log(K)/log(2)
-by more than 5% during the previous 20,000 bits, then the driver exits with an error code.
+by more than 5% during the previous 80,000 bits, then the driver stops generating output.
 Some deviation is expected, since K is dependent on two resistor values, which can be off
-by 1% each.  Also, a significant amplitude noise in the system can cause more entropy to
-be output than predicted.  The estimated entropy per bit are continually estimated and
-compared to expected values.
+by 1% each.  Also, a significant amplitude noise in the system, as well as "misfires", can
+cause more entropy to be output than predicted.  The estimated entropy per bit are
+continually estimated and compared to expected values.
 
 Entropy per bit is measured as the log2 of one over the probability of seeing a specific
 output sequence from the INM.  The probability of any given output bit is estimated by
 keeping a history of results, given the previous 7 bits.  Simulations with K=1.82 show
 that using 16 bits rather than 7 gives only a 0.16% improvement in prediction accuracy, so
 only 7 are used.
-
-Also, sequences of 1's or 0's longer than the max predicted are detected and cause the
-driver to exit with a failure code.  For the board level implementation above, With 1%
-resistors we should see a gain of no higher than 1.86.  The maximum Vref possible is
-Vsupply(1.01/(1.01 + 1/1.01)) = Vsupply\*0.505.  So the maximum value after multipling a
-value below Vref is 0.94\*Vsupply, or equivalently 0.06\*Vsupply.  If synchronous noise is
-injected that subtracts more than 0.028\*Vsupply, then this noise could hold the signal at
-0V forever.  This is over 90mV, so we should be OK.  Assuming no more than 50mV of
-negative synchronous signal is injected, we get the sequence 0.045\*Vsupply,
-0.069\*Vsupply, 0.113\*Vsupply, .195\*Vsupply, 0.347\*Vsupply, and finally 0.631\*Vsupply.
-This is a total of 5 sequential 0's.  Therefore, any sequence of 6 zeros or ones causes
-the driver to abort with an error condision.
 
 ### Free As in Freedom
 
