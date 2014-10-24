@@ -46,9 +46,7 @@ Noise Multiplier")
 
 Here's the voltage on the left hold cap:
 
-![Traces on left hold cap](images/infnoise.png?raw=true "Traces on left hold cap")
-
-![Schematic of Infinite Noise Multiplier](images/CAP1.jpg?raw=true "Infinite
+![Traces on left hold cap](images/CAP1.jpg?raw=true "Traces on left hold cap")
 
 Here's the voltage on the right hold cap:
 
