@@ -171,7 +171,7 @@ There is another way to build a successive-aproximation A/D that eliminates the 
 converter.  Compare the input to Vref (1/2 supply), and if it is larger, subtract Vref
 from the input.  Then multiply by 2X.  The bit out is the value of the comparator.
 
-    Vin' = Vin >= Vref? Vin - Vref : Vref
+    Vin' = Vin >= Vref? Vin - Vref : Vin
 
 This eliminates the D/A conveter, and has no limit on how many bits we shift out.  In
 reality, the only reason we do not use this architecture for real A/D converters is that
