@@ -13,6 +13,7 @@
 #define BUFLEN (64*8)
 #define DESIGN_K 1.736
 #define PREDICTION_BITS 14
+#define LINUX_POOL_SIZE (4096/8)
 
 #define COMP1 1
 #define COMP2 4
@@ -66,6 +67,32 @@ static void outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool 
     }
 }
 
+// Absorb data into the Keccak sponge.
+static void Absorb(uint8_t *keccakState, uint8_t *bytes, uint32_t length) {
+    while(length >= 512/8) {
+        KeccakAbsorb(keccakState, bytes, 512/8);
+        KeccakPermutation(keccakState);
+        length -= 512/8;
+        bytes += 512/8;
+    }
+    if(length > 0) {
+        KeccakAbsorb(keccakState, bytes, length);
+        KeccakPermutation(keccakState);
+    }
+}
+
+// Squeeze data from the Keccak sponge.
+static void Squeeze(uint8_t *keccakState, uint8_t *dataOut, uint32_t length) {
+    while(length >= 512/8) {
+        KeccakExtract(keccakState, dataOut, 512/8);
+        dataOut += 512/8;
+        length -= 512/8;
+    }
+    if(length > 0) {
+        KeccakExtract(keccakState, dataOut, length);
+    }
+}
+
 // Send the new bytes through the health checker and also into the Keccak sponge.
 // Output bytes from the sponge only if the health checker says it's OK, and only
 // output half the entropy we get from the INM, just to be paranoid.
@@ -75,13 +102,21 @@ static void processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entropy,
         outputBytes(bytes, BUFLEN/8, entropy, writeDevRandom);
         return;
     }
-    KeccakAbsorb(keccakState, bytes, BUFLEN/64);
-    KeccakPermutation(keccakState);
-    // Only output byes if we have enough entropy and health check passes
-    // Also, we output data at 1/2 the rate of entropy added to the sponge
-    uint8_t dataOut[BUFLEN/8];
-    KeccakExtract(keccakState, dataOut, BUFLEN/64);
-    outputBytes(dataOut, BUFLEN/8, entropy, writeDevRandom);
+    Absorb(keccakState, bytes, BUFLEN/64);
+    // Output data at 1/2 the rate of entropy added to the sponge to insure that any
+    // over-estimation of entropy does not compromise the system.
+    if(writeDevRandom) {
+        //Linux does not mix entropy in a cryptographically secure way, so we have to
+        //force-feed /dev/random 4096 bits to insure it is in a secure state in case it
+        //hase been compromised.
+        uint8_t dataOut[LINUX_POOL_SIZE];
+        Squeeze(keccakState, dataOut, LINUX_POOL_SIZE);
+        outputBytes(dataOut, LINUX_POOL_SIZE, entropy/2, writeDevRandom);
+    } else {
+        uint8_t dataOut[BUFLEN/8];
+        Squeeze(keccakState, dataOut, BUFLEN/8);
+        outputBytes(dataOut, BUFLEN/8, entropy/2, writeDevRandom);
+    }
 }
 
 // Initialize the Infinite Noise Multiplier USB ineterface.
