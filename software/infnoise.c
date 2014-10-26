@@ -15,10 +15,18 @@
 #define PREDICTION_BITS 14
 #define LINUX_POOL_SIZE (4096/8)
 
+#ifdef VERSION1
+#define COMP1 2
+#define COMP2 0
+#define SWEN1 4
+#define SWEN2 1
+#else
 #define COMP1 1
 #define COMP2 4
 #define SWEN1 2
 #define SWEN2 0
+#endif
+
 // Add bits are outputs, except COMP1 and COMP2
 #define MASK (0xff & ~(1 << COMP1) & ~(1 << COMP2))
 

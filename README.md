@@ -14,7 +14,11 @@ estimation of bits added to an entropy pool.
 
 ### An Eagle open-source board is under way
 
-Here's the schematic so far...
+Here's the V1 version, which works as predicted:
+
+![Picture of Infinite Noise Multiplier circuit board](images/INM_V1.gpg?raw=true "Infinite Noise Multiplier")
+
+Here's the latest schematic...
 
 ![Schematic of Infinite Noise Multiplier](images/infnoise.png?raw=true "Infinite
 Noise Multiplier")
