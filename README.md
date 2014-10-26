@@ -16,7 +16,7 @@ estimation of bits added to an entropy pool.
 
 Here's the V1 version, which works as predicted:
 
-![Picture of Infinite Noise Multiplier circuit board](images/INM_V1.gpg?raw=true "Infinite Noise Multiplier")
+![Picture of Infinite Noise Multiplier circuit board](images/INM_V1.jpg?raw=true "Infinite Noise Multiplier")
 
 Here's the latest schematic...
 
