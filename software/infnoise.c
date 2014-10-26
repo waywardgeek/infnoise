@@ -11,16 +11,17 @@
 // The FT240X has a 512 byte buffer.  Must be multiple of 64
 //#define BUFLEN 512
 #define BUFLEN (64*8)
-#define DESIGN_K 1.736
 #define PREDICTION_BITS 14
 #define LINUX_POOL_SIZE (4096/8)
 
 #ifdef VERSION1
+#define DESIGN_K 1.82
 #define COMP1 2
 #define COMP2 0
 #define SWEN1 4
 #define SWEN2 1
 #else
+#define DESIGN_K 1.736
 #define COMP1 1
 #define COMP2 4
 #define SWEN1 2
@@ -175,7 +176,6 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message) {
     return true;
 }
 
-
 int main(int argc, char **argv)
 {
     struct ftdi_context ftdic;
@@ -245,7 +245,7 @@ int main(int argc, char **argv)
         }
         uint8_t bytes[BUFLEN/8];
         uint32_t entropy = extractBytes(bytes, inBuf, raw);
-        if(!noOutput && inmHealthCheckOkToUseData()) {
+        if(!noOutput && inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
             processBytes(keccakState, bytes, entropy, raw, writeDevRandom);
         }
     }

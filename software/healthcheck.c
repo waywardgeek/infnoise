@@ -279,6 +279,12 @@ void inmClearEntropyLevel(void) {
     inmEntropyLevel = 0;
 }
 
+// Check that the entropy of the last group of bits was high enough for use.
+bool inmEntropyOnTarget(uint32_t entropy, uint32_t numBits) {
+    uint32_t expectedEntropy = numBits*inmExpectedEntropyPerBit;
+    return expectedEntropy < entropy*INM_ACCURACY;
+}
+
 #ifdef TEST_HEALTHCHECK
 
 // Print the tables of statistics.
