@@ -15,11 +15,11 @@ estimation of bits added to an entropy pool.
 ### The Eagle open-source boards work!
 
 Here's the first three boards from OSH Park.  This is the V1 version, which works
-_exactly_ as predicted.  The top board I do not plan to assemble.  The middle was my first
-assembly, which required a bit of rework.  The bottom was my second board, which came out
-right the first time.  Both boards should produce 0.864 bits of entropy per bit.  The
-first one is estimated to produce 0.867, while the second one produces 0.868.  That's
-only an error vs design of 0.5%!
+_exactly_ as predicted.  All three work, and all work conform closely to the INM model
+predictions.  All three boards should produce 0.864 bits of entropy per bit.  The first
+one is estimated to produce 0.867, while the second one produces 0.868, and the third is
+0.867.  That's only an error vs design of 0.5%!  Not bad given that I used 5% resistors to
+set the gain.
 
 ![Picture of Infinite Noise Multiplier circuit board](images/INM_V1.jpg?raw=true "Infinite Noise Multiplier")
 
