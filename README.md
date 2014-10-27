@@ -12,9 +12,12 @@ Adjacent bits from an INM are correlated, so whitening is required before use in
 cryptography.  However, the output has a highly predictable amount of entropy for easy
 estimation of bits added to an entropy pool.
 
-### An Eagle open-source board is under way
+### The Eagle open-source boards work!
 
-Here's the V1 version, which works as predicted:
+Here's the first three boards from OSH Park.  This is the V1 version, which works
+_exactly_ as predicted.  The top board I do not plan to assemble.  The middle was my first
+assembly, which required a bit of rework.  The bottom was my second board, which came out
+right the first time.
 
 ![Picture of Infinite Noise Multiplier circuit board](images/INM_V1.jpg?raw=true "Infinite Noise Multiplier")
 
