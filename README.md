@@ -17,7 +17,9 @@ estimation of bits added to an entropy pool.
 Here's the first three boards from OSH Park.  This is the V1 version, which works
 _exactly_ as predicted.  The top board I do not plan to assemble.  The middle was my first
 assembly, which required a bit of rework.  The bottom was my second board, which came out
-right the first time.
+right the first time.  Both boards should produce 0.864 bits of entropy per bit.  The
+first one is estimated to produce 0.867, while the second one produces 0.868.  That's
+only an error vs design of 0.5%!
 
 ![Picture of Infinite Noise Multiplier circuit board](images/INM_V1.jpg?raw=true "Infinite Noise Multiplier")
 
@@ -31,19 +33,20 @@ Here's the latest board layout...
 ![Board layout of Infinite Noise Multiplier](images/infnoise_brd.png?raw=true "Infinite
 Noise Multiplier")
 
-The breadboard works!  It generates 300,000 bits per second, resulting in 121,000 bits per
-second after whitening.  Estimated entropy per bit is 0.81.  By design, it should be
-0.80, so it is very close to the prediction!  Part of what it took to get it working so
-closely with the model was tuning the hold capacitors (now 200pF, rather than 100pF), and
-the baud rate of the FT240X USB interface chip, which controls the speed of clocking the
-INM.  Slowing the clocks down by setting the baud rate to 30,000 and increasing the hold
-capacitors seems to have helped reduce what I call "misfires" by about 7X.  If the voltage
-on a hold cap is still moving when we open the switch, it is likely that the comparator
-feeding the op-amp has not yet settled, likely because it's inputs are close in value.
-It will continue moving after the switch closes, and may settle to the opposite of the
-digital value we read.  This is an unpredictable situation not dealth with in the model,
-so reducing it improved matching with the model.  Misfires were occuring 9% of the time,
-and now occur about 1.2% of the time.
+The breadboard worked, too, though the boards are even closer to the theoretical
+operation.  They all generate 300,000 bits per second, resulting in 259,000 bits or
+entropy per second.  Estimated entropy per bit is 0.81 for the bread-board.  By design, it
+should be 0.80, so it is very close to the prediction!  Part of what it took to get it
+working so closely with the model was tuning the hold capacitors (now 220pF, rather than
+100pF), and the baud rate of the FT240X USB interface chip, which controls the speed of
+clocking the INM.  Slowing the clocks down by setting the baud rate to 30,000 and
+increasing the hold capacitors seems to have helped reduce what I call "misfires" by about
+7X.  If the voltage on a hold cap is still moving when we open the switch, it is likely
+that the comparator feeding the op-amp has not yet settled, likely because it's inputs are
+close in value.  It will continue moving after the switch closes, and may settle to the
+opposite of the digital value we read.  This is an unpredictable situation not dealth with
+in the model, so reducing it improved matching with the model.  Misfires were occuring 9%
+of the time, and now occur about 1.2% of the time.
 
 The breadboard proved out much of the theory of operation, as well os providing raw data
 for entropy testing.
