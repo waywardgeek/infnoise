@@ -112,20 +112,9 @@ static void processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entropy,
         return;
     }
     Absorb(keccakState, bytes, BUFLEN/64);
-    // Output data at 1/2 the rate of entropy added to the sponge to insure that any
-    // over-estimation of entropy does not compromise the system.
-    if(writeDevRandom) {
-        //Linux does not mix entropy in a cryptographically secure way, so we have to
-        //force-feed /dev/random 4096 bits to insure it is in a secure state in case it
-        //hase been compromised.
-        uint8_t dataOut[LINUX_POOL_SIZE];
-        Squeeze(keccakState, dataOut, LINUX_POOL_SIZE);
-        outputBytes(dataOut, LINUX_POOL_SIZE, entropy/2, writeDevRandom);
-    } else {
-        uint8_t dataOut[BUFLEN/8];
-        Squeeze(keccakState, dataOut, BUFLEN/8);
-        outputBytes(dataOut, BUFLEN/8, entropy/2, writeDevRandom);
-    }
+    uint8_t dataOut[BUFLEN/8];
+    Squeeze(keccakState, dataOut, BUFLEN/8);
+    outputBytes(dataOut, BUFLEN/8, entropy, writeDevRandom);
 }
 
 // Initialize the Infinite Noise Multiplier USB ineterface.

@@ -1,25 +1,30 @@
 ##Infinite Noise Multiplier
 
 The Infinite Noise Multiplier (INM) is an architecture for true random number generators (TRNG).
-Besides being simple, low-cost, and fast, it is easy to get right, unlike other TRNGs.
+Besides being simple, low-cost, and fast, it is easy to get right, unlike most other TRNGs.
+Unlike zener noise based TRNGs, INMs produce a provable level of entropy, aproximately
+equal to log2(K) per output bit, where K is a gain between 1 and 2 set by two resistors
+around an op-amp.  Unlike sound card based TRNGs, INMs do not require an expert to
+configure.
 
 INMs are suitable for both board level implementation, and ASIC implementation.  Speed is
-limited by the speed of a voltage buffer and comparator, and can run in excess of 100
+limited by the speed of a gain stage and a comparator, and can run in excess of 100
 Mbit/second per second with high performance components.  Cheap solutions with CMOS quad
-op-amps can run at 6Mbit/second.
+op-amps can run at 8Mbit/second.
 
 Adjacent bits from an INM are correlated, so whitening is required before use in
-cryptography.  However, the output has a highly predictable amount of entropy for easy
-estimation of bits added to an entropy pool.
+cryptography.  However, the output has a highly predictable amount of entropy for reliable
+estimation of bits added to an entropy pool or cryptographic hash function.
 
 ### The Eagle open-source boards work!
 
-Here's the first three boards from OSH Park.  This is the V1 version, which works
-_exactly_ as predicted.  All three work, and all work conform closely to the INM model
-predictions.  All three boards should produce 0.864 bits of entropy per bit.  The first
-one is estimated to produce 0.867, while the second one produces 0.868, and the third is
-0.867.  That's only an error vs design of 0.5%!  Not bad given that I used 5% resistors to
-set the gain.
+Here's the first three boards from OSH Park.  They work _exactly_ as predicted.  They all
+generate 300,000 bits per second, resulting in 259,000 bits of entropy per second.
+
+All three work, and all work conform closely to the INM model predictions.  All three
+boards should produce 0.864 bits of entropy per bit by design.  The first one is estimated
+to produce 0.867, while the second one produces 0.868, and the third is 0.867.  That's
+only an error vs design of 0.5%!  Not bad given that I used 5% resistors to set the gain.
 
 ![Picture of Infinite Noise Multiplier circuit board](images/INM_V1.jpg?raw=true "Infinite Noise Multiplier")
 
@@ -33,20 +38,19 @@ Here's the latest board layout...
 ![Board layout of Infinite Noise Multiplier](images/infnoise_brd.png?raw=true "Infinite
 Noise Multiplier")
 
-The breadboard worked, too, though the boards are even closer to the theoretical
-operation.  They all generate 300,000 bits per second, resulting in 259,000 bits or
-entropy per second.  Estimated entropy per bit is 0.81 for the bread-board.  By design, it
-should be 0.80, so it is very close to the prediction!  Part of what it took to get it
-working so closely with the model was tuning the hold capacitors (now 220pF, rather than
-100pF), and the baud rate of the FT240X USB interface chip, which controls the speed of
-clocking the INM.  Slowing the clocks down by setting the baud rate to 30,000 and
-increasing the hold capacitors seems to have helped reduce what I call "misfires" by about
-7X.  If the voltage on a hold cap is still moving when we open the switch, it is likely
-that the comparator feeding the op-amp has not yet settled, likely because it's inputs are
-close in value.  It will continue moving after the switch closes, and may settle to the
-opposite of the digital value we read.  This is an unpredictable situation not dealth with
-in the model, so reducing it improved matching with the model.  Misfires were occuring 9%
-of the time, and now occur about 1.2% of the time.
+The breadboard worked, too, though the three boards above work closer to the theoretical
+operation.  Estimated entropy per bit is 0.81 for the bread-board.  By design, it should
+be 0.80, so it is very close to the prediction.  Part of what it took to get it working so
+closely with the model was tuning the hold capacitors (now 220pF, rather than 100pF), and
+the baud rate of the FT240X USB interface chip, which controls the speed of clocking the
+INM.  Slowing the clocks down by setting the baud rate to 30,000 and increasing the hold
+capacitors seems to have helped reduce what I call "misfires" by about 7X.  If the voltage
+on a hold cap is still moving when we open the switch, it is likely that the comparator
+feeding the op-amp has not yet settled, likely because it's inputs are close in value.  It
+will continue moving after the switch closes, and may settle to the opposite of the
+digital value we read.  This is an unpredictable situation not dealth with in the model,
+so reducing it improved matching with the model.  Misfires were occuring 9% of the time,
+and now occur about 1.2% of the time.
 
 The breadboard proved out much of the theory of operation, as well os providing raw data
 for entropy testing.
@@ -239,6 +243,35 @@ comparator output needs to be carefully checked.  In particular, the output is g
 treated as a digital signal, but in this case, it is used as an analog singal.  Care
 should be taken not to load the OUT signal significantly.
 
+### Provable Entropy, Based on Thermal Noise
+
+The RMS thermal noise generated by a resistor of value R is:
+
+    Vnoise = sqrt(4*Kb*T*deltaF*R)
+
+where Kb is Boltzmann's constant 1.3806504×10-23 J/K, T is temperature in Kelvin (about
+293 for room temperature), and deltaF is the frequency range of noise being measured.
+
+For the V1 version of the INM boards above, the op-amp has an 8MHz unit gain crossover,
+and a low load negative input with 10K Ohms in parallel with 8.2K Ohms, which  is 4.5K
+Ohms.  Vnoise up to unity crossover is about 24uV, and gets amplified by the op-amp gain K
+of 1.82 to about 40uV, and held on a 220pF capacitor.  A 40uV change on the hold
+capacitors results in a current of about 55,000 electrons, so the hold capacitors are able
+to capture about 15 bits of resolution of this noise signal, which gets amplified by K and
+combined with later noise samples in the hold capacitors every cycle.  The capacitors s
+hold about 2^31 different charge levels in the range of 0.3V to 3V.  This is effectively a
+31-bit register which we multiply by 1.82 every cycle and add a 15 bit noise signal.  This
+results in entropy shifted out just slightly less than log2(1.82), since  this entropy
+compression does not result in 100% pure entropy (just very close).
+
+changes the output of the comparator several cycles later.  Each cycle, this 15-bit noise
+signal is added in, far in excess of the log2(K) of entropy we shift out, enabling us to
+concentrate entropy in the hold capacitors, which hold over 2^32 electrons when
+discharging from the design range of 3V to 0.3V.  Note that we are not assuming successive
+noise samples of this 8MHz noise, when measured at 480KHz, will be completely uncorrelated,
+but only that concentrating a 15-bit representation of sequential samples will have a few
+bits of "surprise", which is log2(1/probability of guessing the next sample).
+
 ### Analisys of Analog Modular Multiplication
 
 Consider a traditional zener TRNG:
@@ -366,22 +399,6 @@ source.
 The mashing together of noise source data with unbounded modular multiplicationes leads to
 awesome entropy levels.  Just how awesome?  Consider just thermal noise from one resistive
 summing node (the minus terminal on op-amp in the 2X gain stage).
-
-The RMS thermal noise generated by a resistor of value R is:
-
-    Vnoise = sqrt(4*Kb*T*deltaF*R)
-
-where Kb is Boltzmann's constant 1.3806504×10-23 J/K, T is temperature in Kelvin (about
-293 for room temperature), and deltaF is the frequency range of noise being measured.  We
-are only interested in noise components that are above the clock frequency, yet low enough
-to pass through our op-amp.  If the clock frequency is F, consider the range from F to
-10\*F.  If CLK is 100 MHz, the noise in the 100 MHz to 1000 MHz range at room temperature
-generated by a 5K Ohm resistor at a high impedence summing node is about 0.27mV.  Even if
-the op-amp rolls off with a 1st order pole right at 100MHz (very unlikely if we're
-operating at a 100MHz clock), over 27uV of RMS noise should still get through.  Once
-latched into the sample-and-hold on the output of the op-amp, this voltage is simply part
-of our signal A, and gets multiplied by 2X no more than 12 times before causing changes
-the output.
 
 How correlated are successive samples?  How badly does this impact our output?  It turns
 out that high correlation is OK.  What we want is high resolution contribution of noise
