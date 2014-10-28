@@ -28,7 +28,7 @@ confirmed.
 
 #define INM_MIN_DATA 80000
 #define INM_MIN_SAMPLE_SIZE 100
-#define INM_ACCURACY 1.05
+#define INM_ACCURACY 1.02
 #define INM_MAX_SEQUENCE 20
 #define INM_MAX_COUNT (1 << 14)
 // Matches the Keccac sponge size
@@ -266,7 +266,8 @@ double inmHealthCheckEstimateEntropyPerBit(void) {
 // Return true if the health checker has enough data to verify proper operation of the INM.
 bool inmHealthCheckOkToUseData(void) {
     double entropy = inmHealthCheckEstimateEntropyPerBit();
-    return inmTotalBits >= INM_MIN_DATA && entropy*INM_ACCURACY >= inmExpectedEntropyPerBit;
+    return inmTotalBits >= INM_MIN_DATA && entropy*INM_ACCURACY >= inmExpectedEntropyPerBit &&
+        entropy/INM_ACCURACY <= inmExpectedEntropyPerBit;
 }
 
 // Just return the entropy level added so far in bytes;
