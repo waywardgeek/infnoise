@@ -18,6 +18,11 @@ estimation of bits added to an entropy pool or cryptographic hash function.
 
 ### The Eagle open-source boards work!
 
+Here's the first completed Infinite Noise USB key.  This is what I would offer on Tindie
+if needed to get the INM concept out there.
+
+![Picture of Infinite Noise USB key](images/infnoise_key.jpg?raw=true "Infinite Noise USB key")
+
 Here's the first three boards from OSH Park.  They work _exactly_ as predicted.  They all
 generate 300,000 bits per second, resulting in 259,000 bits of entropy per second.
 

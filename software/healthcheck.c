@@ -28,18 +28,16 @@ confirmed.
 
 #define INM_MIN_DATA 80000
 #define INM_MIN_SAMPLE_SIZE 100
-#define INM_ACCURACY 1.02
 #define INM_MAX_SEQUENCE 20
 #define INM_MAX_COUNT (1 << 14)
-// Matches the Keccac sponge size
-#define INM_MAX_ENTROPY 1600
+
+double inmK, inmExpectedEntropyPerBit;
 
 static uint8_t inmN;
 static uint32_t inmPrevBits;
 static uint32_t inmNumBitsSampled;
 static uint32_t *inmOnesEven, *inmZerosEven;
 static uint32_t *inmOnesOdd, *inmZerosOdd;
-static double inmK, inmExpectedEntropyPerBit;
 // The total probability of generating the string of states we did is
 // 1/(2^inmNumBitsOfEntropy * inmCurrentProbability).
 static uint32_t inmNumBitsOfEntropy;
@@ -214,7 +212,7 @@ bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even) {
     while(inmCurrentProbability <= 0.5) {
         inmCurrentProbability *= 2.0;
         inmNumBitsOfEntropy++;
-        if(inmHealthCheckOkToUseData() && inmEntropyLevel < INM_MAX_ENTROPY) {
+        if(inmHealthCheckOkToUseData()) {
             inmEntropyLevel++;
         }
     }

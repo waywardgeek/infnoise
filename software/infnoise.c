@@ -21,7 +21,8 @@
 #define SWEN1 4
 #define SWEN2 1
 #else
-#define DESIGN_K 1.736
+#define DESIGN_K 1.82
+//#define DESIGN_K 1.736
 #define COMP1 1
 #define COMP2 4
 #define SWEN1 2
@@ -62,9 +63,12 @@ static uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, bool raw) {
     return inmGetEntropyLevel();
 }
 
-// Write the bytes to either stdout, or /dev/random.  Cut the entropy estimate in half to
-// be conservative.
+// Write the bytes to either stdout, or /dev/random.  Use the lower of the measured
+// entropy and the provable lower bound on average entropy.
 static void outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom) {
+    if(entropy > inmExpectedEntropyPerBit/INM_ACCURACY) {
+        entropy = inmExpectedEntropyPerBit/INM_ACCURACY;
+    }
     if(!writeDevRandom) {
         if(fwrite(bytes, 1, length, stdout) != length) {
             fputs("Unable to write output from Infinite Noise Multiplier\n", stderr);
@@ -103,8 +107,7 @@ static void Squeeze(uint8_t *keccakState, uint8_t *dataOut, uint32_t length) {
 }
 
 // Send the new bytes through the health checker and also into the Keccak sponge.
-// Output bytes from the sponge only if the health checker says it's OK, and only
-// output half the entropy we get from the INM, just to be paranoid.
+// Output bytes from the sponge only if the health checker says it's OK
 static void processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entropy, bool raw, bool writeDevRandom) {
     if(raw) {
         // In raw mode, we just output raw data from the INM.
@@ -208,7 +211,7 @@ int main(int argc, char **argv)
     char *message;
     if(!initializeUSB(&ftdic, &message)) {
         // Sometimes have to do it twice - not sure why
-        ftdi_usb_close(&ftdic);
+        //ftdi_usb_close(&ftdic);
         if(!initializeUSB(&ftdic, &message)) {
             fputs(message, stderr);
             return 1;
