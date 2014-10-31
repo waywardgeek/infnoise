@@ -128,7 +128,7 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message) {
     ftdi_init(ftdic);
     // Open FTDI device based on FT240X vendor & product IDs
     if(ftdi_usb_open(ftdic, 0x0403, 0x6015) < 0) {
-        *message = "Can't find Infinite Noise Multiplier";
+        *message = "Can't find Infinite Noise Multiplier\n";
         return false;
     }
 
