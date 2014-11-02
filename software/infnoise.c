@@ -66,8 +66,8 @@ static uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, bool raw) {
 // Write the bytes to either stdout, or /dev/random.  Use the lower of the measured
 // entropy and the provable lower bound on average entropy.
 static void outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom) {
-    if(entropy > inmExpectedEntropyPerBit/INM_ACCURACY) {
-        entropy = inmExpectedEntropyPerBit/INM_ACCURACY;
+    if(entropy > inmExpectedEntropyPerBit*BUFLEN/INM_ACCURACY) {
+        entropy = inmExpectedEntropyPerBit*BUFLEN/INM_ACCURACY;
     }
     if(!writeDevRandom) {
         if(fwrite(bytes, 1, length, stdout) != length) {

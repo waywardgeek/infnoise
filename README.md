@@ -493,6 +493,72 @@ keeping a history of results, given the previous 7 bits.  Simulations with K=1.8
 that using 16 bits rather than 7 gives only a 0.16% improvement in prediction accuracy, so
 only 7 are used.
 
+### Entropy Testing
+
+A common program used to estimate entropy in a data stream is "ent".  A sample data file
+was created this way (using one of the original V1 boards):
+
+$ sudo ./infnoise-v1 --raw --debug > foo
+...
+Generated 14680064 bits.  OK to use data.  Estimated entropy per bit: 0.866710, estimated
+K: 1.823500
+num1s:49.888504%, even misfires:0.159748%, odd misfires:0.127300%
+Generated 15728640 bits.  OK to use data.  Estimated entropy per bit: 0.866856, estimated
+K: 1.823684
+num1s:49.901504%, even misfires:0.145973%, odd misfires:0.160365%
+Generated 16777216 bits.  OK to use data.  Estimated entropy per bit: 0.867010, estimated
+K: 1.823879
+num1s:49.963040%, even misfires:0.146815%, odd misfires:0.145067%
+
+Here's ent's results on the raw data stream this run produced:
+
+$ ent foo
+Entropy = 7.318058 bits per byte.
+
+Optimum compression would reduce the size
+of this 2072576 byte file by 8 percent.
+
+Chi square distribution for 2072576 samples is 1510131.51, and randomly
+would exceed this value 0.01 percent of the times.
+
+Arithmetic mean value of data bytes is 127.5088 (127.5 = random).
+Monte Carlo value for Pi is 3.427100794 (error 9.09 percent).
+Serial correlation coefficient is -0.005035 (totally uncorrelated = 0.0).
+
+
+The health monitor does a much better job at estimating the entropy than ent.  The actual
+non-randomness is 60% higher than ent predicted.  Ent said 0.915 bits of entropy per bit,
+while the health monitor measured 0.867.  The health monitor's entropy estimator is just a
+tiny fraction of a percent higher than the model predicts, while ent is off by 4.8% .  The
+design target for entropy per bit was log2(1.82) = log(1.82)/log(2) = 0.864.  This is set
+by two resistors.  Based on entropy measured by the health monitor, it could compress this
+file by 13.3%.
+
+The entropy estimator is based on the model that:
+
+- The device is not rapidly changing the sort of numbers it puts out, so history can be
+  used as a guide.
+- There is no special state stored in the INM that could cause data to be different each
+  clock cycle, other than on even/odd cycles.
+- Bits further away are less correlated.
+
+The first assumption is strong assuming an attacker is not involved.  An attacker
+injecting a strong signal could mount a DoS attack, since the health monitor would detect
+entropy being too high, and would disable output.  This is a concious choice: the health
+monitory could instead simply warn that entropy seems too high.  Turning off the output
+when an attacker may be present seems like the safer choice.
+
+The second assumption relies on the fact that only two nodes store state in this
+implementation of an INM, and that the outputs are sampled from even/odd comparator
+outputs on even/odd cycles.  Other TRNGs may not saticefy this assumption if they have
+additional internal state.  However, a typical zener TRNG should saticefy this assumption.
+
+The third assumption really does require an INM.  A zener TRNG would most likely have
+strong 60 Hz correlations from 60 Hz noise, for example.  This is also true of A/D
+converter based TRNGs.  With an INM, these signal sources are added to a signal already
+saturated with thermal noise, making it in no less random.  Every cycle, a new thermal
+noise sample is added to the state, causing less correlation with previous states.
+
 ### Free As in Freedom
 
 I, Bill Cox, came up with the original CMOS based Infinite Noise Multiplier architecture

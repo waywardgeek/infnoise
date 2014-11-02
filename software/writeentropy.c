@@ -56,7 +56,7 @@ void inmWriteEntropyStart(uint32_t bufLen, bool debug) {
     }
     inmFillWatermark = readNumberFromFile(FILL_PROC_FILENAME);
     if(inmDebug) {
-        printf("Entropy pool size:%u\n", readNumberFromFile(SIZE_PROC_FILENAME));
+        printf("Entropy pool size:%u, fill watermark:%u\n", readNumberFromFile(SIZE_PROC_FILENAME), inmFillWatermark);
     }
 }
 
