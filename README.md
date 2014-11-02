@@ -545,8 +545,8 @@ The entropy estimator is based on the model that:
 The first assumption is strong assuming an attacker is not involved.  An attacker
 injecting a strong signal could mount a DoS attack, since the health monitor would detect
 entropy being too high, and would disable output.  This is a concious choice: the health
-monitory could instead simply warn that entropy seems too high.  Turning off the output
-when an attacker may be present seems like the safer choice.
+monitor could instead simply warn that entropy seems too high.  Turning off the output
+when an attacker may be present seems the safer choice.
 
 The second assumption relies on the fact that only two nodes store state in this
 implementation of an INM, and that the outputs are sampled from even/odd comparator
