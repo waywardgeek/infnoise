@@ -80,44 +80,26 @@ static void outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool 
     }
 }
 
-// Absorb data into the Keccak sponge.
-static void Absorb(uint8_t *keccakState, uint8_t *bytes, uint32_t length) {
-    while(length >= 512/8) {
-        KeccakAbsorb(keccakState, bytes, 512/8);
-        KeccakPermutation(keccakState);
-        length -= 512/8;
-        bytes += 512/8;
-    }
-    if(length > 0) {
-        KeccakAbsorb(keccakState, bytes, length);
-        KeccakPermutation(keccakState);
-    }
-}
-
-// Squeeze data from the Keccak sponge.
-static void Squeeze(uint8_t *keccakState, uint8_t *dataOut, uint32_t length) {
-    while(length >= 512/8) {
-        KeccakExtract(keccakState, dataOut, 512/8);
-        dataOut += 512/8;
-        length -= 512/8;
-    }
-    if(length > 0) {
-        KeccakExtract(keccakState, dataOut, length);
-    }
-}
-
 // Send the new bytes through the health checker and also into the Keccak sponge.
 // Output bytes from the sponge only if the health checker says it's OK
-static void processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entropy, bool raw, bool writeDevRandom) {
+static void processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entropy, bool raw,
+        bool writeDevRandom, uint32_t outputMultiplier) {
     if(raw) {
         // In raw mode, we just output raw data from the INM.
         outputBytes(bytes, BUFLEN/8, entropy, writeDevRandom);
         return;
     }
-    Absorb(keccakState, bytes, BUFLEN/64);
+    // Note that BUFLEN has to be less than 1600 by enough to make the sponge secure.
+    // BUFLEN must also be a multiple of 64.  512 and 1024 are reasonable values.
+    KeccakAbsorb(keccakState, bytes, BUFLEN/64);
     uint8_t dataOut[BUFLEN/8];
-    Squeeze(keccakState, dataOut, BUFLEN/8);
-    outputBytes(dataOut, BUFLEN/8, entropy, writeDevRandom);
+    uint32_t i;
+    for(i = 0; i < outputMultiplier; i++) {
+        KeccakExtract(keccakState, dataOut, BUFLEN/64);
+        // Extract does not do a permute, so do it here.
+        KeccakPermutation(keccakState);
+        outputBytes(dataOut, BUFLEN/8, entropy, writeDevRandom);
+    }
 }
 
 // Initialize the Infinite Noise Multiplier USB ineterface.
@@ -175,18 +157,26 @@ int main(int argc, char **argv)
     bool debug = false;
     bool writeDevRandom = false;
     bool noOutput = false;
+    uint32_t outputMultiplier = 1;
+    uint32_t xArg;
 
     // Process arguments
-    while(argc > 1) {
-        argc--;
-        if(!strcmp(argv[argc], "--raw")) {
+    for(xArg = 1; xArg < argc; xArg++) {
+        if(!strcmp(argv[xArg], "--raw")) {
             raw = true;
-        } else if(!strcmp(argv[argc], "--debug")) {
+        } else if(!strcmp(argv[xArg], "--debug")) {
             debug = true;
-        } else if(!strcmp(argv[argc], "--dev-random")) {
+        } else if(!strcmp(argv[xArg], "--dev-random")) {
             writeDevRandom = true;
-        } else if(!strcmp(argv[argc], "--no-output")) {
+        } else if(!strcmp(argv[xArg], "--no-output")) {
             noOutput = true;
+        } else if(!strcmp(argv[xArg], "--multiplier") && xArg+1 < argc) {
+            xArg++;
+            outputMultiplier = atoi(argv[xArg]);
+            if(outputMultiplier == 0) {
+                fputs("Multiplier must be > 0\n", stderr);
+                return 1;
+            }
         } else {
             fputs("Usage: infnoise [options]\n"
                             "Options are:\n"
@@ -238,7 +228,7 @@ int main(int argc, char **argv)
         uint8_t bytes[BUFLEN/8];
         uint32_t entropy = extractBytes(bytes, inBuf, raw);
         if(!noOutput && inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
-            processBytes(keccakState, bytes, entropy, raw, writeDevRandom);
+            processBytes(keccakState, bytes, entropy, raw, writeDevRandom, outputMultiplier);
         }
     }
     return 0;
