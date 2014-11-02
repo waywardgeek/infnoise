@@ -498,33 +498,33 @@ only 7 are used.
 A common program used to estimate entropy in a data stream is "ent".  A sample data file
 was created this way (using one of the original V1 boards):
 
-$ sudo ./infnoise-v1 --raw --debug > foo
-...
-Generated 14680064 bits.  OK to use data.  Estimated entropy per bit: 0.866710, estimated
-K: 1.823500
-num1s:49.888504%, even misfires:0.159748%, odd misfires:0.127300%
-Generated 15728640 bits.  OK to use data.  Estimated entropy per bit: 0.866856, estimated
-K: 1.823684
-num1s:49.901504%, even misfires:0.145973%, odd misfires:0.160365%
-Generated 16777216 bits.  OK to use data.  Estimated entropy per bit: 0.867010, estimated
-K: 1.823879
-num1s:49.963040%, even misfires:0.146815%, odd misfires:0.145067%
+    $ sudo ./infnoise-v1 --raw --debug > foo
+    ...
+    Generated 14680064 bits.  OK to use data.  Estimated entropy per bit: 0.866710, estimated
+    K: 1.823500
+    num1s:49.888504%, even misfires:0.159748%, odd misfires:0.127300%
+    Generated 15728640 bits.  OK to use data.  Estimated entropy per bit: 0.866856, estimated
+    K: 1.823684
+    num1s:49.901504%, even misfires:0.145973%, odd misfires:0.160365%
+    Generated 16777216 bits.  OK to use data.  Estimated entropy per bit: 0.867010, estimated
+    K: 1.823879
+    num1s:49.963040%, even misfires:0.146815%, odd misfires:0.145067%
 
 Here's ent's results on the raw data stream this run produced:
 
-$ ent foo
-Entropy = 7.318058 bits per byte.
-
-Optimum compression would reduce the size
-of this 2072576 byte file by 8 percent.
-
-Chi square distribution for 2072576 samples is 1510131.51, and randomly
-would exceed this value 0.01 percent of the times.
-
-Arithmetic mean value of data bytes is 127.5088 (127.5 = random).
-Monte Carlo value for Pi is 3.427100794 (error 9.09 percent).
-Serial correlation coefficient is -0.005035 (totally uncorrelated = 0.0).
-
+    $ ent foo
+    Entropy = 7.318058 bits per byte.
+    
+    Optimum compression would reduce the size
+    of this 2072576 byte file by 8 percent.
+    
+    Chi square distribution for 2072576 samples is 1510131.51, and randomly
+    would exceed this value 0.01 percent of the times.
+    
+    Arithmetic mean value of data bytes is 127.5088 (127.5 = random).
+    Monte Carlo value for Pi is 3.427100794 (error 9.09 percent).
+    Serial correlation coefficient is -0.005035 (totally uncorrelated = 0.0).
+    
 
 The health monitor does a much better job at estimating the entropy than ent.  The actual
 non-randomness is 60% higher than ent predicted.  Ent said 0.915 bits of entropy per bit,
