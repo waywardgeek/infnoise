@@ -481,7 +481,7 @@ the entropy shifted out with exactly 2X amplification will be 1 bit per clock.
 
 Infinite Noise Multipliers output entropy at a predictable rate, which is measured
 continually.  If the entropy per bit deviates from the theoretical value of log(K)/log(2)
-by more than 5% during the previous 80,000 bits, then the driver stops generating output.
+by more than 2% during the previous 80,000 bits, then the driver stops generating output.
 Some deviation is expected, since K is dependent on two resistor values, which can be off
 by 1% each.  Also, a significant amplitude noise in the system, as well as "misfires", can
 cause more entropy to be output than predicted.  The estimated entropy per bit are
