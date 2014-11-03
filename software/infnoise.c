@@ -152,13 +152,23 @@ static void processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entropy,
     // gets a snapshot of the keccak state.  BUFLEN must be a multiple of 64, since
     // Keccak-1600 uses 64-bit "lanes".
     KeccakAbsorb(keccakState, bytes, BUFLEN/64);
-    uint8_t dataOut[BUFLEN/8];
-    uint32_t i;
-    for(i = 0; i < outputMultiplier; i++) {
-        KeccakExtract(keccakState, dataOut, BUFLEN/64);
+    uint8_t dataOut[16*8];
+    while(outputMultiplier > 0) {
+        // Write up to 1024 bits at a time.
+        uint32_t numLanes = 16;
+        if(outputMultiplier < 4) {
+            numLanes = outputMultiplier*4;
+        }
+        KeccakExtract(keccakState, dataOut, numLanes);
         // Extract does not do a permute, so do it here.
         KeccakPermutation(keccakState);
-        outputBytes(dataOut, BUFLEN/8, entropy, writeDevRandom);
+        uint32_t entropyThisTime = entropy;
+        if(entropyThisTime > numLanes*64) {
+            entropyThisTime = numLanes*64;
+        }
+        outputBytes(dataOut, numLanes*8, entropyThisTime, writeDevRandom);
+        outputMultiplier -= numLanes/4;
+        entropy -= entropyThisTime;
     }
 }
 
@@ -217,7 +227,7 @@ int main(int argc, char **argv)
     bool debug = false;
     bool writeDevRandom = false;
     bool noOutput = false;
-    uint32_t outputMultiplier = 1;
+    uint32_t outputMultiplier = 2;
     uint32_t xArg;
 
     // Process arguments
@@ -243,6 +253,8 @@ int main(int argc, char **argv)
                             "    --debug - turn on some debug output\n"
                             "    --dev-random - write entropy to /dev/random instead of stdout\n"
                             "    --raw - do not whiten the output\n"
+                            "    --multiplier <value> - write 256 bits * value for each 512 bits written to\n"
+                            "      the Keccak sponge\n"
                             "    --no-output - do not write random output data\n", stderr);
             return 1;
         }
