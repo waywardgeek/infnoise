@@ -37,8 +37,51 @@
 
 #endif
 
+// The remaining 8 bits are driven with 0 .. 15 to help track the cause of misfires
+#define ADDR0 3
+#define ADDR1 5
+#define ADDR2 6
+#define ADDR3 7
+
 // All data bus bits of the FT240X are outputs, except COMP1 and COMP2
 #define MASK (0xff & ~(1 << COMP1) & ~(1 << COMP2))
+
+// Convert an address value 0 to 15 to an 8-bit value using ADDR0 .. ADDR3.
+static uint8_t makeAddress(uint8_t addr) {
+    uint8_t value = 0;
+    if(addr & 1) {
+        value |= 1 << ADDR0;
+    }
+    if(addr & 2) {
+        value |= 1 << ADDR1;
+    }
+    if(addr & 4) {
+        value |= 1 << ADDR2;
+    }
+    if(addr & 8) {
+        value |= 1 << ADDR3;
+    }
+    return value;
+}
+
+// Extract a value form 0 to 15 from the ADDR0 .. ADDR3 bits.
+static uint8_t extractAddress(uint8_t value) {
+    uint8_t addr = 0;
+    if(value & (1 << ADDR0)) {
+        addr |= 1;
+    }
+    if(value & (1 << ADDR1)) {
+        addr |= 2;
+    }
+    if(value & (1 << ADDR2)) {
+        addr |= 4;
+    }
+    if(value & (1 << ADDR3)) {
+        addr |= 8;
+    }
+    return addr;
+}
+
 
 // Extract the INM output from the data received.  Basically, either COMP1 or COMP2
 // changes, not both, so alternate reading bits from them.  We get 1 INM bit of output
@@ -46,6 +89,7 @@
 // bits of entropy.
 static uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, bool raw) {
     inmClearEntropyLevel();
+    //printf("New batch\n");
     uint32_t i;
     for(i = 0; i < BUFLEN/8; i++) {
         uint32_t j;
@@ -59,8 +103,9 @@ static uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, bool raw) {
             uint8_t bit = even? oddBit : evenBit;
             byte = (byte << 1) | bit;
             // This is a good place to feed the bit from the INM to the health checker.
-            //printf("Adding evenBit:%u oddBit:%u even:%u\n", evenBit, oddBit, even);
-            if(!inmHealthCheckAddBit(evenBit, oddBit, even)) {
+            uint8_t addr = extractAddress(val);
+            //printf("Address: %u, adding evenBit:%u oddBit:%u even:%u\n", addr, evenBit, oddBit, even);
+            if(!inmHealthCheckAddBit(evenBit, oddBit, even, addr)) {
                 fputs("Health check of Infinite Noise Multiplier failed!\n", stderr);
                 exit(1);
             }
@@ -229,6 +274,7 @@ int main(int argc, char **argv)
     for(i = 0; i < BUFLEN; i++) {
         // Alternate Ph1 and Ph2 - maybe should have both off in between
         outBuf[i] = i & 1?  (1 << SWEN2) : (1 << SWEN1);
+        outBuf[i] |= makeAddress(i & 0xf);
     }
 
     while(true) {

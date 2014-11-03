@@ -143,17 +143,19 @@ static void scaleZeroOneCounts(void) {
 }
 
 // This should be called for each bit generated.
-bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even) {
+bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even, uint8_t addr) {
     bool bit;
     if(even) {
         bit = evenBit;
         if(evenBit != inmPrevEven) {
             inmEvenMisfires++;
+            //printf("even misfire\n");
         }
     } else {
         bit = oddBit;
         if(oddBit != inmPrevOdd) {
             inmOddMisfires++;
+            //printf("odd misfire\n");
         }
     }
     inmPrevEven = evenBit;
@@ -376,7 +378,7 @@ int main() {
         } else {
             oddBit = bit;
         }
-        if(!inmHealthCheckAddBit(evenBit, oddBit, even)) {
+        if(!inmHealthCheckAddBit(evenBit, oddBit, even, 0)) {
             printf("Failed health check!\n");
             return 1;
         }

@@ -6,7 +6,7 @@
 
 bool inmHealthCheckStart(uint8_t N, double K, bool debug);
 void inmHealthCheckStop(void);
-bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even);
+bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even, uint8_t addr);
 bool inmHealthCheckOkToUseData(void);
 double inmHealthCheckEstimateK(void);
 double inmHealthCheckEstimateEntropyPerBit(void);
