@@ -9,27 +9,35 @@
 #include "KeccakF-1600-interface.h"
 
 // The FT240X has a 512 byte buffer.  Must be multiple of 64
-//#define BUFLEN 512
-#define BUFLEN (64*8)
-#define PREDICTION_BITS 14
-#define LINUX_POOL_SIZE (4096/8)
+// We also write this in one go to the Keccak sponge, which is at most 1600 bits
+#define BUFLEN 512
 
-#ifdef VERSION1
+// This is how many previous bits are used to predict the next bit from the INM
+#define PREDICTION_BITS 14
+
+// This is the gain of each of the two op-amp stages in the INM
 #define DESIGN_K 1.82
+
+// This defines which pins on the FT240X are used
+#ifdef VERSION1
+
+// The V1 version is the original raw board with the edge connector instead of a real USB plug
 #define COMP1 2
 #define COMP2 0
 #define SWEN1 4
 #define SWEN2 1
+
 #else
-#define DESIGN_K 1.82
-//#define DESIGN_K 1.736
+
+// This is the production version with a real USB plug
 #define COMP1 1
 #define COMP2 4
 #define SWEN1 2
 #define SWEN2 0
+
 #endif
 
-// Add bits are outputs, except COMP1 and COMP2
+// All data bus bits of the FT240X are outputs, except COMP1 and COMP2
 #define MASK (0xff & ~(1 << COMP1) & ~(1 << COMP2))
 
 // Extract the INM output from the data received.  Basically, either COMP1 or COMP2
@@ -80,8 +88,10 @@ static void outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool 
     }
 }
 
-// Send the new bytes through the health checker and also into the Keccak sponge.
-// Output bytes from the sponge only if the health checker says it's OK
+// Whiten the output, if requested, with a Keccak sponge.  Output bytes only if the health
+// checker says it's OK.  Using outputMultiplier > 1 is a nice way to generate a lot more
+// cryptographically secure pseudo-random data than the INM generates.  This allows a user
+// to generate hundreds of MiB per second if needed, for use as cryptogrpahic keys.
 static void processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entropy, bool raw,
         bool writeDevRandom, uint32_t outputMultiplier) {
     if(raw) {
@@ -89,8 +99,13 @@ static void processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entropy,
         outputBytes(bytes, BUFLEN/8, entropy, writeDevRandom);
         return;
     }
-    // Note that BUFLEN has to be less than 1600 by enough to make the sponge secure.
-    // BUFLEN must also be a multiple of 64.  512 and 1024 are reasonable values.
+    // Note that BUFLEN has to be less than 1600 by enough to make the sponge secure,
+    // since outputing all 1600 bits would tell an attacker the Keccak state, allowing
+    // him to predict any further output, when outputMultiplier > 1, until the next call
+    // to processBytes.  All 512 bits are absorbed before sqeezing data out to insure that
+    // we instantly recover (reseed) from a state compromise, which is when an attacker
+    // gets a snapshot of the keccak state.  BUFLEN must be a multiple of 64, since
+    // Keccak-1600 uses 64-bit "lanes".
     KeccakAbsorb(keccakState, bytes, BUFLEN/64);
     uint8_t dataOut[BUFLEN/8];
     uint32_t i;

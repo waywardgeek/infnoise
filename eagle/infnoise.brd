@@ -453,9 +453,9 @@ Please make sure your boards conform to these design rules.</description>
 <element name="L1" library="infnoise" package="0603-IND" value="FERRITE-BEAD0603-IND" x="9.0742" y="3.429"/>
 <element name="R1" library="infnoise" package="0603-RES" value="27" x="10.2426" y="10.0076" rot="R90"/>
 <element name="R2" library="infnoise" package="0603-RES" value="27" x="9.0742" y="7.493"/>
-<element name="R6" library="infnoise" package="0603-RES" value="9.76K" x="23.0188" y="9.144" rot="R90"/>
+<element name="R6" library="infnoise" package="0603-RES" value="8.2K" x="23.0188" y="9.144" rot="R90"/>
 <element name="R5" library="infnoise" package="0603-RES" value="10K" x="20.9614" y="8.5598" rot="R90"/>
-<element name="R7" library="infnoise" package="0603-RES" value="9.76K" x="28.4036" y="9.652" rot="R270"/>
+<element name="R7" library="infnoise" package="0603-RES" value="8.2K" x="28.4036" y="9.652" rot="R270"/>
 <element name="R8" library="infnoise" package="0603-RES" value="10K" x="30.4356" y="8.8646" rot="R270"/>
 <element name="R3" library="infnoise" package="0603-RES" value="10K" x="27.9718" y="2.0574" rot="R180"/>
 <element name="R4" library="infnoise" package="0603-RES" value="10K" x="22.4854" y="1.9558" rot="R180"/>

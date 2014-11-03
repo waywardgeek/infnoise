@@ -1,11 +1,14 @@
-##Infinite Noise Multiplier
+﻿##Infinite Noise Multiplier
 
-The Infinite Noise Multiplier (INM) is an architecture for true random number generators (TRNG).
-Besides being simple, low-cost, and fast, it is easy to get right, unlike most other TRNGs.
-Unlike zener noise based TRNGs, INMs produce a provable level of entropy, aproximately
-equal to log2(K) per output bit, where K is a gain between 1 and 2 set by two resistors
-around an op-amp.  Unlike sound card based TRNGs, INMs do not require an expert to
-configure.
+The Infinite Noise Multiplier (INM) is an architecture for hardware based true random number generators
+(TRNG).  Besides being simple, low-cost, and fast, it is much easier to get right than
+other TRNGs.  It naturally defends against influence from outside signals, such as radio interference and
+power supply noise, making it simple to build securely, without requiring an expert in
+analog design.  Infinite Noise Multipliers produce a provable and easily measured level of entropy based on thermal noise,
+approximately equal to log2(K) per output bit, where K is a gain between 1 and 2 set by two
+resistors around an op-amp.  A "health monitor" can track this and verify that the output
+entropy is within the expected range, which for the INM described below is within
+2% of log2(1.82).
 
 INMs are suitable for both board level implementation, and ASIC implementation.  Speed is
 limited by the speed of a gain stage and a comparator, and can run in excess of 100
@@ -13,70 +16,49 @@ Mbit/second per second with high performance components.  Cheap solutions with C
 op-amps can run at 8Mbit/second.
 
 Adjacent bits from an INM are correlated, so whitening is required before use in
-cryptography.  However, the output has a highly predictable amount of entropy for reliable
-estimation of bits added to an entropy pool or cryptographic hash function.
+cryptography.  This should be done by continually reseeding a cryptographically secure hash function such as SHA-512, Blake2b, or Keccak-1600, or a stream cipher such as ChaCha.  This implementation uses Keccak-1600 with secure reseeding of more than 400 bits of entropy at a time.  Users who need many megabytes per second of data for use in cryptography can set the outputMultiplier as high as they like, which causes Keccak to generate outputMultiplier*512 bits per reseeding by the INM.
 
 ### The Eagle open-source boards work!
 
-Here's the first completed Infinite Noise USB key.  This is what I would offer on Tindie
+Here is the first completed Infinite Noise USB key.  This is what I would offer on Tindie
 if needed to get the INM concept out there.
 
 ![Picture of Infinite Noise USB key](images/infnoise_key.jpg?raw=true "Infinite Noise USB key")
 
-Here's the first three boards from OSH Park.  They work _exactly_ as predicted.  They all
-generate 300,000 bits per second, resulting in 259,000 bits of entropy per second.
+Here are the first three boards from OSH Park.  They work _exactly_ as predicted.  They all
+generate 300,000 bits per second, resulting in a measured 259,000 bits of entropy per second, which is within 0.5% of the predicted value of log2(1.82).
 
-All three work, and all work conform closely to the INM model predictions.  All three
-boards should produce 0.864 bits of entropy per bit by design.  The first one is estimated
-to produce 0.867, while the second one produces 0.868, and the third is 0.867.  That's
-only an error vs design of 0.5%!  Not bad given that I used 5% resistors to set the gain.
+All three boards should produce log2(1.82) = 0.864 bits of entropy per bit by design.  The first one is estimated
+to produce 0.867, while the second one produces 0.868, and the third is 0.867.
 
 ![Picture of Infinite Noise Multiplier circuit board](images/INM_V1.jpg?raw=true "Infinite Noise Multiplier")
 
-Here's the latest schematic...
+Here is the latest schematic:
 
 ![Schematic of Infinite Noise Multiplier](images/infnoise.png?raw=true "Infinite
 Noise Multiplier")
 
-Here's the latest board layout...
+Here is the latest board layout:
 
 ![Board layout of Infinite Noise Multiplier](images/infnoise_brd.png?raw=true "Infinite
 Noise Multiplier")
 
-The breadboard worked, too, though the three boards above work closer to the theoretical
-operation.  Estimated entropy per bit is 0.81 for the bread-board.  By design, it should
-be 0.80, so it is very close to the prediction.  Part of what it took to get it working so
-closely with the model was tuning the hold capacitors (now 220pF, rather than 100pF), and
-the baud rate of the FT240X USB interface chip, which controls the speed of clocking the
-INM.  Slowing the clocks down by setting the baud rate to 30,000 and increasing the hold
-capacitors seems to have helped reduce what I call "misfires" by about 7X.  If the voltage
-on a hold cap is still moving when we open the switch, it is likely that the comparator
-feeding the op-amp has not yet settled, likely because it's inputs are close in value.  It
-will continue moving after the switch closes, and may settle to the opposite of the
-digital value we read.  This is an unpredictable situation not dealth with in the model,
-so reducing it improved matching with the model.  Misfires were occuring 9% of the time,
-and now occur about 1.2% of the time.
-
-The breadboard proved out much of the theory of operation, as well os providing raw data
-for entropy testing.
+The breadboard worked, too.  Estimated entropy per bit is 0.81 for the bread-board.  By design, it should
+be 0.80, so it is very close to the prediction.  The breadboard proved out much of the theory of operation, as well os providing raw data for entropy testing.
 
 ![Breadboard of Infinite Noise Multiplier](images/infnoise_breadboard.jpg?raw=true "Infinite
 Noise Multiplier")
 
-Here's the voltage on the left hold cap:
+Here is the voltage on one of the hold cap:
 
 ![Traces on left hold cap](images/CAP1.jpg?raw=true "Traces on left hold cap")
-
-Here's the voltage on the right hold cap:
-
-![Traces on right hold cap](images/CAP2.jpg?raw=true "Traces on right hold cap")
 
 If you are interested in building this version of the Infinite Noise Multiplier, you may
 be interested in opening eagle/BOM.ods in the git repo above.  It has all the Digikey and Mouser
 parts along with cost/1000 units.  The total for all the parts, including boards from OSH
-Park, come to $5.44 each, in 1,000 unit quantities.  However, that cost is dominated by
+Park, come to $5.69 each, in 1,000 unit quantities.  However, that cost is dominated by
 USB related parts, particularly the FT240X chip, the USB connector, and the USB-stick
-enclosure.  Just the components for the INM come out to $0.99.
+enclosure.  Just the components for the INM come out to $0.97.
 
 Here is a faster version that uses a more expensive op-amp from TI:
 
@@ -90,16 +72,13 @@ tiny noise signal, perhaps only a microvolt in amplitude, by a factor of million
 billions, until the signal is an unpredictable digital signal.  This signal is then
 sampled to see if it's a 0 or 1.
 
-The problem with this aproach is the weak noise source can easily be influenced by other
+The problem with this approach is the weak noise source can easily be influenced by other
 nearby signals, which may be under the control of an attacker, or perhaps observable by an
-attacker, enabling him to predict the output.
-
-Systems built with massive amplification of tiny noise sources often require power supply
-filters and EMI shielding, and even then remain difficult to prove secure.
+attacker, enabling him to predict the output.  Systems built with massive amplification of tiny noise sources often require power supply filters and EMI shielding, and even then remain difficult to prove secure.  Generally, an expert analog designer is needed to get it right.
 
 Intel's RDRAND instruction is a perfect example.  It uses rapid amplification of thermal
 noise to determine the power-up state of a latch.  Unfortunately, this source of entropy
-is highly power-supply, cross-talk, and substrate current sensitive.  Intel claims to have
+is highly power-supply and cross-talk sensitive.  Intel claims to have
 carefully shielded their thermal noise source, but without a thorough pubic audit of both
 the design and layout, including all potential sources of interference, it is not possible
 to trust the RDRAND instruction as the source of entropy for cryptography.
@@ -124,9 +103,9 @@ If TRNGs used modular multiplication to amplify their noise source, this noise s
 problem would go away.
 
 If we multiply a 1uV peak by 1 billion modulo 3.3V, then the result will be about 0.3V,
-which will result in a ditital 0.  If an attacker subtracts 1uV, causing our noise source
+which will result in a digital 0.  If an attacker subtracts 1uV, causing our noise source
 to be at 0.0V, then after amplification, the output is 0V, which still results in a 0.  In
-fact, without knowing the current amplituded of the noise source, there is no signal an
+fact, without knowing the current amplitude of the noise source, there is no signal an
 attacker can add to our noise source to control the output.  He may be able to flip the
 output bit, but since it was already random, his signal injection fails to control the
 result, which is still random.  In fact, an attacker's injected signal causes the output
@@ -138,11 +117,11 @@ attacker.
 
 There are currently 3 versions of Infinite Noise Multipliers documented here.  The
 infnoise_small directory describes a low part-count design that works well with op-amps
-which have rail-to-rail inputs and outputs.  It runs at 4MHz, outputing 0.86 bits worth of
+which have rail-to-rail inputs and outputs.  It runs at 4MHz, outputting 0.86 bits worth of
 entropy on each clock (loop gain = 1.82), for a total of over 3.4 Mbit of entropy produced
 per second.  The infnoise_fast directory contains a 50% faster design that uses a few more
 resistors and an additional op-amp.  This design is suitable for use with a wide range of
-op-amps.  It runs at 6MHz, outputing 0.86 bits worth of entropy on each clock (loop gain =
+op-amps.  It runs at 6MHz, outputting 0.86 bits worth of entropy on each clock (loop gain =
 1.82), for over 5Mbit of entropy per second.
 
 Because Infinite Noise Mulitpliers are switched-capacitor circuits, it is important to use
@@ -151,7 +130,7 @@ below 1nA of input bias current will enable running at lower frequencies with le
 
 To reproduce these simulations, download the TINA spice simulator from Ti.com.
 
-Here's a "small" INM:
+Here is a "small" INM:
 
 ![Schematic of small Infinite Noise Multiplier](infnoise_small/schematic.png?raw=true "Small
 Infinite Noise Multiplier")
@@ -170,7 +149,7 @@ There is also a [CMOS version described here](http://waywardgeek.net/RNG).
 ### Simulations
 
 LTspice was used to simulate the small and fast variations.  Here are simulation waveforms
-for the small verision:
+for the small version:
 
 ![Simulation of small Infinite Noise Multiplier](infnoise_small/shortsim.png?raw=true "Small
 Infinite Noise Multiplier")
@@ -186,21 +165,21 @@ Infinite Noise Multiplier")
 
 ### Theory of Operation
 
-Consider how a successive-aproximation A/D converter works.  Each clock cycle, we compare
+Consider how a successive-approximation A/D converter works.  Each clock cycle, we compare
 the input voltage to the output of a D/A converter, and if it's higher, the next bit out
 is 1, and if lower, it's a 0.  We use binary search to zero-in on the analog input value.
 Here is a block diagram from Wikipedia:
 
-![Successive aproximation A/D block diagram](images/SA_ADC_block_diagram.png?raw=true "SAR
+![Successive approximation A/D block diagram](images/SA_ADC_block_diagram.png?raw=true "SAR
 A/D Block Diagram")
 
-There is another way to build a successive-aproximation A/D that eliminates the D/A
+There is another way to build a successive-approximation A/D that eliminates the D/A
 converter.  Compare the input to Vref (1/2 supply), and if it is larger, subtract Vref
 from the input.  Then multiply by 2X.  The bit out is the value of the comparator.
 
     Vin' = Vin >= Vref? Vin - Vref : Vin
 
-This eliminates the D/A conveter, and has no limit on how many bits we shift out.  In
+This eliminates the D/A converter, and has no limit on how many bits we shift out.  In
 reality, the only reason we do not use this architecture for real A/D converters is that
 it's accuracy depends on the accuracy of the multiply by 2X operation.  A simple circuit
 with 1% resistors would only achieve about a 7 bit resolution.
@@ -300,7 +279,7 @@ a way to add his signal to Vzener, then the circuit does this:
 
     clamp(-Vsupply, Vsupply, 1e9*(Vzener + Vmallory))
 
-If Vmallory is always just a bit larger than Vzener in magnitued, then Mallory can
+If Vmallory is always just a bit larger than Vzener in magnitude, then Mallory can
 completely determine the output, because Mallory can make Vzener + Vmallory greater or
 less than zero at will, and after multiplying by 1e9 it the amplifier will saturate in the
 direction of the sign of Vmallory.
@@ -326,7 +305,7 @@ is just:
 
     Vz + Vm mod Vsupply
 
-Vz is unpredicably distributed between 0 and Vsupply, hopefully somewhat uniformly.
+Vz is unpredictably distributed between 0 and Vsupply, hopefully somewhat uniformly.
 How can Mallory determine what to add to it to control the output?  He can not.
 His interference can only _increase_ the entropy of the output, since Mallory's attack is
 itself an entropy source, further randomizing the result.
@@ -334,7 +313,7 @@ itself an entropy source, further randomizing the result.
 ### Rolling Up the Loop
 
 A 30-long cascade of switched capacitor 2X modular multipliers is a lot of hardware!
-Fortunately, it is possible to reuse the same multplier for each stage, without even
+Fortunately, it is possible to reuse the same multiplier for each stage, without even
 slowing down the circuit.  In our long chain of 2X modular multipliers, we computed:
 
     A1(1) = 2*Vzener(0) mod Vsupply
@@ -377,7 +356,7 @@ it's value.
 ### We Don't Need Zener Noise
 
 In reality, there are many sources of unpredictable noise in every circuit.  There's large
-predictable and controlable noise, like power supply noise, and tiny 1/f noise in the
+predictable and controllable noise, like power supply noise, and tiny 1/f noise in the
 multi-gigahertz range.  Shot noise, thermal noise, EMI, cross-talk... you name it, no
 matter where we look, there's noise.  Infinite noise multipliers amplify them all in
 parallel, and adds them together effectively in an tiny entropy pool.  Zener noise would
@@ -401,7 +380,7 @@ Each individual noise sources contributes its own power-of-two sequence to the t
 A micro-volt noise source contributes nearly as strongly as a Vsupply/10 amplitude noise
 source.
 
-The mashing together of noise source data with unbounded modular multiplicationes leads to
+The mashing together of noise source data with unbounded modular multiplications leads to
 awesome entropy levels.  Just how awesome?  Consider just thermal noise from one resistive
 summing node (the minus terminal on op-amp in the 2X gain stage).
 
@@ -416,11 +395,11 @@ correlation between noise samples, but the accuracy to which we can remember the
 difference between them in our circuit.  This should be limited only by electron counts on
 our hold capacitor.  It has an integer number of electrons at any time.  About 2.5 billion
 electrons flow out of 100pF holding caps when charging from 0.5V to 4.5V.  That's about 31
-bits of resolution.  Every time we caputure noise on these caps, it adds or subtracts an
+bits of resolution.  Every time we capture noise on these caps, it adds or subtracts an
 integer number of electrons.  Each electron contributes about 1.6nV on our hold cap.  So
 long as we can capture noise that has significantly more than 1.6nV of unpredictability,
 we should be able to keep the output generating close to 1 bit of entropy per clock.  In
-this example, both noise samples had over 10X the minimum resolution in unpreditable
+this example, both noise samples had over 10X the minimum resolution in unpredictable
 noise, and easily contributed a bit of entropy each to our 31-ish bit entropy pool.
 
 ### Whitening the Right Way
@@ -544,14 +523,14 @@ The entropy estimator is based on the model that:
 
 The first assumption is strong assuming an attacker is not involved.  An attacker
 injecting a strong signal could mount a DoS attack, since the health monitor would detect
-entropy being too high, and would disable output.  This is a concious choice: the health
+entropy being too high, and would disable output.  This is a conscious choice: the health
 monitor could instead simply warn that entropy seems too high.  Turning off the output
 when an attacker may be present seems the safer choice.
 
 The second assumption relies on the fact that only two nodes store state in this
 implementation of an INM, and that the outputs are sampled from even/odd comparator
-outputs on even/odd cycles.  Other TRNGs may not saticefy this assumption if they have
-additional internal state.  However, a typical zener TRNG should saticefy this assumption.
+outputs on even/odd cycles.  Other TRNGs may not satisfy this assumption if they have
+additional internal state.  However, a typical zener TRNG should satisfy this assumption.
 
 The third assumption really does require an INM.  A zener TRNG would most likely have
 strong 60 Hz correlations from 60 Hz noise, for example.  This is also true of A/D

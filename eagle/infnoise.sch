@@ -726,9 +726,9 @@ In this library the device names are the same as the pin names of the symbols, t
 <part name="L1" library="infnoise" deviceset="FERRITE-BEAD" device="0603-IND"/>
 <part name="R1" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="27"/>
 <part name="R2" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="27"/>
-<part name="R6" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="9.76K"/>
+<part name="R6" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="8.2K"/>
 <part name="R5" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="10K"/>
-<part name="R7" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="9.76K"/>
+<part name="R7" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="8.2K"/>
 <part name="R8" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="10K"/>
 <part name="R3" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="10K"/>
 <part name="R4" library="infnoise" deviceset="RESISTOR" device="0603-RES" value="10K"/>
