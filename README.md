@@ -1,5 +1,9 @@
 ﻿##Infinite Noise Multiplier
 
+The original invenvetor of the Infinite Noise Multiplier, is Peter Allan, which he called
+Firebug.  For now, I continue to call it an Infinite Noise Multiplier in this document.
+It is a good thing that more than one person thinks this is a good idea...
+
 The Infinite Noise Multiplier (INM) is an architecture for hardware based true random number generators
 (TRNG).  Besides being simple, low-cost, and fast, it is much easier to get right than
 other TRNGs.  It naturally defends against influence from outside signals, such as radio interference and
