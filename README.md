@@ -1,18 +1,14 @@
 ﻿##Infinite Noise Multiplier
 
-The original invenvetor of the Infinite Noise Multiplier, is Peter Allan, which he called
-Firebug.  For now, I continue to call it an Infinite Noise Multiplier in this document.
-It is a good thing that more than one person thinks this is a good idea...
-
-The Infinite Noise Multiplier (INM) is an architecture for hardware based true random number generators
-(TRNG).  Besides being simple, low-cost, and fast, it is much easier to get right than
-other TRNGs.  It naturally defends against influence from outside signals, such as radio interference and
-power supply noise, making it simple to build securely, without requiring an expert in
-analog design.  Infinite Noise Multipliers produce a provable and easily measured level of entropy based on thermal noise,
-approximately equal to log2(K) per output bit, where K is a gain between 1 and 2 set by two
-resistors around an op-amp.  A "health monitor" can track this and verify that the output
-entropy is within the expected range, which for the INM described below is within
-2% of log2(1.82).
+The Infinite Noise Multiplier (INM) is an architecture for hardware based true random
+number generators (TRNG).  Besides being simple, low-cost, and fast, it is much easier to
+get right than other TRNGs.  It naturally defends against influence from outside signals,
+such as radio interference and power supply noise, making it simple to build securely,
+without requiring an expert in analog design.  Infinite Noise Multipliers produce a
+provable and easily measured level of entropy based on thermal noise, approximately equal
+to log2(K) per output bit, where K is a gain between 1 and 2 set by two resistors around
+an op-amp.  A "health monitor" can track this and verify that the output entropy is within
+the expected range, which for the INM described below is within 2% of log2(1.82).
 
 INMs are suitable for both board level implementation, and ASIC implementation.  Speed is
 limited by the speed of a gain stage and a comparator, and can run in excess of 100
@@ -26,6 +22,13 @@ This implementation uses Keccak-1600 with secure reseeding of more than 400 bits
 entropy at a time.  Users who need many megabytes per second of data for use in
 cryptography can set the outputMultiplier as high as they like, which causes Keccak to
 generate outputMultiplier\*256 bits per reseeding by the INM.
+
+The Infinite Noise Multiplier was invented by Peter Allan in 1999, which he calls
+[Firebug](http://apa.hopto.org/firebug).  I reinvented it in 2013.  As usual, most of my
+good ideas are rediscoveries of existing ideas...  For now, I continue to call it an
+Infinite Noise Multiplier in this document.  I hope to work with Peter to agree on a name
+and to work together to popularize this concept.  It really is the _right_ way to generate
+random bits, whether on a board with standard parts, or on an custom chip.
 
 ### The Eagle open-source boards work!
 
