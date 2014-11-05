@@ -553,8 +553,8 @@ noise sample is added to the state, causing less correlation with previous state
 ### Free As in Freedom
 
 The Infinite Noise Multiplier was invented in 1999 by Peter Allan, but was not patented at
-that time, but it was published.  Peter is working with me to make INMs/Firebugs
-open-source hardware, unencumbered by patents or copyright.
+that time.  Peter is working with me to make INMs/Firebugs open-source hardware,
+unencumbered by patents or copyright.
 
 I reinvented with the Infinite Noise Multiplier architecture in 2013, and the board level
 versions in 2014.  I hereby renounce any claim to copyright and patent rights related to
