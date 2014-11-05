@@ -16,7 +16,12 @@ Mbit/second per second with high performance components.  Cheap solutions with C
 op-amps can run at 8Mbit/second.
 
 Adjacent bits from an INM are correlated, so whitening is required before use in
-cryptography.  This should be done by continually reseeding a cryptographically secure hash function such as SHA-512, Blake2b, or Keccak-1600, or a stream cipher such as ChaCha.  This implementation uses Keccak-1600 with secure reseeding of more than 400 bits of entropy at a time.  Users who need many megabytes per second of data for use in cryptography can set the outputMultiplier as high as they like, which causes Keccak to generate outputMultiplier*512 bits per reseeding by the INM.
+cryptography.  This should be done by continually reseeding a cryptographically secure
+hash function such as SHA-512, Blake2b, or Keccak-1600, or a stream cipher such as ChaCha.
+This implementation uses Keccak-1600 with secure reseeding of more than 400 bits of
+entropy at a time.  Users who need many megabytes per second of data for use in
+cryptography can set the outputMultiplier as high as they like, which causes Keccak to
+generate outputMultiplier\*56 bits per reseeding by the INM.
 
 ### The Eagle open-source boards work!
 
