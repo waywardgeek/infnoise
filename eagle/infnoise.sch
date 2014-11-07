@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.1.0">
+<eagle version="6.5.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -61,16 +61,16 @@
 <description>Parts for the Infinite Noise Generator</description>
 <packages>
 <package name="0603-IND">
-<wire x1="-1.473" y1="0.983" x2="1.473" y2="0.983" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="0.983" x2="1.473" y2="-0.983" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="-0.983" x2="-1.473" y2="-0.983" width="0.0508" layer="39"/>
-<wire x1="-1.473" y1="-0.983" x2="-1.473" y2="0.983" width="0.0508" layer="39"/>
+<wire x1="-1.5" y1="0.85" x2="1.5" y2="0.85" width="0.0508" layer="39"/>
+<wire x1="1.5" y1="0.85" x2="1.5" y2="-0.85" width="0.0508" layer="39"/>
+<wire x1="1.5" y1="-0.85" x2="-1.5" y2="-0.85" width="0.0508" layer="39"/>
+<wire x1="-1.5" y1="-0.85" x2="-1.5" y2="0.85" width="0.0508" layer="39"/>
 <wire x1="-0.356" y1="0.432" x2="0.356" y2="0.432" width="0.1016" layer="51"/>
 <wire x1="-0.356" y1="-0.419" x2="0.356" y2="-0.419" width="0.1016" layer="51"/>
 <wire x1="0" y1="0.0305" x2="0" y2="-0.0305" width="0.4064" layer="21"/>
 <smd name="1" x="-0.85" y="0" dx="1.1" dy="1" layer="1"/>
 <smd name="2" x="0.85" y="0" dx="1.1" dy="1" layer="1"/>
-<text x="-0.4318" y="0.635" size="0.4064" layer="25" font="vector">&gt;NAME</text>
+<text x="0" y="0.635" size="0.4064" layer="25" font="vector" align="bottom-center">&gt;NAME</text>
 <rectangle x1="-0.8382" y1="-0.4699" x2="-0.3381" y2="0.4801" layer="51"/>
 <rectangle x1="0.3302" y1="-0.4699" x2="0.8303" y2="0.4801" layer="51"/>
 <rectangle x1="-0.1999" y1="-0.3" x2="0.1999" y2="0.3" layer="35"/>
@@ -108,7 +108,7 @@ Source: http://cds.linear.com/docs/Datasheet/5598f.pdf</description>
 <smd name="23" x="-0.75" y="1.9" dx="0.7" dy="0.25" layer="1" rot="R270"/>
 <smd name="24" x="-1.25" y="1.9" dx="0.7" dy="0.25" layer="1" rot="R270"/>
 <smd name="EXP" x="0" y="0" dx="2.5" dy="2.5" layer="1" stop="no"/>
-<text x="1.27" y="2.627" size="0.6096" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="2.54" size="0.6096" layer="25" align="bottom-center">&gt;NAME</text>
 <rectangle x1="-1.95" y1="1.525" x2="-1.525" y2="1.975" layer="21"/>
 <rectangle x1="-1.4" y1="-1.4" x2="1.4" y2="1.4" layer="29"/>
 </package>
@@ -126,7 +126,7 @@ Source: http://www.linear.com/pc/downloadDocument.do?navId=H0,C1,C1003,C1042,C10
 <smd name="4" x="0.75" y="-1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
 <smd name="5" x="0.75" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
 <smd name="6" x="0.25" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
-<text x="-1.2478" y="0.0204" size="0.4064" layer="25" rot="R90" align="bottom-center">&gt;NAME</text>
+<text x="-1.27" y="0" size="0.4064" layer="25" rot="R90" align="bottom-center">&gt;NAME</text>
 <rectangle x1="-0.777" y1="-0.517" x2="-0.227" y2="-0.392" layer="21"/>
 <smd name="7" x="-0.25" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
 <smd name="8" x="-0.75" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
@@ -143,7 +143,7 @@ Source: http://www.linear.com/pc/downloadDocument.do?navId=H0,C1,C1003,C1042,C10
 <wire x1="-1.1" y1="1.2" x2="-1.1" y2="-1.2" width="0.127" layer="21"/>
 <wire x1="1.1" y1="1.2" x2="1.1" y2="-1.2" width="0.127" layer="21"/>
 <circle x="-0.8" y="-0.7" radius="0.1" width="0.127" layer="21"/>
-<text x="-0.035" y="2.005" size="0.6096" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="1.905" size="0.6096" layer="25" align="bottom-center">&gt;NAME</text>
 </package>
 <package name="SC70-5L">
 <description>&lt;b&gt;SC-70 Package&lt;/b&gt;</description>
@@ -157,7 +157,7 @@ Source: http://www.linear.com/pc/downloadDocument.do?navId=H0,C1,C1003,C1042,C10
 <smd name="1" x="-0.65" y="-0.85" dx="0.35" dy="0.8" layer="1"/>
 <smd name="2" x="0" y="-0.85" dx="0.35" dy="0.8" layer="1"/>
 <smd name="3" x="0.65" y="-0.85" dx="0.35" dy="0.8" layer="1"/>
-<text x="0.2" y="-0.15" size="0.3048" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="-0.47625" y="0" size="0.3048" layer="25" align="center-left">&gt;NAME</text>
 <rectangle x1="0.5" y1="0.6" x2="0.8" y2="1.1" layer="51"/>
 <rectangle x1="-0.8" y1="0.6" x2="-0.5" y2="1.1" layer="51"/>
 <rectangle x1="-0.8" y1="-1.1" x2="-0.5" y2="-0.6" layer="51"/>
@@ -165,30 +165,30 @@ Source: http://www.linear.com/pc/downloadDocument.do?navId=H0,C1,C1003,C1042,C10
 <rectangle x1="0.5" y1="-1.1" x2="0.8" y2="-0.6" layer="51"/>
 </package>
 <package name="0603-CAP">
-<wire x1="-1.473" y1="0.983" x2="1.473" y2="0.983" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="0.983" x2="1.473" y2="-0.983" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="-0.983" x2="-1.473" y2="-0.983" width="0.0508" layer="39"/>
-<wire x1="-1.473" y1="-0.983" x2="-1.473" y2="0.983" width="0.0508" layer="39"/>
+<wire x1="-1.5" y1="0.85" x2="1.5" y2="0.85" width="0.0508" layer="39"/>
+<wire x1="1.5" y1="0.85" x2="1.5" y2="-0.85" width="0.0508" layer="39"/>
+<wire x1="1.5" y1="-0.85" x2="-1.5" y2="-0.85" width="0.0508" layer="39"/>
+<wire x1="-1.5" y1="-0.85" x2="-1.5" y2="0.85" width="0.0508" layer="39"/>
 <wire x1="-0.356" y1="0.432" x2="0.356" y2="0.432" width="0.1016" layer="51"/>
 <wire x1="-0.356" y1="-0.419" x2="0.356" y2="-0.419" width="0.1016" layer="51"/>
 <wire x1="0" y1="0.0305" x2="0" y2="-0.0305" width="0.4064" layer="21"/>
 <smd name="1" x="-0.85" y="0" dx="1.1" dy="1" layer="1"/>
 <smd name="2" x="0.85" y="0" dx="1.1" dy="1" layer="1"/>
-<text x="-0.889" y="0.6096" size="0.4064" layer="25" font="vector">&gt;NAME</text>
+<text x="0" y="0.635" size="0.4064" layer="25" font="vector" align="bottom-center">&gt;NAME</text>
 <rectangle x1="-0.8382" y1="-0.4699" x2="-0.3381" y2="0.4801" layer="51"/>
 <rectangle x1="0.3302" y1="-0.4699" x2="0.8303" y2="0.4801" layer="51"/>
 <rectangle x1="-0.1999" y1="-0.3" x2="0.1999" y2="0.3" layer="35"/>
 </package>
 <package name="0603-RES">
-<wire x1="-1.473" y1="0.983" x2="1.473" y2="0.983" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="0.983" x2="1.473" y2="-0.983" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="-0.983" x2="-1.473" y2="-0.983" width="0.0508" layer="39"/>
-<wire x1="-1.473" y1="-0.983" x2="-1.473" y2="0.983" width="0.0508" layer="39"/>
+<wire x1="-1.5" y1="0.85" x2="1.5" y2="0.85" width="0.0508" layer="39"/>
+<wire x1="1.5" y1="0.85" x2="1.5" y2="-0.85" width="0.0508" layer="39"/>
+<wire x1="1.5" y1="-0.85" x2="-1.5" y2="-0.85" width="0.0508" layer="39"/>
+<wire x1="-1.5" y1="-0.85" x2="-1.5" y2="0.85" width="0.0508" layer="39"/>
 <wire x1="-0.356" y1="0.432" x2="0.356" y2="0.432" width="0.1016" layer="51"/>
 <wire x1="-0.356" y1="-0.419" x2="0.356" y2="-0.419" width="0.1016" layer="51"/>
 <smd name="1" x="-0.85" y="0" dx="1.1" dy="1" layer="1"/>
 <smd name="2" x="0.85" y="0" dx="1.1" dy="1" layer="1"/>
-<text x="-0.2032" y="0.762" size="0.4064" layer="25" font="vector">&gt;NAME</text>
+<text x="0" y="0.635" size="0.4064" layer="25" font="vector" align="bottom-center">&gt;NAME</text>
 <rectangle x1="-0.8382" y1="-0.4699" x2="-0.3381" y2="0.4801" layer="51"/>
 <rectangle x1="0.3302" y1="-0.4699" x2="0.8303" y2="0.4801" layer="51"/>
 <rectangle x1="-0.1999" y1="-0.3" x2="0.1999" y2="0.3" layer="35"/>
@@ -253,13 +253,13 @@ Source: http://www.onsemi.com/pub/Collateral/MC34164-D.PDF</description>
 </description>
 <wire x1="-0.245" y1="0.224" x2="0.245" y2="0.224" width="0.1524" layer="51"/>
 <wire x1="0.245" y1="-0.224" x2="-0.245" y2="-0.224" width="0.1524" layer="51"/>
-<wire x1="-1.473" y1="0.483" x2="1.473" y2="0.483" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="0.483" x2="1.473" y2="-0.483" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="-0.483" x2="-1.473" y2="-0.483" width="0.0508" layer="39"/>
-<wire x1="-1.473" y1="-0.483" x2="-1.473" y2="0.483" width="0.0508" layer="39"/>
+<wire x1="-1.25" y1="0.483" x2="1.25" y2="0.483" width="0.0508" layer="39"/>
+<wire x1="1.25" y1="0.483" x2="1.25" y2="-0.483" width="0.0508" layer="39"/>
+<wire x1="1.25" y1="-0.483" x2="-1.25" y2="-0.483" width="0.0508" layer="39"/>
+<wire x1="-1.25" y1="-0.483" x2="-1.25" y2="0.483" width="0.0508" layer="39"/>
 <smd name="1" x="-0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
 <smd name="2" x="0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
-<text x="-0.635" y="0.735" size="0.4064" layer="25">&gt;NAME</text>
+<text x="0" y="0.5715" size="0.4064" layer="25" align="bottom-center">&gt;NAME</text>
 <rectangle x1="-0.554" y1="-0.3048" x2="-0.254" y2="0.2951" layer="51"/>
 <rectangle x1="0.2588" y1="-0.3048" x2="0.5588" y2="0.2951" layer="51"/>
 <rectangle x1="-0.1999" y1="-0.4001" x2="0.1999" y2="0.4001" layer="35"/>
@@ -269,13 +269,13 @@ Source: http://www.onsemi.com/pub/Collateral/MC34164-D.PDF</description>
 chip</description>
 <wire x1="-0.245" y1="0.224" x2="0.245" y2="0.224" width="0.1524" layer="51"/>
 <wire x1="0.245" y1="-0.224" x2="-0.245" y2="-0.224" width="0.1524" layer="51"/>
-<wire x1="-1.473" y1="0.483" x2="1.473" y2="0.483" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="0.483" x2="1.473" y2="-0.483" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="-0.483" x2="-1.473" y2="-0.483" width="0.0508" layer="39"/>
-<wire x1="-1.473" y1="-0.483" x2="-1.473" y2="0.483" width="0.0508" layer="39"/>
+<wire x1="-1.25" y1="0.483" x2="1.25" y2="0.483" width="0.0508" layer="39"/>
+<wire x1="1.25" y1="0.483" x2="1.25" y2="-0.483" width="0.0508" layer="39"/>
+<wire x1="1.25" y1="-0.483" x2="-1.25" y2="-0.483" width="0.0508" layer="39"/>
+<wire x1="-1.25" y1="-0.483" x2="-1.25" y2="0.483" width="0.0508" layer="39"/>
 <smd name="1" x="-0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
 <smd name="2" x="0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
-<text x="-0.889" y="0.6985" size="0.4064" layer="25">&gt;NAME</text>
+<text x="0" y="0.5715" size="0.4064" layer="25" align="bottom-center">&gt;NAME</text>
 <rectangle x1="-0.554" y1="-0.3048" x2="-0.254" y2="0.2951" layer="51"/>
 <rectangle x1="0.2588" y1="-0.3048" x2="0.5588" y2="0.2951" layer="51"/>
 </package>
@@ -284,13 +284,13 @@ chip</description>
 chip</description>
 <wire x1="-0.245" y1="0.224" x2="0.245" y2="0.224" width="0.1524" layer="51"/>
 <wire x1="0.245" y1="-0.224" x2="-0.245" y2="-0.224" width="0.1524" layer="51"/>
-<wire x1="-1.473" y1="0.483" x2="1.473" y2="0.483" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="0.483" x2="1.473" y2="-0.483" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="-0.483" x2="-1.473" y2="-0.483" width="0.0508" layer="39"/>
-<wire x1="-1.473" y1="-0.483" x2="-1.473" y2="0.483" width="0.0508" layer="39"/>
+<wire x1="-1.25" y1="0.483" x2="1.25" y2="0.483" width="0.0508" layer="39"/>
+<wire x1="1.25" y1="0.483" x2="1.25" y2="-0.483" width="0.0508" layer="39"/>
+<wire x1="1.25" y1="-0.483" x2="-1.25" y2="-0.483" width="0.0508" layer="39"/>
+<wire x1="-1.25" y1="-0.483" x2="-1.25" y2="0.483" width="0.0508" layer="39"/>
 <smd name="1" x="-0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
 <smd name="2" x="0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
-<text x="-0.889" y="0.6985" size="0.4064" layer="25">&gt;NAME</text>
+<text x="0" y="0.5715" size="0.4064" layer="25" align="bottom-center">&gt;NAME</text>
 <rectangle x1="-0.554" y1="-0.3048" x2="-0.254" y2="0.2951" layer="51"/>
 <rectangle x1="0.2588" y1="-0.3048" x2="0.5588" y2="0.2951" layer="51"/>
 </package>
