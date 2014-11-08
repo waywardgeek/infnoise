@@ -67,12 +67,12 @@ void inmWaitForPoolToHaveRoom(void) {
         fd:   inmDevRandomFD,
         events: POLLOUT,
     };
-    int64_t timeout_usec;
+    int64_t timeout_msec;
     if (ioctl(inmDevRandomFD, RNDGETENTCNT, &ent_count) == 0 && ent_count < inmFillWatermark) {
         return;
     }
-    timeout_usec = 1000; // One second
-    poll(&pfd, 1, timeout_usec);
+    timeout_msec = 1000; // One second
+    poll(&pfd, 1, timeout_msec);
 }
 
 // Add the bytes to the entropy pool.  This can be unwhitenened, but the estimated bits of

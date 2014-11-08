@@ -1,9 +1,13 @@
 /* Driver for the Infinite Noise Multiplier USB stick */
 
+// Required to include clock_gettime
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <ftdi.h>
 #include "infnoise.h"
 #include "KeccakF-1600-interface.h"
@@ -14,6 +18,10 @@
 
 // This is how many previous bits are used to predict the next bit from the INM
 #define PREDICTION_BITS 14
+
+// This is the maximum time we allow to pass to perform the I/O operations, since long
+// delays can reduce entropy from the INM.
+#define MAX_MICROSEC_FOR_SAMPLES 5000
 
 // This is the gain of each of the two op-amp stages in the INM
 #define DESIGN_K 1.82
@@ -220,6 +228,13 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message) {
     return true;
 }
 
+// Return the differnece in the times as a double in microseconds.
+static double diffTime(struct timespec *start, struct timespec *end) {
+    uint32_t seconds = end->tv_sec - start->tv_sec;
+    int32_t nanoseconds = end->tv_nsec - start->tv_nsec;
+    return seconds*1e6 + nanoseconds/1000.0;
+}
+
 int main(int argc, char **argv)
 {
     struct ftdi_context ftdic;
@@ -290,6 +305,9 @@ int main(int argc, char **argv)
     }
 
     while(true) {
+        struct timespec start;
+        clock_gettime(CLOCK_REALTIME, &start);
+
         if(ftdi_write_data(&ftdic, outBuf, BUFLEN) != BUFLEN) {
             fputs("USB write failed\n", stderr);
             return -1;
@@ -298,10 +316,15 @@ int main(int argc, char **argv)
             fputs("USB read failed\n", stderr);
             return -1;
         }
-        uint8_t bytes[BUFLEN/8];
-        uint32_t entropy = extractBytes(bytes, inBuf, raw);
-        if(!noOutput && inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
-            processBytes(keccakState, bytes, entropy, raw, writeDevRandom, outputMultiplier);
+        struct timespec end;
+        clock_gettime(CLOCK_REALTIME, &end);
+        uint32_t us = diffTime(&start, &end);
+        if(us <= MAX_MICROSEC_FOR_SAMPLES) {
+            uint8_t bytes[BUFLEN/8];
+            uint32_t entropy = extractBytes(bytes, inBuf, raw);
+            if(!noOutput && inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
+                processBytes(keccakState, bytes, entropy, raw, writeDevRandom, outputMultiplier);
+            }
         }
     }
     return 0;
