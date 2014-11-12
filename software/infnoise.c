@@ -304,6 +304,7 @@ int main(int argc, char **argv)
         outBuf[i] |= makeAddress(i & 0xf);
     }
 
+    uint64_t good = 0, bad = 0;
     while(true) {
         struct timespec start;
         clock_gettime(CLOCK_REALTIME, &start);
@@ -319,13 +320,20 @@ int main(int argc, char **argv)
         struct timespec end;
         clock_gettime(CLOCK_REALTIME, &end);
         uint32_t us = diffTime(&start, &end);
+        //printf("diffTime:%u us\n", us);
         if(us <= MAX_MICROSEC_FOR_SAMPLES) {
             uint8_t bytes[BUFLEN/8];
             uint32_t entropy = extractBytes(bytes, inBuf, raw);
             if(!noOutput && inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
                 processBytes(keccakState, bytes, entropy, raw, writeDevRandom, outputMultiplier);
             }
+            good++;
+        } else {
+            bad++;
         }
+        //if(((good + bad) & 0xff) == 0) {
+            //printf("Good %lu, bad %lu\n", good, bad);
+        //}
     }
     return 0;
 }
