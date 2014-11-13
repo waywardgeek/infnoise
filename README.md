@@ -550,6 +550,12 @@ converter based TRNGs.  With an INM, these signal sources are added to a signal 
 saturated with thermal noise, making it in no less random.  Every cycle, a new thermal
 noise sample is added to the state, causing less correlation with previous states.
 
+### Credits
+
+Peter Allan has been very helpful in moving this project forward.  The github user known
+as EagleWorks did an _amazing_ job redoing the board layout.  Somehow, my ameraturish work
+just wasn't good enough for him :-)  Thanks, EagleWorks!
+
 ### Free As in Freedom
 
 The Infinite Noise Multiplier was invented in 1999 by Peter Allan, but was not patented at
