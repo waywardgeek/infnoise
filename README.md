@@ -50,7 +50,7 @@ Here is the latest schematic:
 ![Schematic of Infinite Noise Multiplier](images/infnoise.png?raw=true "Infinite
 Noise Multiplier")
 
-Here is the latest board layout:
+Here is the latest board layout (thanks, EagleWorks!):
 
 ![Board layout of Infinite Noise Multiplier](images/infnoise_brd.png?raw=true "Infinite
 Noise Multiplier")
