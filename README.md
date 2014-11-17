@@ -1,5 +1,9 @@
 ﻿##Infinite Noise Multiplier
 
+For instructions for compiling the and using Infinite Noise TRNG driver, go to the software
+sub-directory, and read the REAME file there.  Until later in November, only Linux is
+supported.
+
 The Infinite Noise Multiplier (INM) is an architecture for hardware based true random
 number generators (TRNG).  Besides being simple, low-cost, and fast, it is much easier to
 get right than other TRNGs.  It naturally defends against influence from outside signals,

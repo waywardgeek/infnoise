@@ -1,34 +1,120 @@
+Compiling the Driver for Windows
+--------------------------------
+
+TBD: Windows will be supported later in November, 2014.  For now, only Linux is supported.
+
+Compiling the Driver for Linux
+------------------------------
+
 The infnoise application reads random data from the Infinite Noise USB key and writes
-binary data to stdout.  To complile it in Linux, make sure you have the libftdi-dev
-package installed, and just type "make".
+binary data to stdout.  To compile it, you will need to install the libftdi and libusb
+development libraries to compile infnoise.  In Ubuntu (probabliy also Debian), you can use
+this command:
+
+    $ sudo apt-get install libftdi-dev libusb-dev
+
+These include an open source drivers for the FT240X USB chip used on the Infinite Noise
+TRNG.  Once this is done, to compile the infnoise program, simply make it:
+
+    $ make
 
 To run the infnoise application, make sure the Infinite Noise USB stick is
 plugged in, and from a shell, type:
 
-    sudo ./infnoise > randbytes
-
-This will fill the file randbytes with random data endlessly, so hit Ctrl+C to kill it
-after a while.  If all you want to do is verify the output using the dieharder tests, you
-can use:
-
-    sudo ./infnoise | dieharder -g 200 -a
+    $ sudo ./infnoise > randbytes
 
 The Infinite Noise USB driver uses the open source FTDI driver documented at:
 
     http://www.intra2net.com/en/developer/libftdi/documentation/group__libftdi.html
 
-This talks to the FT240X USB 2.0 interface chip on the USB stick.  It uses "bitbang" mode
-to drive the clock signals of the Infinite Noise Multiplier, and receives one random bit
-of output per byte written to the device.  These bits are collected into bytes, and sent
-through a "health checker", which verifies that the bits look basically like INM output,
-with about the expected level of entropy.
+Note that there is a newer alpha version of the next release of the libftdi library.  I
+found it runs much slower than the current libftdi1 library in Ubuntu, so I am sticking
+with the stable release for now.
 
-If the measured level of entropy deviates from the theoretical value by more than 5%, then
-the infnoise application exits with an error message.  If this happens, you can see the
-raw data from the INM for yourself by running
+Usage
+-----
 
-    sudo infnoise --raw > randbytes
+Usage: infnoise [options]
+Options are:
+    --debug - turn on some debug output
+    --dev-random - write entropy to /dev/random instead of stdout
+    --raw - do not whiten the output
+    --multiplier <value> - write 256 bits * value for each 512 bits written to the Keccak sponge
+    --no-output - do not write random output data
+
+Examples
+--------
+
+This will fill the file randbytes with random data endlessly, so hit Ctrl+C to kill it
+after a while.  If all you want to do is verify the output using the dieharder tests, you
+can use:
+
+    $ sudo ./infnoise | dieharder -g 200 -a
+
+The program "infnoise" talks to the FT240X USB 2.0 interface chip on the USB stick.  It
+uses "bitbang" mode to drive the clock signals of the Infinite Noise Multiplier, and
+receives one random bit of output per byte written to the device.  These bits are
+collected into bytes, and sent through a "health checker", which verifies that the bits
+look basically like INM output, with about the expected level of entropy.
+
+If the measured level of entropy deviates from the theoretical value by more than 2%, then
+the infnoise application stops generating outputdata.  If it sees too many 0's or 1's in a
+row, it will exit with an error code.
+
+You can see the raw data from the INM for yourself by running
+
+    $ sudo infnoise --raw > randbytes
 
 Kill it after a while, and check it out with with a program like hexdump.  In general,
-there should be random 0's and 1's, and no more than 5 1's or 0's in a row.  When the
-health checker sees long strings of 0's or 1's, it exits.
+there should be random 0's and 1's, but rarely more than 3 1's or 0's in a row.  You can
+get some good debug info using:
+
+    $ infnoise --debug --no-output
+    Generated 1048576 bits.  OK to use data.  Estimated entropy per bit: 0.871889, estimated K: 1.830057
+    num1s:49.541189%, even misfires:0.137931%, odd misfires:0.137931%
+    Generated 2097152 bits.  OK to use data.  Estimated entropy per bit: 0.869644, estimated K: 1.827211
+    num1s:49.633114%, even misfires:0.131231%, odd misfires:0.145229%
+    Generated 3145728 bits.  OK to use data.  Estimated entropy per bit: 0.867817, estimated K: 1.824899
+    num1s:49.556943%, even misfires:0.133887%, odd misfires:0.133887%
+    Generated 4194304 bits.  OK to use data.  Estimated entropy per bit: 0.867596, estimated K: 1.824620
+    num1s:49.570250%, even misfires:0.160155%, odd misfires:0.144005%
+    Generated 5242880 bits.  OK to use data.  Estimated entropy per bit: 0.867907, estimated K: 1.825014
+    num1s:49.566724%, even misfires:0.125936%, odd misfires:0.130600%
+
+This prints some basic stats after every 2^20 (about 1 million) bits generated.  They are
+run through the health checker which reports "OK to use data" because the measured entropy
+is within 2% of the exepcted value.  Estimated K is the gain of the op-amp stage that we
+expect to result in the measured level of entropy.  For this design, 1.82 is the design
+target, set by a 10K Ohm resistor and an 8.2K Ohm resistor.  Generally, estimated entropy
+is slightly higher than the design target due slight deviation from ideal operation.  The
+largest source of this non-ideal operation is what I call "misfires", where the output of
+the comparator changes in a clock cycle when the inputs are held steady.  The rate of
+missfires is reported for even and odd bits, because there is an even and odd comparator
+generating bits on alternate cycles, and the two circuits can behave slightly differently.
+The number of 1's should ideally be 50%, but due primarily to resistor ratio
+imperfections, the actual range is from about 49.5% to 50.5%.
+
+If you need provably random data, which may be comforting in applications such as
+one-time-pads, you can compress the bits from the Infinite Noise TRNG 2-to-1 through the
+Keccack sponge, cryptographically whitening while reducing the non-randomness to levels
+that cannot ever be detected using:
+
+    $ infnoise --multiplier 1 > randbytes
+
+This will take twice as long by default, but every 512 bits are tested to insure they are
+not more likely to occur than 1 in 2^433.  With --multiplier 1, only 256 bits are read
+from the sponge for each 512 put in.
+
+For most cryptograpy applications, such as generating keys for RSA, we can count on the
+cryptographic strength of Keccack-1600 to produce cryptographically undetectably
+non-random data when securely seeded with the Infinite Noise TRNG.  The Keccak sponge is
+seeded with 512 bits from the Infinite Noise TRNG every time, where the data is tested for
+at least 433 bits of estimated entropy.  However, but the amount of data to squeeze from
+the sponge is user selectable.  If you want 100MiB/second of Keccak (SHA3) data that is
+cryptographically reseeded every 2 megabytes, you can use:
+
+    $ sudo ./infnoise --multiplier 65536 | yourApplication
+
+For even higher seeded CPRNG data rates, bug me and I'll include the "optimized" version
+of Keccack, rather than the reference version, or possibly Blake2b which is even faster
+than Keccak.
