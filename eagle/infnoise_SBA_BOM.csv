@@ -1,0 +1,39 @@
+##########################################################################
+       Name: Placement Bill of Materials Generator
+
+    Version: 2
+         By: Small Batch Assembly
+        URL: www.smallbatchassembly.com
+ SourceFile: infnoise.brd
+   DateTime: 11/16/14 1:45 PM
+      Units: inches
+##########################################################################
+REF,PACKAGE,VALUE,X,Y,ROTATION,
+AMP1   , DFN6-2X3            , TSV912IQ2T     , 1.0630, 0.2630, 0.0
+C1   , 0603-CAP            , 10nF     , 0.4547, 0.0908, 90.0
+C2   , 0603-CAP            , 4.7uF     , 0.6201, 0.0563, 0.0
+C3   , 0603-CAP            , 100nF     , 0.6201, 0.1272, 0.0
+C4   , 0603-CAP            , 47pF     , 0.3593, 0.4008, 0.0
+C5   , 0603-CAP            , 47pF     , 0.3593, 0.1252, 0.0
+C6   , 0603-CAP            , 100nF     , 0.5413, 0.3988, 180.0
+C7   , 0603-CAP            , 10nF     , 0.7185, 0.2630, 90.0
+C8   , 0603-CAP            , 220pF     , 0.7972, 0.2630, 90.0
+C9   , 0603-CAP            , 220pF     , 1.1614, 0.2630, 90.0
+COMP1   , SSOP8-P-0.50A            , TC75W57FK     , 0.9055, 0.2630, 0.0
+FID1   , MICRO-FIDUCIAL            , FIDUCIALUFIDUCIAL     , 0.0400, 0.0500, 0.0
+FID2   , MICRO-FIDUCIAL            , FIDUCIALUFIDUCIAL     , 0.0400, 0.4760, 0.0
+FID3   , MICRO-FIDUCIAL            , FIDUCIALUFIDUCIAL     , 1.2200, 0.4760, 0.0
+L1   , 0603-IND            , FERRITE-BEAD0603-IND     , 0.5246, 0.0908, 90.0
+R1   , 0603-RES            , 27     , 0.3593, 0.3024, 0.0
+R2   , 0603-RES            , 27     , 0.3593, 0.2236, 0.0
+R3   , 0603-RES            , 10K     , 0.7185, 0.1154, 90.0
+R4   , 0603-RES            , 10K     , 0.7185, 0.4106, 90.0
+R5   , 0603-RES            , 10K     , 0.7972, 0.1154, 270.0
+R6   , 0603-RES            , 8.2K     , 0.7972, 0.4106, 90.0
+R7   , 0603-RES            , 8.2K     , 1.1614, 0.4106, 270.0
+R8   , 0603-RES            , 10K     , 1.1614, 0.1154, 270.0
+R9   , 0603-RES            , 10K     , 0.5413, 0.4697, 180.0
+SW1   , SC70-5L            , MC74VHC1G66DFT1G     , 0.9744, 0.4008, 90.0
+SW2   , SC70-5L            , MC74VHC1G66DFT1G     , 0.9744, 0.1252, 90.0
+USB1   , QFN24-4X4            , FT240XQ     , 0.5413, 0.2630, 270.0
+X1   , USB-A-SMT-MALE            , USBSMT-MALE     , 0.0000, 0.2630, 90.0
