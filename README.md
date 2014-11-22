@@ -1,43 +1,46 @@
-﻿##Infinite Noise Multiplier
+﻿##Infinite Noise TRNG (True Random Number Generator)
 
 For instructions for compiling the and using Infinite Noise TRNG driver, go to the software
 sub-directory, and read the REAME file there.  Until later in November, only Linux is
 supported.
 
-The Infinite Noise Multiplier (INM) is an architecture for hardware based true random
-number generators (TRNG).  Besides being simple, low-cost, and fast, it is much easier to
-get right than other TRNGs.  It naturally defends against influence from outside signals,
-such as radio interference and power supply noise, making it simple to build securely,
-without requiring an expert in analog design.  Infinite Noise Multipliers produce a
-provable and easily measured level of entropy based on thermal noise, approximately equal
-to log2(K) per output bit, where K is a gain between 1 and 2 set by two resistors around
-an op-amp.  A "health monitor" can track this and verify that the output entropy is within
-the expected range, which for the INM described below is within 2% of log2(1.82).
+The Infinite Noise TRNG is a USB key hardware true random number generator.  It uses what
+I call a "Modular Noise Multiplier" architecture (previously Infinite Noise Multiplier or
+FireBug).  Besides being simple, low-cost, and fast, it is much easier to get right than
+other TRNGs.  It naturally defends against influence from outside signals, such as radio
+interference and power supply noise, making it simple to build securely, without requiring
+an expert in analog design.  Modular noise multipliers produce a provable and easily
+measured level of entropy based on thermal noise, approximately equal to log2(K) per
+output bit, where K is a gain between 1 and 2 set by two resistors around an op-amp.  A
+"health monitor" can track this and verify that the output entropy is within the expected
+range, which for the Infinite Noise TRNG described below is within 2% of log2(1.82).
 
-INMs are suitable for both board level implementation, and ASIC implementation.  Speed is
-limited by the speed of a gain stage and a comparator, and can run in excess of 100
-Mbit/second per second with high performance components.  Cheap solutions with CMOS quad
-op-amps can run at 8Mbit/second.
+Modular noise multipliers are suitable for both board level implementation and ASIC
+implementation.  Speed is limited by the speed of a gain stage and a comparator, and can
+run in excess of 100 Mbit/second per second with high performance components.  Cheap
+solutions with CMOS quad op-amps can run at 8Mbit/second.
 
-Adjacent bits from an INM are correlated, so whitening is required before use in
-cryptography.  This should be done by continually reseeding a cryptographically secure
-hash function such as SHA-512, Blake2b, or Keccak-1600, or a stream cipher such as ChaCha.
-This implementation uses Keccak-1600 with secure reseeding of more than 400 bits of
-entropy at a time.  Users who need many megabytes per second of data for use in
-cryptography can set the outputMultiplier as high as they like, which causes Keccak to
-generate outputMultiplier\*256 bits per reseeding by the INM.
+Adjacent bits from a modular noise multiplier are correlated, so whitening is required
+before use in cryptography.  This should be done by continually reseeding a
+cryptographically secure hash function such as SHA-512, Blake2b, Keccak-1600 (SHA3), or a
+stream cipher such as ChaCha.  This implementation uses Keccak-1600 with cryptographically
+secure reseeding of more than 400 bits of entropy at a time, overcoming a trickle in/out
+problem present in the Linux /dev/random system.  Users who need many megabytes per second
+of data for use in cryptography can set the outputMultiplier as high as they like, which
+causes Keccak to generate outputMultiplier\*256 bits per reseeding by the Infinite Noise
+TRNG.
 
-The Infinite Noise Multiplier was invented by Peter Allan in 1999, which he calls
-[Firebug](http://apa.hopto.org/firebug).  I reinvented it in 2013.  As usual, most of my
-good ideas are rediscoveries of existing ideas...  For now, I continue to call it an
-Infinite Noise Multiplier in this document.  I hope to work with Peter to agree on a name
-and to work together to popularize this concept.  It really is the _right_ way to generate
-random bits, whether on a board with standard parts, or on an custom chip.
+The modular noise multiplier architecture was invented by Peter Allan in 1999, which he
+called [Firebug](http://apa.hopto.org/firebug).  I reinvented it in 2013.  As usual, most
+of my good ideas are rediscoveries of existing ideas...  For now, I call it an modular
+noise multiplier in this document.  I hope to work with Peter to agree on a name and to
+work together to popularize this concept.  It really is the _right_ way to generate random
+bits, whether on a board with standard parts, or on an custom chip.
 
 ### The Eagle open-source boards work!
 
-Here is the first completed Infinite Noise USB key.  This is what I would offer on Tindie
-if needed to get the INM concept out there.
+Here is the first completed Infinite Noise USB key.  I offer this modle on Tindie to help
+get the modular noise multiplier concept out there.
 
 ![Picture of Infinite Noise USB key](images/infnoise_key.jpg?raw=true "Infinite Noise USB key")
 
@@ -69,12 +72,23 @@ Here is the voltage on one of the hold cap:
 
 ![Traces on left hold cap](images/CAP1.jpg?raw=true "Traces on left hold cap")
 
-If you are interested in building this version of the Infinite Noise Multiplier, you may
-be interested in opening eagle/BOM.ods in the git repo above.  It has all the Digikey and Mouser
-parts along with cost/1000 units.  The total for all the parts, including boards from OSH
-Park, come to $5.69 each, in 1,000 unit quantities.  However, that cost is dominated by
-USB related parts, particularly the FT240X chip, the USB connector, and the USB-stick
-enclosure.  Just the components for the INM come out to $0.97.
+To build one of these for yourself, you can [order three boards from OSH Park for only
+$3.25](https://oshpark.com/profiles/WaywardGeek), and then buy parts from [Digikey and
+Mouser as described in the
+BOM](https://github.com/waywardgeek/infnoise/blob/master/eagle/BOM.xlsx?raw=true).  I
+designed this board to be cheap, not easy to assemble by hand.  I use 2 QFN parts and
+three with 0.5mm lead pitch.  If you want to [build these yourself the way I
+do](https://www.sparkfun.com/tutorials/59), consider uploading the [infnoise.brd
+file](https://raw.githubusercontent.com/waywardgeek/infnoise/master/eagle/infnoise.brd) to
+[OSH Stencils](https://www.oshstencils.com/) and ordering a solder paste stencil for $7.
+I get the [solder paste from SparkFun](https://www.sparkfun.com/products/12878).  Kudos to
+OSH Park, OSH Stencil, SmallBatchAssembly, and DigiSpark!  They're making this whole party
+possible!
+
+The total for all the parts, including boards from OSH Park, come to $5.69 each, in 1,000
+unit quantities.  However, that cost is dominated by USB related parts, particularly the
+FT240X chip, the USB connector, and the USB-stick enclosure.  Just the components for the
+modular noise multiplier come out to $0.97.
 
 Here is a faster version that uses a more expensive op-amp from TI:
 
@@ -146,7 +160,7 @@ below 1nA of input bias current will enable running at lower frequencies with le
 
 To reproduce these simulations, download the TINA spice simulator from Ti.com.
 
-Here is a "small" INM:
+Here is a "small" modular noise multiplier:
 
 ![Schematic of small Infinite Noise Multiplier](infnoise_small/schematic.png?raw=true "Small
 Infinite Noise Multiplier")
@@ -219,8 +233,9 @@ or equivalently:
     E = log2(K)
 
 This provides a simple way to calculate the entropy added to an entropy pool per bit.
-The program infnoise.c directly measures the entropy of INM output, and compares this to
-the estimated value.  Both simulations and actual hardware show that they correlate well.
+The program infnoise.c directly measures the entropy of modular noise multiplier output,
+and compares this to the estimated value.  Both simulations and actual hardware show that
+they correlate well.
 
 The "fast" board level version uses two op-amps and comparator to impliment a modular
 multiplication using a couple of tricks.  First, multiplication by 2 modulo Vsup is
@@ -252,17 +267,17 @@ The RMS thermal noise generated by a resistor of value R is:
 where Kb is Boltzmann's constant 1.3806504×10-23 J/K, T is temperature in Kelvin (about
 293 for room temperature), and deltaF is the frequency range of noise being measured.
 
-For the V1 version of the INM boards above, the op-amp has an 8MHz unit gain crossover,
-and a low load negative input with 10K Ohms in parallel with 8.2K Ohms, which  is 4.5K
-Ohms.  Vnoise up to unity crossover is about 24uV, and gets amplified by the op-amp gain K
-of 1.82 to about 40uV, and held on a 220pF capacitor.  A 40uV change on the hold
-capacitors results in a current of about 55,000 electrons, so the hold capacitors are able
-to capture about 15 bits of resolution of this noise signal, which gets amplified by K and
-combined with later noise samples in the hold capacitors every cycle.  The capacitors s
-hold about 2^31 different charge levels in the range of 0.3V to 3V.  This is effectively a
-31-bit register which we multiply by 1.82 every cycle and add a 15 bit noise signal.  This
-results in entropy shifted out just slightly less than log2(1.82), since  this entropy
-compression does not result in 100% pure entropy (just very close).
+For the V1 version of the Infinite Noise boards above, the op-amp has an 8MHz unit gain
+crossover, and a low load negative input with 10K Ohms in parallel with 8.2K Ohms, which
+is 4.5K Ohms.  Vnoise up to unity crossover is about 24uV, and gets amplified by the
+op-amp gain K of 1.82 to about 40uV, and held on a 220pF capacitor.  A 40uV change on the
+hold capacitors results in a current of about 55,000 electrons, so the hold capacitors are
+able to capture about 15 bits of resolution of this noise signal, which gets amplified by
+K and combined with later noise samples in the hold capacitors every cycle.  The
+capacitors s hold about 2^31 different charge levels in the range of 0.3V to 3V.  This is
+effectively a 31-bit register which we multiply by 1.82 every cycle and add a 15 bit noise
+signal.  This results in entropy shifted out just slightly less than log2(1.82), since
+this entropy compression does not result in 100% pure entropy (just very close).
 
 changes the output of the comparator several cycles later.  Each cycle, this 15-bit noise
 signal is added in, far in excess of the log2(K) of entropy we shift out, enabling us to
@@ -379,9 +394,9 @@ parallel, and adds them together effectively in an tiny entropy pool.  Zener noi
 be just one more source of noise in a symphony of existing noise sources, and will not
 enhance the resulting entropy enough to bother.
 
-An INM will amplify _every_ source of niose and amplify it until it is larger than
-Vsupply.  It adds them together and amplifies them in parallel.  Every device in the
-signal path loop contributes. 
+A modular noise multiplier will amplify _every_ source of niose and amplify it until it is
+larger than Vsupply.  It adds them together and amplifies them in parallel.  Every device
+in the signal path loop contributes. 
 
 With N sources of noise, the output looks like:
 
@@ -432,13 +447,13 @@ provide access to the raw data streams for health analysis.
 I prefer to follow the KISS rule when it comes to security.  The more complex the TRNG
 key, the more likely it is insecure.  Therefore, the initial Infinite Noise Multiplier
 does not even have a microcontroller onboard, and only returns raw data, direct from the
-noise source.  Whitening is done in the INM driver.
+noise source.  Whitening is done in the Inifite Noise driver.
 
-The INM driver uses the reference version of the SHA3 "sponge", called Keccak, with a 1600
-bit state.  To make the state of the sponge unpredictable, it is initialized with 20,000
-bits of of INM data before any data is output.  After that, reading bytes from the SHA3
-sponge blocks until twice as many bytes of entropy have been fed into the sponge from the
-INM.
+The Inifite Noise driver uses the reference version of the SHA3 "sponge", called Keccak,
+with a 1600 bit state.  To make the state of the sponge unpredictable, it is initialized
+with 20,000 bits of of Infinite Noise data before any data is output.  After that, reading
+bytes from the SHA3 sponge blocks until twice as many bytes of entropy have been fed into
+the sponge from the Infinite Noise TRNG.
 
 ### Non-Power-of-Two Multiplication
 
@@ -483,10 +498,10 @@ cause more entropy to be output than predicted.  The estimated entropy per bit a
 continually estimated and compared to expected values.
 
 Entropy per bit is measured as the log2 of one over the probability of seeing a specific
-output sequence from the INM.  The probability of any given output bit is estimated by
-keeping a history of results, given the previous 7 bits.  Simulations with K=1.82 show
-that using 16 bits rather than 7 gives only a 0.16% improvement in prediction accuracy, so
-only 7 are used.
+output sequence from the modular noise multiplier.  The probability of any given output
+bit is estimated by keeping a history of results, given the previous 7 bits.  Simulations
+with K=1.82 show that using 16 bits rather than 7 gives only a 0.16% improvement in
+prediction accuracy, so only 7 are used.
 
 ### Entropy Testing
 
@@ -533,8 +548,8 @@ The entropy estimator is based on the model that:
 
 - The device is not rapidly changing the sort of numbers it puts out, so history can be
   used as a guide.
-- There is no special state stored in the INM that could cause data to be different each
-  clock cycle, other than on even/odd cycles.
+- There is no special state stored in the modular noise multiplier that could cause data
+  to be different each clock cycle, other than on even/odd cycles.
 - Bits further away are less correlated.
 
 The first assumption is strong assuming an attacker is not involved.  An attacker
@@ -544,15 +559,17 @@ monitor could instead simply warn that entropy seems too high.  Turning off the 
 when an attacker may be present seems the safer choice.
 
 The second assumption relies on the fact that only two nodes store state in this
-implementation of an INM, and that the outputs are sampled from even/odd comparator
-outputs on even/odd cycles.  Other TRNGs may not satisfy this assumption if they have
-additional internal state.  However, a typical zener TRNG should satisfy this assumption.
+implementation of a modular noise multiplier, and that the outputs are sampled from
+even/odd comparator outputs on even/odd cycles.  Other TRNGs may not satisfy this
+assumption if they have additional internal state.  However, a typical zener TRNG should
+satisfy this assumption.
 
-The third assumption really does require an INM.  A zener TRNG would most likely have
-strong 60 Hz correlations from 60 Hz noise, for example.  This is also true of A/D
-converter based TRNGs.  With an INM, these signal sources are added to a signal already
-saturated with thermal noise, making it in no less random.  Every cycle, a new thermal
-noise sample is added to the state, causing less correlation with previous states.
+The third assumption really does require a modular noise multiplier.  A zener TRNG would
+most likely have strong 60 Hz correlations from 60 Hz noise, for example.  This is also
+true of A/D converter based TRNGs.  With a modular noise multipliers, these signal sources
+are added to a signal already saturated with thermal noise, making it in no less random.
+Every cycle, a new thermal noise sample is added to the state, causing less correlation
+with previous states.
 
 ### Credits
 
@@ -562,13 +579,13 @@ just wasn't good enough for him :-)  Thanks, EagleWorks!
 
 ### Free As in Freedom
 
-The Infinite Noise Multiplier was invented in 1999 by Peter Allan, but was not patented at
-that time.  Peter is working with me to make INMs/Firebugs open-source hardware,
-unencumbered by patents or copyright.
+The modular noise multiplier architecture was invented in 1999 by Peter Allan, but was not
+patented at that time.  Peter is working with me to make modular noise multiplier/Firebug
+open-source hardware, unencumbered by patents or copyright.
 
-I reinvented with the Infinite Noise Multiplier architecture in 2013, and the board level
+I reinvented with the modular noise multiplier architecture in 2013, and the board level
 versions in 2014.  I hereby renounce any claim to copyright and patent rights related to
 any changes or improvements I may have made to this architecture.  Furthermore, I am aware
 of no infringing patents and believe there are none.  It should be entirely safe for use
-in any application.  Feel free to copy anything here, and even sell your own version of
-INM USB keys based on this work.
+in any application.  Feel free to copy anything here, and even sell your own modular noise
+multiplier based USB keys based on this work.

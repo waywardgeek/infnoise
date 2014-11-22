@@ -348,10 +348,10 @@ chip</description>
 <wire x1="3.7" y1="6" x2="3.7" y2="-6" width="0.127" layer="51"/>
 <wire x1="3.7" y1="-6" x2="-5" y2="-6" width="0.127" layer="51"/>
 <wire x1="-5" y1="-6" x2="-5" y2="6" width="0.127" layer="51"/>
-<smd name="5V" x="-0.2" y="-3.5" dx="7.5" dy="1.5" layer="1"/>
-<smd name="USB_M" x="0.3" y="-1" dx="6.5" dy="1" layer="1"/>
-<smd name="USB_P" x="0.3" y="1" dx="6.5" dy="1" layer="1"/>
-<smd name="GND" x="-0.2" y="3.5" dx="7.5" dy="1.5" layer="1"/>
+<smd name="5V" x="-0.2" y="-3.5" dx="7.5" dy="1.5" layer="1" cream="no"/>
+<smd name="USB_M" x="0.3" y="-1" dx="6.5" dy="1" layer="1" cream="no"/>
+<smd name="USB_P" x="0.3" y="1" dx="6.5" dy="1" layer="1" cream="no"/>
+<smd name="GND" x="-0.2" y="3.5" dx="7.5" dy="1.5" layer="1" cream="no"/>
 <text x="-1.27" y="5.08" size="0.4064" layer="25">&gt;Name</text>
 <text x="-1.27" y="-5.08" size="0.4064" layer="27">&gt;Value</text>
 </package>
@@ -896,7 +896,7 @@ Various fiducial points for machine vision alignment.</description>
 <instance part="FID1" gate="G$1" x="-25.4" y="83.82"/>
 <instance part="FID2" gate="G$1" x="-17.78" y="83.82"/>
 <instance part="FID3" gate="G$1" x="-7.62" y="83.82"/>
-<instance part="X1" gate="G$1" x="-45.72" y="20.32"/>
+<instance part="X1" gate="G$1" x="-43.18" y="35.56" rot="R180"/>
 </instances>
 <busses>
 </busses>
@@ -912,6 +912,7 @@ Various fiducial points for machine vision alignment.</description>
 <junction x="5.08" y="35.56"/>
 <wire x1="-12.7" y1="35.56" x2="-12.7" y2="33.02" width="0.1524" layer="91"/>
 <wire x1="-12.7" y1="33.02" x2="-40.64" y2="33.02" width="0.1524" layer="91"/>
+<pinref part="X1" gate="G$1" pin="D+"/>
 </segment>
 </net>
 <net name="USB_M" class="0">
@@ -923,6 +924,7 @@ Various fiducial points for machine vision alignment.</description>
 <wire x1="15.24" y1="22.86" x2="15.24" y2="30.48" width="0.1524" layer="91"/>
 <label x="-5.08" y="30.48" size="1.778" layer="95"/>
 <junction x="15.24" y="30.48"/>
+<pinref part="X1" gate="G$1" pin="D-"/>
 </segment>
 </net>
 <net name="VCCIN" class="0">
@@ -935,6 +937,7 @@ Various fiducial points for machine vision alignment.</description>
 <wire x1="-10.16" y1="22.86" x2="-10.16" y2="27.94" width="0.1524" layer="91"/>
 <wire x1="-40.64" y1="27.94" x2="-20.32" y2="27.94" width="0.1524" layer="91"/>
 <junction x="-20.32" y="27.94"/>
+<pinref part="X1" gate="G$1" pin="VCC"/>
 </segment>
 </net>
 <net name="VCC" class="0">
@@ -1037,6 +1040,7 @@ Various fiducial points for machine vision alignment.</description>
 <pinref part="C7" gate="G$1" pin="2"/>
 <wire x1="132.08" y1="5.08" x2="132.08" y2="-15.24" width="0.1524" layer="91"/>
 <junction x="132.08" y="-15.24"/>
+<pinref part="X1" gate="G$1" pin="GND"/>
 </segment>
 </net>
 <net name="VCC33" class="0">
