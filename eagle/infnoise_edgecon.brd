@@ -112,6 +112,7 @@
 <wire x1="0" y1="12.192" x2="36.322" y2="12.192" width="0" layer="20"/>
 <wire x1="36.322" y1="12.192" x2="36.322" y2="0" width="0" layer="20"/>
 <wire x1="36.322" y1="0" x2="0" y2="0" width="0" layer="20"/>
+<rectangle x1="1.5494" y1="0.5334" x2="2.4638" y2="1.4224" layer="30"/>
 </plain>
 <libraries>
 <library name="infnoise">
