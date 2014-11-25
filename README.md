@@ -5,22 +5,22 @@ sub-directory, and read the REAME file there.  Until later in November, only Lin
 supported.
 
 The Infinite Noise TRNG is a USB key hardware true random number generator.  It uses what
-I call a "Modular Noise Multiplier" architecture (previously Infinite Noise Multiplier or
+I call a "Modular Entropy Multiplier" architecture (previously Infinite Noise Multiplier or
 FireBug).  Besides being simple, low-cost, and fast, it is much easier to get right than
 other TRNGs.  It naturally defends against influence from outside signals, such as radio
 interference and power supply noise, making it simple to build securely, without requiring
-an expert in analog design.  Modular noise multipliers produce a provable and easily
+an expert in analog design.  Modular entropy multipliers produce a provable and easily
 measured level of entropy based on thermal noise, approximately equal to log2(K) per
 output bit, where K is a gain between 1 and 2 set by two resistors around an op-amp.  A
 "health monitor" can track this and verify that the output entropy is within the expected
 range, which for the Infinite Noise TRNG described below is within 2% of log2(1.82).
 
-Modular noise multipliers are suitable for both board level implementation and ASIC
+Modular entropy multipliers are suitable for both board level implementation and ASIC
 implementation.  Speed is limited by the speed of a gain stage and a comparator, and can
 run in excess of 100 Mbit/second per second with high performance components.  Cheap
 solutions with CMOS quad op-amps can run at 8Mbit/second.
 
-Adjacent bits from a modular noise multiplier are correlated, so whitening is required
+Adjacent bits from a modular entropy multiplier are correlated, so whitening is required
 before use in cryptography.  This should be done by continually reseeding a
 cryptographically secure hash function such as SHA-512, Blake2b, Keccak-1600 (SHA3), or a
 stream cipher such as ChaCha.  This implementation uses Keccak-1600 with cryptographically
@@ -30,7 +30,7 @@ of data for use in cryptography can set the outputMultiplier as high as they lik
 causes Keccak to generate outputMultiplier\*256 bits per reseeding by the Infinite Noise
 TRNG.
 
-The modular noise multiplier architecture was invented by Peter Allan in 1999, which he
+The modular entropy multiplier architecture was invented by Peter Allan in 1999, which he
 called [Firebug](http://apa.hopto.org/firebug).  I reinvented it in 2013.  As usual, most
 of my good ideas are rediscoveries of existing ideas...  For now, I call it an modular
 noise multiplier in this document.  I hope to work with Peter to agree on a name and to
@@ -40,7 +40,7 @@ bits, whether on a board with standard parts, or on an custom chip.
 ### The Eagle open-source boards work!
 
 Here is the first completed Infinite Noise USB key.  I offer this modle on Tindie to help
-get the modular noise multiplier concept out there.
+get the modular entropy multiplier concept out there.
 
 ![Picture of Infinite Noise USB key](images/infnoise_key.jpg?raw=true "Infinite Noise USB key")
 
@@ -88,7 +88,7 @@ possible!
 The total for all the parts, including boards from OSH Park, come to $5.69 each, in 1,000
 unit quantities.  However, that cost is dominated by USB related parts, particularly the
 FT240X chip, the USB connector, and the USB-stick enclosure.  Just the components for the
-modular noise multiplier come out to $0.97.
+modular entropy multiplier come out to $0.97.
 
 Here is a faster version that uses a more expensive op-amp from TI:
 
@@ -160,7 +160,7 @@ below 1nA of input bias current will enable running at lower frequencies with le
 
 To reproduce these simulations, download the TINA spice simulator from Ti.com.
 
-Here is a "small" modular noise multiplier:
+Here is a "small" modular entropy multiplier:
 
 ![Schematic of small Infinite Noise Multiplier](infnoise_small/schematic.png?raw=true "Small
 Infinite Noise Multiplier")
@@ -233,7 +233,7 @@ or equivalently:
     E = log2(K)
 
 This provides a simple way to calculate the entropy added to an entropy pool per bit.
-The program infnoise.c directly measures the entropy of modular noise multiplier output,
+The program infnoise.c directly measures the entropy of modular entropy multiplier output,
 and compares this to the estimated value.  Both simulations and actual hardware show that
 they correlate well.
 
@@ -394,7 +394,7 @@ parallel, and adds them together effectively in an tiny entropy pool.  Zener noi
 be just one more source of noise in a symphony of existing noise sources, and will not
 enhance the resulting entropy enough to bother.
 
-A modular noise multiplier will amplify _every_ source of niose and amplify it until it is
+A modular entropy multiplier will amplify _every_ source of niose and amplify it until it is
 larger than Vsupply.  It adds them together and amplifies them in parallel.  Every device
 in the signal path loop contributes. 
 
@@ -498,7 +498,7 @@ cause more entropy to be output than predicted.  The estimated entropy per bit a
 continually estimated and compared to expected values.
 
 Entropy per bit is measured as the log2 of one over the probability of seeing a specific
-output sequence from the modular noise multiplier.  The probability of any given output
+output sequence from the modular entropy multiplier.  The probability of any given output
 bit is estimated by keeping a history of results, given the previous 7 bits.  Simulations
 with K=1.82 show that using 16 bits rather than 7 gives only a 0.16% improvement in
 prediction accuracy, so only 7 are used.
@@ -548,7 +548,7 @@ The entropy estimator is based on the model that:
 
 - The device is not rapidly changing the sort of numbers it puts out, so history can be
   used as a guide.
-- There is no special state stored in the modular noise multiplier that could cause data
+- There is no special state stored in the modular entropy multiplier that could cause data
   to be different each clock cycle, other than on even/odd cycles.
 - Bits further away are less correlated.
 
@@ -559,14 +559,14 @@ monitor could instead simply warn that entropy seems too high.  Turning off the 
 when an attacker may be present seems the safer choice.
 
 The second assumption relies on the fact that only two nodes store state in this
-implementation of a modular noise multiplier, and that the outputs are sampled from
+implementation of a modular entropy multiplier, and that the outputs are sampled from
 even/odd comparator outputs on even/odd cycles.  Other TRNGs may not satisfy this
 assumption if they have additional internal state.  However, a typical zener TRNG should
 satisfy this assumption.
 
-The third assumption really does require a modular noise multiplier.  A zener TRNG would
+The third assumption really does require a modular entropy multiplier.  A zener TRNG would
 most likely have strong 60 Hz correlations from 60 Hz noise, for example.  This is also
-true of A/D converter based TRNGs.  With a modular noise multipliers, these signal sources
+true of A/D converter based TRNGs.  With a modular entropy multipliers, these signal sources
 are added to a signal already saturated with thermal noise, making it in no less random.
 Every cycle, a new thermal noise sample is added to the state, causing less correlation
 with previous states.
@@ -579,13 +579,13 @@ just wasn't good enough for him :-)  Thanks, EagleWorks!
 
 ### Free As in Freedom
 
-The modular noise multiplier architecture was invented in 1999 by Peter Allan, but was not
-patented at that time.  Peter is working with me to make modular noise multiplier/Firebug
+The modular entropy multiplier architecture was invented in 1999 by Peter Allan, but was not
+patented at that time.  Peter is working with me to make modular entropy multiplier/Firebug
 open-source hardware, unencumbered by patents or copyright.
 
-I reinvented with the modular noise multiplier architecture in 2013, and the board level
+I reinvented with the modular entropy multiplier architecture in 2013, and the board level
 versions in 2014.  I hereby renounce any claim to copyright and patent rights related to
 any changes or improvements I may have made to this architecture.  Furthermore, I am aware
 of no infringing patents and believe there are none.  It should be entirely safe for use
-in any application.  Feel free to copy anything here, and even sell your own modular noise
-multiplier based USB keys based on this work.
+in any application.  Feel free to copy anything here, and even sell your own modular
+entropy multiplier based USB keys based on this work.
