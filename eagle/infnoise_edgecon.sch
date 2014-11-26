@@ -156,12 +156,12 @@ Source: http://cds.linear.com/docs/Datasheet/5598f.pdf</description>
 <smd name="22" x="-0.25" y="1.9" dx="0.7" dy="0.25" layer="1" rot="R270"/>
 <smd name="23" x="-0.75" y="1.9" dx="0.7" dy="0.25" layer="1" rot="R270"/>
 <smd name="24" x="-1.25" y="1.9" dx="0.7" dy="0.25" layer="1" rot="R270"/>
-<smd name="EXP" x="0" y="0" dx="2.5" dy="2.5" layer="1" stop="no"/>
+<smd name="EXP" x="0" y="0" dx="1.5" dy="1.5" layer="1" stop="no"/>
 <text x="0" y="2.54" size="0.6096" layer="25" align="bottom-center">&gt;NAME</text>
 <rectangle x1="-1.95" y1="1.525" x2="-1.525" y2="1.975" layer="21"/>
-<rectangle x1="-1.4" y1="-1.4" x2="1.4" y2="1.4" layer="29"/>
+<rectangle x1="-1.3" y1="-1.3" x2="1.3" y2="1.3" layer="29"/>
 </package>
-<package name="DFN6-2X3">
+<package name="DFN8-2X3">
 <description>&lt;b&gt;DCB Package 8-Lead Plastic DFN (2mm × 2mm)&lt;/b&gt;&lt;p&gt;
 Source: http://www.linear.com/pc/downloadDocument.do?navId=H0,C1,C1003,C1042,C1032,C1063,P26952,D16357</description>
 <wire x1="-1.0922" y1="-0.9" x2="-1.0922" y2="0.9" width="0.2032" layer="21"/>
@@ -169,30 +169,30 @@ Source: http://www.linear.com/pc/downloadDocument.do?navId=H0,C1,C1003,C1042,C10
 <wire x1="1.0922" y1="0.9" x2="1.0922" y2="-0.9" width="0.2032" layer="21"/>
 <wire x1="1.1" y1="-1.1" x2="-1.1" y2="-1.1" width="0.2032" layer="51"/>
 <smd name="EXP" x="0" y="0" dx="1.6" dy="0.45" layer="1"/>
-<smd name="1" x="-0.75" y="-1.025" dx="0.28" dy="0.75" layer="1"/>
-<smd name="2" x="-0.25" y="-1.025" dx="0.28" dy="0.75" layer="1"/>
-<smd name="3" x="0.25" y="-1.025" dx="0.28" dy="0.75" layer="1"/>
-<smd name="4" x="0.75" y="-1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
-<smd name="5" x="0.75" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
-<smd name="6" x="0.25" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
+<smd name="1" x="-0.75" y="-1.025" dx="0.25" dy="0.7" layer="1"/>
+<smd name="2" x="-0.25" y="-1.025" dx="0.25" dy="0.7" layer="1"/>
+<smd name="3" x="0.25" y="-1.025" dx="0.25" dy="0.7" layer="1"/>
+<smd name="4" x="0.75" y="-1.025" dx="0.25" dy="0.7" layer="1" rot="R180"/>
+<smd name="5" x="0.75" y="1.025" dx="0.25" dy="0.7" layer="1" rot="R180"/>
+<smd name="6" x="0.25" y="1.025" dx="0.25" dy="0.7" layer="1" rot="R180"/>
 <text x="-1.27" y="0" size="0.4064" layer="25" rot="R90" align="bottom-center">&gt;NAME</text>
 <rectangle x1="-0.777" y1="-0.517" x2="-0.227" y2="-0.392" layer="21"/>
-<smd name="7" x="-0.25" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
-<smd name="8" x="-0.75" y="1.025" dx="0.28" dy="0.75" layer="1" rot="R180"/>
+<smd name="7" x="-0.25" y="1.025" dx="0.25" dy="0.7" layer="1" rot="R180"/>
+<smd name="8" x="-0.75" y="1.025" dx="0.25" dy="0.7" layer="1" rot="R180"/>
 </package>
 <package name="SSOP8-P-0.50A">
-<smd name="1" x="-0.75" y="-1.35" dx="0.6" dy="0.25" layer="1" rot="R90"/>
-<smd name="2" x="-0.25" y="-1.35" dx="0.6" dy="0.25" layer="1" rot="R90"/>
-<smd name="3" x="0.25" y="-1.35" dx="0.6" dy="0.25" layer="1" rot="R90"/>
-<smd name="4" x="0.75" y="-1.35" dx="0.6" dy="0.25" layer="1" rot="R90"/>
-<smd name="5" x="0.75" y="1.35" dx="0.6" dy="0.25" layer="1" rot="R270"/>
-<smd name="6" x="0.25" y="1.35" dx="0.6" dy="0.25" layer="1" rot="R270"/>
-<smd name="7" x="-0.25" y="1.35" dx="0.6" dy="0.25" layer="1" rot="R270"/>
-<smd name="8" x="-0.75" y="1.35" dx="0.6" dy="0.25" layer="1" rot="R270"/>
+<smd name="1" x="-0.75" y="-1.35" dx="0.7" dy="0.25" layer="1" rot="R90"/>
+<smd name="2" x="-0.25" y="-1.35" dx="0.7" dy="0.25" layer="1" rot="R90"/>
+<smd name="3" x="0.25" y="-1.35" dx="0.7" dy="0.25" layer="1" rot="R90"/>
+<smd name="4" x="0.75" y="-1.35" dx="0.7" dy="0.25" layer="1" rot="R90"/>
+<smd name="5" x="0.75" y="1.35" dx="0.7" dy="0.25" layer="1" rot="R270"/>
+<smd name="6" x="0.25" y="1.35" dx="0.7" dy="0.25" layer="1" rot="R270"/>
+<smd name="7" x="-0.25" y="1.35" dx="0.7" dy="0.25" layer="1" rot="R270"/>
+<smd name="8" x="-0.75" y="1.35" dx="0.7" dy="0.25" layer="1" rot="R270"/>
 <wire x1="-1.1" y1="1.2" x2="-1.1" y2="-1.2" width="0.127" layer="21"/>
 <wire x1="1.1" y1="1.2" x2="1.1" y2="-1.2" width="0.127" layer="21"/>
 <circle x="-0.8" y="-0.7" radius="0.1" width="0.127" layer="21"/>
-<text x="0" y="1.905" size="0.4064" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="1.9304" size="0.4064" layer="25" align="bottom-center">&gt;NAME</text>
 </package>
 <package name="SC70-5L">
 <description>&lt;b&gt;SC-70 Package&lt;/b&gt;</description>
@@ -596,7 +596,7 @@ chip</description>
 <gate name="G$1" symbol="TSV912" x="-12.7" y="-2.54"/>
 </gates>
 <devices>
-<device name="IQ2T" package="DFN6-2X3">
+<device name="IQ2T" package="DFN8-2X3">
 <connects>
 <connect gate="G$1" pin="GND" pad="4 EXP"/>
 <connect gate="G$1" pin="IN1+" pad="3"/>
