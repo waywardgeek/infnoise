@@ -56,7 +56,7 @@ static bool *readDataFromFile(char *fileName, uint64_t *length) {
     }
     fclose(file);
     *length = pos*8;
-    printf("Read %llu bits\n", *length);
+    printf("Read %llu bits\n", (long long)(*length));
     return data;
 }
 
@@ -71,7 +71,7 @@ static bool hasSubstringOfLength(uint32_t substringLen, bool *data, uint32_t dat
     for(i = substringLen; i < dataLen; i++) {
         if(stringsSeen[value >> 3] & (1 << (value & 0x7))) {
             printf("Found duplicate substring of length %u at %u(%x.%u): %llx\n", substringLen,
-                i, i >> 3, i & 0x7, value);
+                i, i >> 3, i & 0x7, (long long)value);
             return true;
         }
         stringsSeen[value >> 3] |= 1 << (value & 0x7);
