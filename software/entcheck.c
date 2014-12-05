@@ -165,9 +165,20 @@ static void inmDumpStats(void) {
     }
 }
 
-int main() {
+int main(int argc, char **argv) {
     uint8_t N = 16;
-    inmEntCheckStart(N, false);
+    if(argc == 2) {
+        N = atoi(argv[1]);
+    }
+    if (N <= 0 || argc > 2) {
+        printf("Usage: entcheck [numBits]\n"
+               "\n"
+               "entcheck simply uses the previous numBits (16 by default) to predict the next bit.\n"
+               "It estimates the entropy based on 'surprise', or log2 of the probability of seeing\n"
+               "the string of 0's and 1's.\n");
+        return 1;
+    }
+    inmEntCheckStart(N, true);
     int value = getchar();
     while(value != EOF) {
         int i;
@@ -179,6 +190,7 @@ int main() {
         if((inmTotalBits & 0xffff) == 0) {
             printf("Added %llu bits, estimated entropy per bit:%f\n", (long long)inmTotalBits,
                 inmEntCheckEstimateEntropyPerBit());
+            resetStats();
         }
     }
     if(inmDebug) {

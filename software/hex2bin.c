@@ -28,8 +28,8 @@ int main() {
         int upperDigit = getDigit(upper);
         int lowerDigit = getDigit(lower);
         putchar((upperDigit << 4) | lowerDigit);
-        upper = getchar();
-        lower = getchar();
+        upper = readChar();
+        lower = readChar();
     }
     return 0;
 }
