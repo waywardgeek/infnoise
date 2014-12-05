@@ -162,7 +162,7 @@ bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even, uint8_t addr) {
     inmPrevOdd = oddBit;
     inmTotalBits++;
     if(inmDebug && (inmTotalBits & 0xfffff) == 0) {
-        fprintf(stderr, "Generated %lu bits.  %s to use data.  Estimated entropy per bit: %f, estimated K: %f\n",
+        fprintf(stderr, "Generated %llu bits.  %s to use data.  Estimated entropy per bit: %f, estimated K: %f\n",
             inmTotalBits, inmHealthCheckOkToUseData()? "OK" : "NOT OK", inmHealthCheckEstimateEntropyPerBit(),
             inmHealthCheckEstimateK());
         fprintf(stderr, "num1s:%f%%, even misfires:%f%%, odd misfires:%f%%\n",
