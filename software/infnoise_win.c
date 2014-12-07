@@ -32,7 +32,7 @@ FILE *outFile;
 
 #define BITMODE_SYNCBB 0x4
 
-#define VERSION1
+//#define VERSION1
 
 // This defines which pins on the FT240X are used
 #ifdef VERSION1

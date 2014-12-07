@@ -1,7 +1,16 @@
 Compiling the Driver for Windows
 --------------------------------
 
-TBD: Windows will be supported later in November, 2014.  For now, only Linux is supported.
+I compiled infnoise-win.exe using VisualStudio 2013 using Windows 7.  I downloaded the
+FTD2xx drivers from FTDI.  Pipes seem almost entirely broken in Windows, so the Windows
+version requires out output file to be specified on the command line.  In a cmd window,
+you can type
+
+    infnoise-win foo
+
+and let it run for a while until you have as much random data in foo as you need.
+
+The VisualStudio project for infnoise is in the infnoise/software/VisualStudio directory.
 
 Compiling the Driver for Linux
 ------------------------------
