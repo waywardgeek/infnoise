@@ -113,7 +113,7 @@ bool inmHealthCheckStart(uint8_t N, double K, bool debug) {
 // zeros and ones.  Check for this, and scale the stats if needed.
 static void scaleStats(void) {
     uint32_t i;
-    for(i = 0; i < (1 << inmN); i++) {
+    for(i = 0; i < (1u << inmN); i++) {
         inmZerosEven[i] >>= 1;
         inmOnesEven[i] >>= 1;
         inmZerosOdd[i] >>= 1;
@@ -161,14 +161,15 @@ bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even, uint8_t addr) {
     inmPrevEven = evenBit;
     inmPrevOdd = oddBit;
     inmTotalBits++;
-    if(inmDebug && (inmTotalBits & 0xfffff) == 0) {
+    if(inmDebug && (inmTotalBits & 0xfffffll) == 0) {
         fprintf(stderr, "Generated %llu bits.  %s to use data.  Estimated entropy per bit: %f, estimated K: %f\n",
             (long long)inmTotalBits, inmHealthCheckOkToUseData()? "OK" : "NOT OK", inmHealthCheckEstimateEntropyPerBit(),
             inmHealthCheckEstimateK());
         fprintf(stderr, "num1s:%f%%, even misfires:%f%%, odd misfires:%f%%\n",
             inmTotalOnes*100.0/(inmTotalZeros + inmTotalOnes),
             inmEvenMisfires*100.0/inmNumBitsSampled, inmOddMisfires*100.0/inmNumBitsSampled);
-    }
+		fflush(stderr);
+	}
     inmPrevBits = (inmPrevBits << 1) & ((1 << inmN)-1);
     if(inmPrevBit) {
         inmPrevBits |= 1;
@@ -282,7 +283,7 @@ void inmClearEntropyLevel(void) {
 
 // Check that the entropy of the last group of bits was high enough for use.
 bool inmEntropyOnTarget(uint32_t entropy, uint32_t numBits) {
-    uint32_t expectedEntropy = numBits*inmExpectedEntropyPerBit;
+    uint32_t expectedEntropy = (uint32_t)(numBits*inmExpectedEntropyPerBit);
     return expectedEntropy < entropy*INM_ACCURACY;
 }
 
