@@ -108,7 +108,7 @@ static uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, bool raw) {
             uint8_t evenBit = (val >> COMP2) & 1;
             uint8_t oddBit = (val >> COMP1) & 1;
             bool even = j & 1; // Use the even bit if j is odd
-            uint8_t bit = even? oddBit : evenBit;
+            uint8_t bit = even? evenBit : oddBit;
             byte = (byte << 1) | bit;
             // This is a good place to feed the bit from the INM to the health checker.
             uint8_t addr = extractAddress(val);

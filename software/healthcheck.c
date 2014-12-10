@@ -51,6 +51,17 @@ static uint32_t inmEvenMisfires, inmOddMisfires;
 static bool inmPrevEven, inmPrevOdd;
 static bool inmDebug;
 
+// Print the tables of statistics.
+void inmDumpStats(void) {
+    uint32_t i;
+    for(i = 0; i < 1 << inmN; i++) {
+        //if(inmOnes[i] > 0 || inmZeros[i] > 0) {
+            printf("%x onesEven:%u zerosEven:%u onesOdd:%u zerosOdd:%u\n",
+                i, inmOnesEven[i], inmZerosEven[i], inmOnesOdd[i], inmZerosOdd[i]);
+        //}
+    }
+}
+
 // Free memory used by the health check.
 void inmHealthCheckStop(void) {
     if(inmOnesEven != NULL) {
@@ -288,17 +299,6 @@ bool inmEntropyOnTarget(uint32_t entropy, uint32_t numBits) {
 }
 
 #ifdef TEST_HEALTHCHECK
-
-// Print the tables of statistics.
-static void inmDumpStats(void) {
-    uint32_t i;
-    for(i = 0; i < 1 << inmN; i++) {
-        //if(inmOnes[i] > 0 || inmZeros[i] > 0) {
-            printf("%x onesEven:%u zerosEven:%u onesOdd:%u zerosOdd:%u\n",
-                i, inmOnesEven[i], inmZerosEven[i], inmOnesOdd[i], inmZerosOdd[i]);
-        //}
-    }
-}
 
 // Compare the ability to predict with 1 fewer bits and see how much less accurate we are.
 static void checkLSBStatsForNBits(uint8_t N) {
