@@ -163,7 +163,9 @@ static void inmDumpStats(void) {
     for(i = 0; i < inmNumStreams; i++) {
         printf("*************************************** stream %u\n", i);
         for(j = 0; j < 1 << inmN; j++) {
-            printf("%x ones:%u zeros:%u\n", j, inmOnes[i][j], inmZeros[i][j]);
+            printf("%x ones:%u(%.2g%%) zeros:%u(%.2g%%)\n", j, inmOnes[i][j],
+                inmOnes[i][j]*100.0/inmNumBitsSampled, inmZeros[i][j],
+                inmZeros[i][j]*100.0/inmNumBitsSampled);
         }
     }
 }
@@ -223,7 +225,7 @@ int main(int argc, char **argv) {
         if((inmTotalBits & 0xffff) == 0) {
             printf("Added %llu bits, estimated entropy per bit:%f\n", (long long)inmTotalBits,
                 inmEntCheckEstimateEntropyPerBit());
-            resetStats();
+            //resetStats();
         }
     }
     if(inmDebug) {
