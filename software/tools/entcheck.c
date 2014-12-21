@@ -164,8 +164,8 @@ static void inmDumpStats(void) {
         printf("*************************************** stream %u\n", i);
         for(j = 0; j < 1 << inmN; j++) {
             printf("%x ones:%u(%.2g%%) zeros:%u(%.2g%%)\n", j, inmOnes[i][j],
-                inmOnes[i][j]*100.0/inmNumBitsSampled, inmZeros[i][j],
-                inmZeros[i][j]*100.0/inmNumBitsSampled);
+                inmOnes[i][j]*100.0/inmTotalBits, inmZeros[i][j],
+                inmZeros[i][j]*100.0/inmTotalBits);
         }
     }
 }

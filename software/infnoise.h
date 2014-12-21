@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 // Required accuracy of estimated vs measured entropy in health monitor
-#define INM_ACCURACY 1.02
+#define INM_ACCURACY 1.03
 
 bool inmHealthCheckStart(uint8_t N, double K, bool debug);
 void inmHealthCheckStop(void);
