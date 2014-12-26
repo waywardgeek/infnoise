@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.05" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.254" altunitdist="mm" altunit="mm"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -112,6 +112,18 @@
 <smd name="USB_M" x="0.3" y="-1" dx="6.5" dy="1" layer="1" cream="no"/>
 <smd name="USB_P" x="0.3" y="1" dx="6.5" dy="1" layer="1" cream="no"/>
 <smd name="GND" x="-0.2" y="3.5" dx="7.5" dy="1.5" layer="1" cream="no"/>
+<text x="-1.27" y="5.08" size="0.4064" layer="25">&gt;Name</text>
+<text x="-1.27" y="-5.08" size="0.4064" layer="27">&gt;Value</text>
+</package>
+<package name="USB-A-RAWPINS">
+<wire x1="-5" y1="6" x2="3.7" y2="6" width="0.127" layer="51"/>
+<wire x1="3.7" y1="6" x2="3.7" y2="-6" width="0.127" layer="51"/>
+<wire x1="3.7" y1="-6" x2="-5" y2="-6" width="0.127" layer="51"/>
+<wire x1="-5" y1="-6" x2="-5" y2="6" width="0.127" layer="51"/>
+<smd name="5V" x="-0.2" y="-3.5" dx="7.5" dy="1.36" layer="1"/>
+<smd name="USB_M" x="0.3" y="-1" dx="6.5" dy="1.36" layer="1"/>
+<smd name="USB_P" x="0.3" y="1" dx="6.5" dy="1.36" layer="1"/>
+<smd name="GND" x="-0.2" y="3.5" dx="7.5" dy="1.36" layer="1"/>
 <text x="-1.27" y="5.08" size="0.4064" layer="25">&gt;Name</text>
 <text x="-1.27" y="-5.08" size="0.4064" layer="27">&gt;Value</text>
 </package>
@@ -527,6 +539,17 @@ Source: http://www.onsemi.com/pub/Collateral/MC34164-D.PDF</description>
 </technologies>
 </device>
 <device name="" package="USB-A-PCB">
+<connects>
+<connect gate="G$1" pin="D+" pad="USB_P"/>
+<connect gate="G$1" pin="D-" pad="USB_M"/>
+<connect gate="G$1" pin="GND" pad="GND"/>
+<connect gate="G$1" pin="VCC" pad="5V"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="RAWPINS" package="USB-A-RAWPINS">
 <connects>
 <connect gate="G$1" pin="D+" pad="USB_P"/>
 <connect gate="G$1" pin="D-" pad="USB_M"/>

@@ -1,4 +1,4 @@
-all: healthcheck findlongest entcheck hex2bin bin2hex flipbits
+all: healthcheck findlongest entcheck hex2bin bin2hex flipbits genbits
 
 healthcheck: ../healthcheck.c
 	gcc -Wall -std=c99 -O3 -D TEST_HEALTHCHECK -o healthcheck ../healthcheck.c -lm -lrt
@@ -17,6 +17,9 @@ bin2hex: bin2hex.c
 
 flipbits: flipbits.c
 	gcc -Wall -std=c99 -O3 -o flipbits flipbits.c
+
+genbits: genbits.c
+	gcc -Wall -std=c99 -O3 -o genbits genbits.c
 
 clean:
 	rm -f healthcheck findlongest entcheck hex2bin bin2hex flipbits
