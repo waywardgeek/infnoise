@@ -242,8 +242,9 @@ int main(int argc, char **argv)
     bool debug = false;
     bool writeDevRandom = false;
     bool noOutput = false;
-    uint32_t outputMultiplier = 2;
+    uint32_t outputMultiplier = 1; // 256 bits out for every 512 read
     uint32_t xArg;
+    bool multiplierAssigned = false;
 
     // Process arguments
     for(xArg = 1; xArg < argc; xArg++) {
@@ -257,6 +258,7 @@ int main(int argc, char **argv)
             noOutput = true;
         } else if(!strcmp(argv[xArg], "--multiplier") && xArg+1 < argc) {
             xArg++;
+            multiplierAssigned = true;
             outputMultiplier = atoi(argv[xArg]);
             if(outputMultiplier == 0) {
                 fputs("Multiplier must be > 0\n", stderr);
@@ -273,6 +275,10 @@ int main(int argc, char **argv)
                             "    --no-output - do not write random output data\n", stderr);
             return 1;
         }
+    }
+
+    if(!multiplierAssigned && writeDevRandom) {
+        outputMultiplier = 2; // Don't throw away entropy when writing to /dev/random unless told to do so
     }
 
     if(writeDevRandom) {
