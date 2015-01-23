@@ -8,9 +8,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "ftd2xx.h"
+#include "VisualStudio\ftdi\ftd2xx.h"
 #include "infnoise.h"
-#include "KeccakF-1600-interface.h"
+#include "Keccak\KeccakF-1600-interface.h"
 
 // Pipes in Windows basically don't work, so if you want output from a program to redirect to a file
 // you are forced to write to the file directly, rather than do infnoise > foo.
