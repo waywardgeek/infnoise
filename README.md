@@ -89,6 +89,12 @@ unit quantities.  However, that cost is dominated by USB related parts, particul
 FT240X chip, the USB connector, and the USB-stick enclosure.  Just the components for the
 modular noise multiplier come out to $0.97.
 
+Cor van Wandelen was kind enough to create these scatter plots showing the non-randomness
+in the raw output.
+![color plot of raw data](plots/plots/infnoise-raw.bin-colormap.png?raw=true "Color plot")
+![scatter plot of raw data](plots/plots/plots/infnoise-raw-notraw-scatter.gif?raw=true
+"Scatter plot")
+
 Here is a faster version that uses a more expensive op-amp from TI:
 
 ![Schematic of Infinite Noise Multiplier](infnoise_small/schematic.png?raw=true "Infinite
@@ -569,11 +575,6 @@ true of A/D converter based TRNGs.  With a modular noise multipliers, these sign
 are added to a signal already saturated with thermal noise, making it in no less random.
 Every cycle, a new thermal noise sample is added to the state, causing less correlation
 with previous states.
-
-Cor van Wandelen was kind enough to create these scatter plots showing the non-randomness
-in the raw output.
-![color plot of raw data](plots/plots/infnoise-raw.bin-colormap.png?raw=true "Color plot"
-![scatter plot of raw data](plots/plots/plots/infnoise-raw-notraw-scatter.gif?raw=true "Scatter plot"
 
 ### Credits
 
