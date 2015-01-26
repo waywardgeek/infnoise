@@ -570,11 +570,17 @@ are added to a signal already saturated with thermal noise, making it in no less
 Every cycle, a new thermal noise sample is added to the state, causing less correlation
 with previous states.
 
+Cor van Wandelen was kind enough to create these scatter plots showing the non-randomness
+in the raw output.
+![color plot of raw data](plots/plots/infnoise-raw.bin-colormap.png?raw=true "Color plot"
+![scatter plot of raw data](plots/plots/plots/infnoise-raw-notraw-scatter.gif?raw=true "Scatter plot"
+
 ### Credits
 
 Peter Allan has been very helpful in moving this project forward.  The github user known
 as EagleWorks did an _amazing_ job redoing the board layout.  Somehow, my ameraturish work
-just wasn't good enough for him :-)  Thanks, EagleWorks!
+just wasn't good enough for him :-)  Thanks, EagleWorks!  Cor van Wandelen created the
+color and scatter plots.
 
 ### Free As in Freedom
 

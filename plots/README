@@ -1,0 +1,12 @@
+Thanks to Cor van Wandelen for writing these two programs, colormap.py and scatterplot.py.
+He used these to create these png files from his inifinite noise TRNG.
+
+To recreate similar plots, you can use data in the samples directory, and these commands:
+
+$ cp ../samples/infnoise_raw.bin infnoise.bin
+$ python colormap.py
+$ python scatterplot.py
+
+I created the raw data files with:
+
+$ sudo ../software/infnoise --debug --raw > infnoise_raw.bin
