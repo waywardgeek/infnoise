@@ -3,6 +3,9 @@
 // Required to include clock_gettime
 #define _POSIX_C_SOURCE 200809L
 
+#include <stdlib.h>
+#include <share.h>
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -278,7 +281,7 @@ int main(int argc, char **argv)
 		fprintf(stderr, "No output file specified\n");
 		return 1;
 	}
-    fopen_s(&outFile, argv[xArg], "w");
+	outFile = _fsopen(argv[xArg], "w", _SH_DENYWR);
 	if(outFile == NULL) {
 		fprintf(stderr, "Unable to open file %s\n", outFile);
 		return 1;
