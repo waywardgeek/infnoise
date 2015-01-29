@@ -575,6 +575,15 @@ are added to a signal already saturated with thermal noise, making it in no less
 Every cycle, a new thermal noise sample is added to the state, causing less correlation
 with previous states.
 
+### Future Version
+
+I'm really just having fun with this project.  I personally prefer this version
+
+![Infnoise TRNG I carry](images/infnoise_current.jpg?raw=true "The TRNG I carry around")
+
+I plan on only making this version going forward, even though I doubt it will sell very
+well.  That's OK, because I don't make any money on them :-)
+
 ### Credits
 
 Peter Allan has been very helpful in moving this project forward.  The github user known
