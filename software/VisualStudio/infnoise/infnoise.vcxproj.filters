@@ -18,9 +18,6 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\ftdi\ftd2xx.lib" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\..\healthcheck.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -41,5 +38,8 @@
     <ClInclude Include="..\..\Keccak\KeccakF-1600-interface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\ftdi\ftd2xx.lib" />
   </ItemGroup>
 </Project>
