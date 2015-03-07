@@ -31,7 +31,7 @@ FILE *outFile;
 #define MAX_MICROSEC_FOR_SAMPLES 5000
 
 // This is the gain of each of the two op-amp stages in the INM
-#define DESIGN_K 1.82
+#define DESIGN_K 1.84
 
 #define BITMODE_SYNCBB 0x4
 

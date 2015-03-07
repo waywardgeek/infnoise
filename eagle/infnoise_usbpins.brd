@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.125" altunitdist="mm" altunit="mm"/>
+<grid distance="1" unitdist="mil" unit="mil" style="lines" multiple="1" display="yes" altdistance="0.125" altunitdist="mm" altunit="mm"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -106,7 +106,7 @@
 </layers>
 <board>
 <plain>
-<text x="21.0566" y="6.3754" size="2.1844" layer="26" rot="MR0" align="center">Infinite Noise</text>
+<text x="23.3566" y="6.0754" size="2.1844" layer="26" rot="MR0" align="center">Infinite Noise</text>
 <text x="9.386" y="6.096" size="0.8" layer="25" rot="R90" align="top-center">INFNOISE TRNG</text>
 <wire x1="0" y1="0" x2="0" y2="12.192" width="0" layer="20"/>
 <wire x1="0" y1="12.192" x2="34.8488" y2="12.192" width="0" layer="20"/>
@@ -522,7 +522,8 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="11.3738" y1="7.1722" x2="11.3738" y2="9.6722" width="0.254" layer="1"/>
 <wire x1="5.4562" y1="7.1722" x2="11.3738" y2="7.1722" width="0.3048" layer="1"/>
 <contactref element="X1" pad="USB_P"/>
-<wire x1="5.38" y1="7.096" x2="5.4562" y2="7.1722" width="0" layer="19" extent="1-1"/>
+<wire x1="5.38" y1="7.096" x2="5.4562" y2="7.096" width="0.254" layer="1"/>
+<wire x1="5.4562" y1="7.096" x2="5.4562" y2="7.1722" width="0.254" layer="1"/>
 </signal>
 <signal name="USB_M">
 <contactref element="R2" pad="1"/>
@@ -530,7 +531,8 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="11.3738" y1="5.1722" x2="11.3738" y2="2.6722" width="0.254" layer="1"/>
 <wire x1="5.4562" y1="5.1722" x2="11.3738" y2="5.1722" width="0.3048" layer="1"/>
 <contactref element="X1" pad="USB_M"/>
-<wire x1="5.38" y1="5.096" x2="5.4562" y2="5.1722" width="0" layer="19" extent="1-1"/>
+<wire x1="5.38" y1="5.096" x2="5.4562" y2="5.096" width="0.254" layer="1"/>
+<wire x1="5.4562" y1="5.096" x2="5.4562" y2="5.1722" width="0.254" layer="1"/>
 </signal>
 <signal name="VCCIN">
 <contactref element="C1" pad="1"/>
@@ -576,21 +578,21 @@ Please make sure your boards conform to these design rules.</description>
 <contactref element="R4" pad="1"/>
 <contactref element="C7" pad="2"/>
 <polygon width="0.254" layer="16">
-<vertex x="9.398" y="12.4142"/>
-<vertex x="9.398" y="-0.0698"/>
+<vertex x="9.898" y="12.4142"/>
+<vertex x="9.898" y="-0.0698"/>
 <vertex x="34.8488" y="-0.0698"/>
 <vertex x="34.8488" y="12.4142"/>
 </polygon>
 <polygon width="0.254" layer="1">
-<vertex x="0" y="12.4142"/>
-<vertex x="0" y="-0.0698"/>
+<vertex x="9.906" y="12.4142"/>
+<vertex x="9.906" y="-0.0698"/>
 <vertex x="34.8488" y="-0.0698"/>
 <vertex x="34.8488" y="12.4142"/>
 </polygon>
 <wire x1="17.0988" y1="4.196" x2="17.0988" y2="5.9222" width="0.254" layer="1"/>
 <wire x1="17.0988" y1="5.9222" x2="16.8488" y2="6.096" width="0.254" layer="1"/>
 <via x="10.5506" y="3.9222" extent="1-16" drill="0.3302"/>
-<via x="10.068" y="8.4222" extent="1-16" drill="0.3302"/>
+<via x="10.568" y="8.4222" extent="1-16" drill="0.3302"/>
 <wire x1="17.0988" y1="7.996" x2="17.0988" y2="6.4222" width="0.254" layer="1"/>
 <wire x1="17.0988" y1="6.4222" x2="16.8488" y2="6.096" width="0.254" layer="1"/>
 <wire x1="21.3488" y1="7.0222" x2="21.3488" y2="9.0722" width="0.254" layer="1"/>
@@ -613,7 +615,12 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="17.0942" y1="8.255" x2="17.0942" y2="8.509" width="0.254" layer="1"/>
 <wire x1="17.0942" y1="8.509" x2="16.4084" y2="9.1948" width="0.254" layer="1"/>
 <contactref element="X1" pad="GND"/>
-<wire x1="17.0988" y1="7.996" x2="17.0942" y2="8.255" width="0" layer="19" extent="1-1"/>
+<wire x1="17.0942" y1="8.255" x2="17.0988" y2="8.255" width="0.254" layer="1"/>
+<wire x1="17.0988" y1="8.255" x2="17.0988" y2="7.996" width="0.254" layer="1"/>
+<wire x1="4.88" y1="9.596" x2="9.3942" y2="9.596" width="0.6096" layer="1"/>
+<wire x1="9.3942" y1="9.596" x2="10.568" y2="8.4222" width="0.6096" layer="1"/>
+<wire x1="8.5598" y1="9.6012" x2="9.9314" y2="9.6012" width="0.6096" layer="1"/>
+<wire x1="9.9314" y1="9.6012" x2="9.9314" y2="9.5758" width="0.6096" layer="1"/>
 </signal>
 <signal name="VCC33">
 <contactref element="USB1" pad="24"/>

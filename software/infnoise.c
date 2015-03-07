@@ -24,7 +24,7 @@
 #define MAX_MICROSEC_FOR_SAMPLES 5000
 
 // This is the gain of each of the two op-amp stages in the INM
-#define DESIGN_K 1.82
+#define DESIGN_K 1.84
 
 // This defines which pins on the FT240X are used
 #ifdef VERSION1
