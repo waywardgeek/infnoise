@@ -3,12 +3,19 @@
 // Required to include clock_gettime
 #define _POSIX_C_SOURCE 200809L
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <ftdi.h>
+
+#if DIST == Fedora
+	#include <libftdi1/ftdi.h>
+#else
+	#include <ftdi.h>
+#endif
+
 #include "infnoise.h"
 #include "KeccakF-1600-interface.h"
 
