@@ -9,7 +9,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <ftdi.h>
+
+#if DIST == Fedora
+	#include <libftdi1/ftdi.h>
+#else
+	#include <ftdi.h>
+#endif
+
 #include "infnoise.h"
 #include "KeccakF-1600-interface.h"
 
