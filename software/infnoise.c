@@ -3,6 +3,7 @@
 // Required to include clock_gettime
 #define _POSIX_C_SOURCE 200809L
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
