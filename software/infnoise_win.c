@@ -3,14 +3,17 @@
 // Required to include clock_gettime
 #define _POSIX_C_SOURCE 200809L
 
+#include <stdlib.h>
+#include <share.h>
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "ftd2xx.h"
+#include "VisualStudio\ftdi\ftd2xx.h"
 #include "infnoise.h"
-#include "KeccakF-1600-interface.h"
+#include "Keccak\KeccakF-1600-interface.h"
 
 // Pipes in Windows basically don't work, so if you want output from a program to redirect to a file
 // you are forced to write to the file directly, rather than do infnoise > foo.
@@ -28,7 +31,7 @@ FILE *outFile;
 #define MAX_MICROSEC_FOR_SAMPLES 5000
 
 // This is the gain of each of the two op-amp stages in the INM
-#define DESIGN_K 1.82
+#define DESIGN_K 1.84
 
 #define BITMODE_SYNCBB 0x4
 
@@ -278,7 +281,7 @@ int main(int argc, char **argv)
 		fprintf(stderr, "No output file specified\n");
 		return 1;
 	}
-    fopen_s(&outFile, argv[xArg], "w");
+	outFile = _fsopen(argv[xArg], "w", _SH_DENYWR);
 	if(outFile == NULL) {
 		fprintf(stderr, "Unable to open file %s\n", outFile);
 		return 1;

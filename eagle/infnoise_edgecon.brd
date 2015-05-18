@@ -575,21 +575,21 @@ Please make sure your boards conform to these design rules.</description>
 <contactref element="R4" pad="1"/>
 <contactref element="C7" pad="2"/>
 <polygon width="0.254" layer="16">
-<vertex x="0" y="12.4142"/>
-<vertex x="0" y="-0.0698"/>
+<vertex x="9.8298" y="12.3634"/>
+<vertex x="9.8298" y="-0.1206"/>
 <vertex x="34.8488" y="-0.0698"/>
 <vertex x="34.8488" y="12.4142"/>
 </polygon>
 <polygon width="0.254" layer="1">
-<vertex x="0" y="12.4142"/>
-<vertex x="0" y="-0.0698"/>
+<vertex x="9.8298" y="12.4142"/>
+<vertex x="9.8298" y="-0.0698"/>
 <vertex x="34.8488" y="-0.0698"/>
 <vertex x="34.8488" y="12.4142"/>
 </polygon>
 <wire x1="17.0988" y1="4.196" x2="17.0988" y2="5.9222" width="0.254" layer="1"/>
 <wire x1="17.0988" y1="5.9222" x2="16.8488" y2="6.096" width="0.254" layer="1"/>
 <via x="10.5506" y="3.9222" extent="1-16" drill="0.3302"/>
-<via x="9.814" y="8.4222" extent="1-16" drill="0.3302"/>
+<via x="10.5252" y="8.3968" extent="1-16" drill="0.3302"/>
 <wire x1="17.0988" y1="7.996" x2="17.0988" y2="6.4222" width="0.254" layer="1"/>
 <wire x1="17.0988" y1="6.4222" x2="16.8488" y2="6.096" width="0.254" layer="1"/>
 <wire x1="21.3488" y1="7.0222" x2="21.3488" y2="9.0722" width="0.254" layer="1"/>
@@ -612,7 +612,10 @@ Please make sure your boards conform to these design rules.</description>
 <via x="33.8328" y="10.4394" extent="1-16" drill="0.3302"/>
 <wire x1="17.0942" y1="8.255" x2="17.0942" y2="8.509" width="0.254" layer="1"/>
 <wire x1="17.0942" y1="8.509" x2="16.4084" y2="9.1948" width="0.254" layer="1"/>
+<wire x1="8.255" y1="9.5504" x2="10.16" y2="9.5504" width="0.6096" layer="1"/>
+<wire x1="10.16" y1="9.5504" x2="10.16" y2="9.4234" width="0.6096" layer="1"/>
 <wire x1="17.0988" y1="7.996" x2="17.0942" y2="8.255" width="0" layer="19" extent="1-1"/>
+<wire x1="4.88" y1="9.596" x2="8.255" y2="9.5504" width="0" layer="19" extent="1-1"/>
 </signal>
 <signal name="VCC33">
 <contactref element="USB1" pad="24"/>
