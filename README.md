@@ -32,7 +32,7 @@ TRNG.
 The modular entropy multiplier architecture was invented by Peter Allan in 1999, which he
 called [Firebug](http://apa.hopto.org/firebug).  I reinvented it in 2013.  As usual, most
 of my good ideas are rediscoveries of existing ideas :-)  Peter has his own
-version called (the Redoubler)[https://github.com/alwynallan/redoubler], which
+version called [the Redoubler](https://github.com/alwynallan/redoubler), which
 is awesome.  It really is the _right_ way to generate random bits, whether on a
 board with standard parts, or on an custom chip.
 
