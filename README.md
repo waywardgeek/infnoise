@@ -38,8 +38,8 @@ board with standard parts, or on an custom chip.
 
 ### The Eagle open-source boards work!
 
-Here is the first completed Infinite Noise USB key.  I offer this modle on Tindie to help
-get the modular entropy multiplier concept out there.
+Here is the first completed Infinite Noise USB key.  I offered this modle on
+Tindie to help get the modular entropy multiplier concept out there initially.
 
 ![Picture of Infinite Noise USB key](images/infnoise_key.jpg?raw=true "Infinite Noise USB key")
 

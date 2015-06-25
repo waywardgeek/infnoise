@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.1.0">
+<eagle version="7.3.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.254" altunitdist="mm" altunit="mm"/>
+<grid distance="0.1" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -120,10 +120,10 @@
 <wire x1="3.7" y1="6" x2="3.7" y2="-6" width="0.127" layer="51"/>
 <wire x1="3.7" y1="-6" x2="-5" y2="-6" width="0.127" layer="51"/>
 <wire x1="-5" y1="-6" x2="-5" y2="6" width="0.127" layer="51"/>
-<smd name="5V" x="-0.2" y="-3.5" dx="7.5" dy="1.36" layer="1"/>
-<smd name="USB_M" x="0.3" y="-1" dx="6.5" dy="1.36" layer="1"/>
-<smd name="USB_P" x="0.3" y="1" dx="6.5" dy="1.36" layer="1"/>
-<smd name="GND" x="-0.2" y="3.5" dx="7.5" dy="1.36" layer="1"/>
+<smd name="5V" x="-0.2" y="-3.5" dx="7.5" dy="1.36" layer="1" cream="no"/>
+<smd name="USB_M" x="0.3" y="-1" dx="6.5" dy="1.36" layer="1" cream="no"/>
+<smd name="USB_P" x="0.3" y="1" dx="6.5" dy="1.36" layer="1" cream="no"/>
+<smd name="GND" x="-0.2" y="3.5" dx="7.5" dy="1.36" layer="1" cream="no"/>
 <text x="-1.27" y="5.08" size="0.4064" layer="25">&gt;Name</text>
 <text x="-1.27" y="-5.08" size="0.4064" layer="27">&gt;Value</text>
 </package>
@@ -239,10 +239,14 @@ Source: http://cds.linear.com/docs/Datasheet/5598f.pdf</description>
 <smd name="22" x="-0.25" y="1.9" dx="0.7" dy="0.25" layer="1" rot="R270"/>
 <smd name="23" x="-0.75" y="1.9" dx="0.7" dy="0.25" layer="1" rot="R270"/>
 <smd name="24" x="-1.25" y="1.9" dx="0.7" dy="0.25" layer="1" rot="R270"/>
-<smd name="EXP" x="0" y="0" dx="1.5" dy="1.5" layer="1" stop="no"/>
+<smd name="EXP" x="0" y="0" dx="1.5" dy="1.5" layer="1" stop="no" cream="no"/>
 <text x="0" y="2.54" size="0.6096" layer="25" align="bottom-center">&gt;NAME</text>
 <rectangle x1="-1.95" y1="1.525" x2="-1.525" y2="1.975" layer="21"/>
 <rectangle x1="-1.3" y1="-1.3" x2="1.3" y2="1.3" layer="29"/>
+<rectangle x1="-0.6" y1="0.2" x2="-0.2" y2="0.6" layer="31"/>
+<rectangle x1="0.2" y1="0.2" x2="0.6" y2="0.6" layer="31"/>
+<rectangle x1="-0.6" y1="-0.6" x2="-0.2" y2="-0.2" layer="31"/>
+<rectangle x1="0.2" y1="-0.6" x2="0.6" y2="-0.2" layer="31"/>
 </package>
 <package name="DFN8-2X3">
 <description>&lt;b&gt;DCB Package 8-Lead Plastic DFN (2mm × 2mm)&lt;/b&gt;&lt;p&gt;
