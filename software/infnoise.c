@@ -125,12 +125,8 @@ static uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, bool raw) {
     return inmGetEntropyLevel();
 }
 
-// Write the bytes to either stdout, or /dev/random.  Use the lower of the measured
-// entropy and the provable lower bound on average entropy.
+// Write the bytes to either stdout, or /dev/random.
 static void outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom) {
-    if(entropy > inmExpectedEntropyPerBit*BUFLEN/INM_ACCURACY) {
-        entropy = inmExpectedEntropyPerBit*BUFLEN/INM_ACCURACY;
-    }
     if(!writeDevRandom) {
         if(fwrite(bytes, 1, length, stdout) != length) {
             fputs("Unable to write output from Infinite Noise Multiplier\n", stderr);
@@ -144,14 +140,21 @@ static void outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool 
 
 // Whiten the output, if requested, with a Keccak sponge.  Output bytes only if the health
 // checker says it's OK.  Using outputMultiplier > 1 is a nice way to generate a lot more
-// cryptographically secure pseudo-random data than the INM generates.  This allows a user
-// to generate hundreds of MiB per second if needed, for use as cryptogrpahic keys.
-static void processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entropy, bool raw,
+// cryptographically secure pseudo-random data than the INM generates.  If
+// outputMultiplier is 0, we output only as many bits as we measure in entropy.
+// This allows a user to generate hundreds of MiB per second if needed, for use
+// as cryptogrpahic keys.
+static uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entropy, bool raw,
         bool writeDevRandom, uint32_t outputMultiplier) {
+    //Use the lower of the measured entropy and the provable lower bound on
+    //average entropy.
+    if(entropy > inmExpectedEntropyPerBit*BUFLEN/INM_ACCURACY) {
+        entropy = inmExpectedEntropyPerBit*BUFLEN/INM_ACCURACY;
+    }
     if(raw) {
         // In raw mode, we just output raw data from the INM.
         outputBytes(bytes, BUFLEN/8, entropy, writeDevRandom);
-        return;
+        return BUFLEN/8;
     }
     // Note that BUFLEN has to be less than 1600 by enough to make the sponge secure,
     // since outputing all 1600 bits would tell an attacker the Keccak state, allowing
@@ -162,23 +165,39 @@ static void processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entropy,
     // Keccak-1600 uses 64-bit "lanes".
     KeccakAbsorb(keccakState, bytes, BUFLEN/64);
     uint8_t dataOut[16*8];
-    while(outputMultiplier > 0) {
-        // Write up to 1024 bits at a time.
-        uint32_t numLanes = 16;
-        if(outputMultiplier < 4) {
-            numLanes = outputMultiplier*4;
-        }
-        KeccakExtract(keccakState, dataOut, numLanes);
-        // Extract does not do a permute, so do it here.
-        KeccakPermutation(keccakState);
-        uint32_t entropyThisTime = entropy;
-        if(entropyThisTime > numLanes*64) {
-            entropyThisTime = numLanes*64;
-        }
-        outputBytes(dataOut, numLanes*8, entropyThisTime, writeDevRandom);
-        outputMultiplier -= numLanes/4;
-        entropy -= entropyThisTime;
+    if(outputMultiplier == 0) {
+        // Output all the bytes of entropy we have
+        KeccakExtract(keccakState, dataOut, (entropy + 63)/64);
+        outputBytes(dataOut, entropy/8, entropy & 0x7, writeDevRandom);
+        return entropy/8;
     }
+    // Output 256*outputMultipler bytes.
+    int32_t numBits = outputMultiplier*256;
+    uint32_t bytesWritten = 0;
+    while(numBits > 0) {
+        // Write up to 1024 bits at a time.
+        uint32_t bytesToWrite = 1024/8;
+        if(bytesToWrite > numBits/8) {
+            bytesToWrite = numBits/8;
+        }
+        KeccakExtract(keccakState, dataOut, bytesToWrite/8);
+        uint32_t entropyThisTime = entropy;
+        if(entropyThisTime > 8*bytesToWrite) {
+            entropyThisTime = 8*bytesToWrite;
+        }
+        outputBytes(dataOut, bytesToWrite, entropyThisTime, writeDevRandom);
+        bytesWritten += bytesToWrite;
+        numBits -= bytesToWrite*8;
+        entropy -= entropyThisTime;
+        if(numBits > 0) {
+            KeccakPermutation(keccakState);
+        }
+    }
+    if(bytesWritten != outputMultiplier*(256/8)) {
+        fprintf(stderr, "Internal error outputing bytes\n");
+        exit(1);
+    }
+    return bytesWritten;
 }
 
 // Initialize the Infinite Noise Multiplier USB ineterface.
@@ -243,7 +262,7 @@ int main(int argc, char **argv)
     bool debug = false;
     bool writeDevRandom = false;
     bool noOutput = false;
-    uint32_t outputMultiplier = 1; // 256 bits out for every 512 read
+    uint32_t outputMultiplier = 0; // We output all the entropy when outputMultiplier == 0
     uint32_t xArg;
     bool multiplierAssigned = false;
 
@@ -261,8 +280,8 @@ int main(int argc, char **argv)
             xArg++;
             multiplierAssigned = true;
             outputMultiplier = atoi(argv[xArg]);
-            if(outputMultiplier == 0) {
-                fputs("Multiplier must be > 0\n", stderr);
+            if(outputMultiplier < 0) {
+                fputs("Multiplier must be >= 0\n", stderr);
                 return 1;
             }
         } else {
@@ -272,7 +291,7 @@ int main(int argc, char **argv)
                             "    --dev-random - write entropy to /dev/random instead of stdout\n"
                             "    --raw - do not whiten the output\n"
                             "    --multiplier <value> - write 256 bits * value for each 512 bits written to\n"
-                            "      the Keccak sponge\n"
+                            "      the Keccak sponge.  Default of 0 means write all the entropy.\n"
                             "    --no-output - do not write random output data\n", stderr);
             return 1;
         }
@@ -311,7 +330,7 @@ int main(int argc, char **argv)
         outBuf[i] |= makeAddress(i & 0xf);
     }
 
-    uint64_t good = 0, bad = 0;
+    uint64_t bytesWritten = 0;
     while(true) {
         struct timespec start;
         clock_gettime(CLOCK_REALTIME, &start);
@@ -332,15 +351,13 @@ int main(int argc, char **argv)
             uint8_t bytes[BUFLEN/8];
             uint32_t entropy = extractBytes(bytes, inBuf, raw);
             if(!noOutput && inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
-                processBytes(keccakState, bytes, entropy, raw, writeDevRandom, outputMultiplier);
+                uint64_t prevBytesWritten = bytesWritten;
+                bytesWritten += processBytes(keccakState, bytes, entropy, raw, writeDevRandom, outputMultiplier);
+                if(debug && (1 << 20)*(bytesWritten/(1 << 20)) > (1 << 20)*(prevBytesWritten/(1 << 20))) {
+                    fprintf(stderr, "Output %lu bytes\n", bytesWritten);
+                }
             }
-            good++;
-        } else {
-            bad++;
         }
-        //if(((good + bad) & 0xff) == 0) {
-            //printf("Good %lu, bad %lu\n", good, bad);
-        //}
     }
     return 0;
 }
