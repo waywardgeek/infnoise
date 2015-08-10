@@ -64,8 +64,8 @@ void inmWriteEntropyStart(uint32_t bufLen, bool debug) {
 void inmWaitForPoolToHaveRoom(void) {
     int ent_count;
     struct pollfd pfd = {
-        fd:   inmDevRandomFD,
-        events: POLLOUT,
+        .fd = inmDevRandomFD,
+        .events = POLLOUT,
     };
     int64_t timeout_msec;
     if (ioctl(inmDevRandomFD, RNDGETENTCNT, &ent_count) == 0 && ent_count < inmFillWatermark) {

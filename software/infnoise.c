@@ -279,11 +279,12 @@ int main(int argc, char **argv)
         } else if(!strcmp(argv[xArg], "--multiplier") && xArg+1 < argc) {
             xArg++;
             multiplierAssigned = true;
-            outputMultiplier = atoi(argv[xArg]);
-            if(outputMultiplier < 0) {
+            int tmpOutputMult = atoi(argv[xArg]);
+            if(tmpOutputMult < 0) {
                 fputs("Multiplier must be >= 0\n", stderr);
                 return 1;
             }
+            outputMultiplier = tmpOutputMult;
         } else {
             fputs("Usage: infnoise [options]\n"
                             "Options are:\n"
