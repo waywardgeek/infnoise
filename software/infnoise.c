@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 #include <ftdi.h>
 #include "infnoise.h"
 #include "KeccakF-1600-interface.h"
@@ -265,6 +266,9 @@ int main(int argc, char **argv)
     uint32_t outputMultiplier = 0; // We output all the entropy when outputMultiplier == 0
     uint32_t xArg;
     bool multiplierAssigned = false;
+    bool pidFile = false;
+    char *pidFileName = NULL;
+    bool runDaemon = false;
 
     // Process arguments
     for(xArg = 1; xArg < argc; xArg++) {
@@ -285,6 +289,12 @@ int main(int argc, char **argv)
                 return 1;
             }
             outputMultiplier = tmpOutputMult;
+	} else if(!strcmp(argv[xArg], "--pidfile")) {
+		xArg++;
+		pidFileName = argv[xArg];
+		pidFile = true;
+	} else if(!strcmp(argv[xArg], "--daemon")) {
+		runDaemon = true;
         } else {
             fputs("Usage: infnoise [options]\n"
                             "Options are:\n"
@@ -293,13 +303,41 @@ int main(int argc, char **argv)
                             "    --raw - do not whiten the output\n"
                             "    --multiplier <value> - write 256 bits * value for each 512 bits written to\n"
                             "      the Keccak sponge.  Default of 0 means write all the entropy.\n"
-                            "    --no-output - do not write random output data\n", stderr);
+                            "    --no-output - do not write random output data\n"
+			    "    --pidfile <file> - write process ID to file\n"
+			    "    --daemon - run in the background\n", stderr);
             return 1;
         }
     }
 
+    if(geteuid() != 0) {
+	fputs("Super user access needed.\n", stderr);
+	return 1;
+    }
+
     if(!multiplierAssigned && writeDevRandom) {
         outputMultiplier = 2; // Don't throw away entropy when writing to /dev/random unless told to do so
+    }
+
+    /* If the user wants a pid-file, but no backgrounding then write the current
+       PID. */
+    if (pidFile && !runDaemon) {
+	writePid(getpid(), pidFileName);
+    }
+
+    if (runDaemon) {
+	pid_t pid = fork();
+	if(pid < 0) {
+		fputs("fork() failed\n", stderr);
+		return 1;
+	} else if(pid > 0) {
+		/* Parrent */
+		if(pidFile) {
+			return writePid(pid, pidFileName);
+		}
+		return 0;
+	}
+	/* Pid == 0 - Child  */
     }
 
     if(writeDevRandom) {
