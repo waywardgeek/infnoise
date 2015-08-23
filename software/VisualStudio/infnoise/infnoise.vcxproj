@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -14,18 +14,19 @@
     <ProjectGuid>{33979899-189C-4091-BB6F-39988417AB0C}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>ConsoleApplication1</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
@@ -42,13 +43,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>E:\cygwin64\home\bill\infnoise\software\VisualStudio\ftdi;E:\cygwin64\home\bill\infnoise\software\Keccak;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\cygwin64\home\bill\infnoise\software\VisualStudio\ftdi;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionPath)\ftdi;$(SolutionPath)\Keccak;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionPath)\ftdi;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>E:\cygwin64\home\bill\infnoise\software\VisualStudio\ftdi;E:\cygwin64\home\bill\infnoise\software\Keccak;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\cygwin64\home\bill\infnoise\software\VisualStudio\ftdi;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionPath)\ftdi;$(SolutionPath)\Keccak;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionPath)\ftdi;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -94,7 +95,7 @@
     <ClCompile Include="..\..\Keccak\KeccakF-1600-reference.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\infnoise.h" />
+    <ClInclude Include="..\..\infnoise_win.h" />
     <ClInclude Include="..\..\Keccak\brg_endian.h" />
     <ClInclude Include="..\..\Keccak\KeccakF-1600-interface.h" />
   </ItemGroup>

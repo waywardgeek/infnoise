@@ -12,7 +12,7 @@
 #include <string.h>
 #include <time.h>
 #include "VisualStudio\ftdi\ftd2xx.h"
-#include "infnoise.h"
+#include "infnoise_win.h"
 #include "Keccak\KeccakF-1600-interface.h"
 
 // Pipes in Windows basically don't work, so if you want output from a program to redirect to a file
@@ -281,9 +281,9 @@ int main(int argc, char **argv)
 		fprintf(stderr, "No output file specified\n");
 		return 1;
 	}
-	outFile = _fsopen(argv[xArg], "w", _SH_DENYWR);
+	outFile = _fsopen(argv[xArg], "wb", _SH_DENYWR);
 	if(outFile == NULL) {
-		fprintf(stderr, "Unable to open file %s\n", outFile);
+		fprintf(stderr, "Unable to open file %s\n", argv[xArg]);
 		return 1;
 	}
 
