@@ -95,7 +95,7 @@
     <ClCompile Include="..\..\Keccak\KeccakF-1600-reference.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\infnoise_win.h" />
+    <ClInclude Include="..\..\infnoise.h" />
     <ClInclude Include="..\..\Keccak\brg_endian.h" />
     <ClInclude Include="..\..\Keccak\KeccakF-1600-interface.h" />
   </ItemGroup>
