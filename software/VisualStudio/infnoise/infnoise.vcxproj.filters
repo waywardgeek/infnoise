@@ -29,13 +29,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\infnoise.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Keccak\brg_endian.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Keccak\KeccakF-1600-interface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\infnoise_win.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

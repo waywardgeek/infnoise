@@ -1,16 +1,9 @@
-﻿Build started 1/27/2015 5:18:33 PM.
-     1>Project "C:\Users\Aecium\Documents\GitHub\infnoise\software\VisualStudio\infnoise\infnoise.vcxproj" on node 2 (Build target(s)).
-     1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt ..\..\infnoise_win.c
-         infnoise_win.c
-       Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Aecium\Documents\GitHub\infnoise\software\VisualStudio\Debug\infnoise.exe" /INCREMENTAL /NOLOGO ..\ftdi\ftd2xx.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Aecium\Documents\GitHub\infnoise\software\VisualStudio\Debug\infnoise.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Aecium\Documents\GitHub\infnoise\software\VisualStudio\Debug\infnoise.lib" /MACHINE:X86 Debug\healthcheck.obj
-         Debug\infnoise_win.obj
-         "Debug\KeccakF-1600-reference.obj"
-         ..\ftdi\ftd2xx.lib
-         infnoise.vcxproj -> C:\Users\Aecium\Documents\GitHub\infnoise\software\VisualStudio\Debug\infnoise.exe
-     1>Done Building Project "C:\Users\Aecium\Documents\GitHub\infnoise\software\VisualStudio\infnoise\infnoise.vcxproj" (Build target(s)).
+﻿Build started 8/23/2015 11:41:52 AM.
+     1>Project "C:\Users\Johnny\Documents\code\GitPortable\App\Git\infnoise\software\VisualStudio\infnoise\infnoise.vcxproj" on node 2 (Build target(s)).
+     1>Link:
+         infnoise.vcxproj -> C:\Users\Johnny\Documents\code\GitPortable\App\Git\infnoise\software\VisualStudio\Debug\infnoise.exe
+     1>Done Building Project "C:\Users\Johnny\Documents\code\GitPortable\App\Git\infnoise\software\VisualStudio\infnoise\infnoise.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:04.46
+Time Elapsed 00:00:00.93

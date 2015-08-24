@@ -54,7 +54,8 @@ static bool inmDebug;
 // Print the tables of statistics.
 void inmDumpStats(void) {
     uint32_t i;
-    for(i = 0; i < 1 << inmN; i++) {
+	uint32_t one = 1;
+    for(i = 0; i < one << inmN; i++) {
         //if(inmOnes[i] > 0 || inmZeros[i] > 0) {
             printf("%x onesEven:%u zerosEven:%u onesOdd:%u zerosOdd:%u\n",
                 i, inmOnesEven[i], inmZerosEven[i], inmOnesOdd[i], inmZerosOdd[i]);
