@@ -289,12 +289,12 @@ int main(int argc, char **argv)
                 return 1;
             }
             outputMultiplier = tmpOutputMult;
-	} else if(!strcmp(argv[xArg], "--pidfile")) {
-		xArg++;
-		pidFileName = argv[xArg];
-		pidFile = true;
-	} else if(!strcmp(argv[xArg], "--daemon")) {
-		runDaemon = true;
+        } else if(!strcmp(argv[xArg], "--pidfile")) {
+            xArg++;
+            pidFileName = argv[xArg];
+            pidFile = true;
+        } else if(!strcmp(argv[xArg], "--daemon")) {
+            runDaemon = true;
         } else {
             fputs("Usage: infnoise [options]\n"
                             "Options are:\n"
@@ -304,40 +304,39 @@ int main(int argc, char **argv)
                             "    --multiplier <value> - write 256 bits * value for each 512 bits written to\n"
                             "      the Keccak sponge.  Default of 0 means write all the entropy.\n"
                             "    --no-output - do not write random output data\n"
-			    "    --pidfile <file> - write process ID to file\n"
-			    "    --daemon - run in the background\n", stderr);
+                            "    --pidfile <file> - write process ID to file\n"
+                            "    --daemon - run in the background\n", stderr);
             return 1;
         }
     }
 
     if(geteuid() != 0) {
-	fputs("Super user access needed.\n", stderr);
-	return 1;
+        fputs("Super user access needed.\n", stderr);
+        return 1;
     }
 
     if(!multiplierAssigned && writeDevRandom) {
         outputMultiplier = 2; // Don't throw away entropy when writing to /dev/random unless told to do so
     }
 
-    /* If the user wants a pid-file, but no backgrounding then write the current
-       PID. */
+    // If the user wants a pid-file, but no backgrounding then write the current PID.
     if (pidFile && !runDaemon) {
-	writePid(getpid(), pidFileName);
+        writePid(getpid(), pidFileName);
     }
 
     if (runDaemon) {
-	pid_t pid = fork();
-	if(pid < 0) {
-		fputs("fork() failed\n", stderr);
-		return 1;
-	} else if(pid > 0) {
-		/* Parrent */
-		if(pidFile) {
-			return writePid(pid, pidFileName);
-		}
-		return 0;
-	}
-	/* Pid == 0 - Child  */
+        pid_t pid = fork();
+        if(pid < 0) {
+            fputs("fork() failed\n", stderr);
+            return 1;
+        } else if(pid > 0) {
+            // Parent
+            if(pidFile) {
+                return writePid(pid, pidFileName);
+            }
+            return 0;
+        }
+        // Pid == 0 - Child
     }
 
     if(writeDevRandom) {
@@ -353,7 +352,6 @@ int main(int argc, char **argv)
     char *message;
     if(!initializeUSB(&ftdic, &message)) {
         // Sometimes have to do it twice - not sure why
-        //ftdi_usb_close(&ftdic);
         if(!initializeUSB(&ftdic, &message)) {
             fputs(message, stderr);
             return 1;

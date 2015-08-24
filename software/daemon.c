@@ -1,5 +1,4 @@
-/* Functions used when running in the background
- */
+// Functions used when running in the background
 
 #include <stdio.h>
 #include <sys/types.h>
@@ -8,14 +7,17 @@
 
 #include "infnoise.h"
 
-int writePid(pid_t pid, char *fileName) {
-	FILE *pidFile;
-	int ret;
-	pidFile = fopen(fileName,"w");
-	if(pidFile == NULL)
-		return errno;
-	ret = fprintf(pidFile, "%d\n", pid);
-	if (ret < 0)
-		return ret;
-	return fclose(pidFile);
+bool writePid(int32_t pid, char *fileName) {
+    FILE *pidFile;
+    int ret;
+    pidFile = fopen(fileName,"w");
+    if(pidFile == NULL) {
+        return errno;
+    }
+    ret = fprintf(pidFile, "%d\n", pid);
+    if (ret < 0) {
+        return false;
+    }
+    fclose(pidFile);
+    return true;
 }

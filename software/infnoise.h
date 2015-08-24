@@ -18,6 +18,6 @@ void inmWriteEntropyStart(uint32_t bufLen, bool debug);
 void inmWriteEntropyToPool(uint8_t *bytes, uint32_t length, uint32_t entropy);
 void inmWaitForPoolToHaveRoom(void);
 void inmDumpStats(void);
-int writePid(pid_t pid, char *fileName);
+bool writePid(int32_t pid, char *fileName);
 
 extern double inmK, inmExpectedEntropyPerBit;
