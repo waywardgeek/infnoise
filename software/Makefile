@@ -1,4 +1,4 @@
-CFLAGS = -Wall -std=c99 -O3 -I Keccak
+CFLAGS = -Wall -std=c99 -O3 -I Keccak -I /usr/include/libftdi1
 
 all: infnoise
 
