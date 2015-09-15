@@ -6,4 +6,4 @@ infnoise: infnoise.c infnoise.h healthcheck.c writeentropy.c daemon.c Keccak/Kec
 	$(CC) $(CFLAGS) -o infnoise infnoise.c healthcheck.c writeentropy.c daemon.c Keccak/KeccakF-1600-reference.c -lftdi -lm -lrt
 
 clean:
-	$(RM) -f infnoise
+	$(RM) infnoise

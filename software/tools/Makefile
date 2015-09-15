@@ -27,4 +27,4 @@ dice: dice.c
 	$(CC) $(CFLAGS) -o dice dice.c
 
 clean:
-	$(RM) -f passgen healthcheck findlongest entcheck hex2bin bin2hex flipbits dice
+	$(RM) passgen healthcheck findlongest entcheck hex2bin bin2hex flipbits dice
