@@ -310,7 +310,7 @@ int main(int argc, char **argv)
         outBuf[i] |= makeAddress(i & 0xf);
     }
 
-    uint64_t bytesWritten = 0;
+    uint64_t totalBytesWritten = 0;
     while(true) {
         struct timespec start;
         clock_gettime(CLOCK_REALTIME, &start);
@@ -331,10 +331,10 @@ int main(int argc, char **argv)
             uint8_t bytes[BUFLEN/8];
             uint32_t entropy = extractBytes(bytes, inBuf, raw);
             if(!noOutput && inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
-                uint64_t prevBytesWritten = bytesWritten;
-                bytesWritten += processBytes(keccakState, bytes, entropy, raw, writeDevRandom, outputMultiplier);
-                if(debug && (1 << 20)*(bytesWritten/(1 << 20)) > (1 << 20)*(prevBytesWritten/(1 << 20))) {
-                    fprintf(stderr, "Output %lu bytes\n", bytesWritten);
+                uint64_t prevTotalBytesWritten = totalBytesWritten;
+                totalBytesWritten += processBytes(keccakState, bytes, entropy, raw, writeDevRandom, outputMultiplier);
+                if(debug && (1 << 20)*(totalBytesWritten/(1 << 20)) > (1 << 20)*(prevTotalBytesWritten/(1 << 20))) {
+                    fprintf(stderr, "Output %lu bytes\n", (unsigned long)totalBytesWritten);
                 }
             }
         }
