@@ -127,3 +127,34 @@ cryptographically reseeded every 2 megabytes, you can use:
 For even higher seeded CPRNG data rates, bug me and I'll include the "optimized" version
 of Keccack, rather than the reference version, or possibly Blake2b which is even faster
 than Keccak.
+
+Running as a Deamon
+-------------------
+
+Some people need to feed random bits into /dev/random.  This simplest way, and
+the way I do it when generating keys, is:
+
+    $ sudo ./infnoise --dev-random --daemon
+
+This tells infnoise to run as a daemon, writing random data to /dev/random.  It
+writes 512 bits at once, containing over 400 bits of entropy.  This randomizes
+the state all at once.  If the entropy pool is "full" (above the watermark read
+from /proc/sys/kernel/random/poolsize), it waits for up to 1 second for it to
+fall below the watermark, and after that writes another 512 bits anyway.
+
+This means it runs at full speed when needed, and when not, it randomizes
+/dev/random once per second anyway.
+
+The other approach people use is rngd.  I had a poor experience with this
+program, so I do not use it.  In Ubuntu 14.04, I found that when I told it to
+use hardware sources, it also enabled the RDRAND instruction by default, which
+is so fast, it never read from _any_ other source!  Rngd also has some minor
+issues that are less severe, but these issues in rngd are enough that I shy
+away from it.
+
+That said, a lot of people use it, and feel free to follow them.  To do this
+you need to create a "named fifo" using the mkfifo command.  Then, you can run
+infnoise in the background, writing to the fifo.  Rngd has flags for reading
+from a file which will work for this case.  Be careful to also disable RDRAND,
+or you will only get Intel's numbers.  Ideally, we would get a mix of data from
+various sources, but rngd has failed me so far.
