@@ -218,8 +218,8 @@ int main(int argc, char **argv) {
     int value = getchar();
     while(value != EOF) {
         for(i = 0; i < 8; i++) {
-	    inmEntCheckAddBit(value & 1);
-            value >>= 1;
+            bool bit = value & (1 << (7-i))? true : false;
+	    inmEntCheckAddBit(bit);
         }
         value = getchar();
         if((inmTotalBits & 0xffff) == 0) {
