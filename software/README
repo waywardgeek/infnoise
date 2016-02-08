@@ -148,7 +148,7 @@ This means it runs at full speed when needed, and when not, it randomizes
 The other approach people use is rngd.  I had a poor experience with this
 program, so I do not use it.  In Ubuntu 14.04, I found that when I told it to
 use hardware sources, it also enabled the RDRAND instruction by default, which
-is so fast, it never read from _any_ other source!  Rngd also has some minor
+is so fast, it never read from any other source!  Rngd also has some minor
 issues that are less severe, but these issues in rngd are enough that I shy
 away from it.
 
@@ -156,5 +156,15 @@ That said, a lot of people use it, and feel free to follow them.  To do this
 you need to create a "named fifo" using the mkfifo command.  Then, you can run
 infnoise in the background, writing to the fifo.  Rngd has flags for reading
 from a file which will work for this case.  Be careful to also disable RDRAND,
-or you will only get Intel's numbers.  Ideally, we would get a mix of data from
-various sources, but rngd has failed me so far.
+or you will only get Intel's numbers.
+
+Udev rules
+----------
+
+This is thanks to user Abigail on github.  If you want to automatically feed
+random data into /dev/random when the TRNG is plugged in, you can ask Linux to
+do this by creating a file in etc/udev/rules.d.  Assuming you copied infnosie
+to /usr/local/bin, your udev file would like this:
+
+$ cat /etc/udev/rules.d/75-infnoise.rules
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", RUN+="/usr/local/bin/infnoise --dev-random --daemon"
