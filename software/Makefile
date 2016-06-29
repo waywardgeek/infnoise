@@ -1,4 +1,4 @@
-CFLAGS = -Wextra -Wunused-parameter -std=c99 -O3 -I Keccak -I /usr/include/libftdi1
+CFLAGS = -Wall -Wextra -Wunused-parameter -std=c99 -O3 -I Keccak -I /usr/include/libftdi1
 
 all: infnoise
 
