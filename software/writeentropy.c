@@ -26,8 +26,8 @@ static uint32_t readNumberFromFile(char *fileName) {
         fprintf(stderr, "Unable to open %s\n", fileName);
         exit(1);
     }
-    char buf[42];
-    uint32_t i = 0;
+    char buf[42u];
+    uint32_t i = 0u;
     int c = getc(file);
     while(c != EOF) {
         buf[i++] = c;
@@ -68,10 +68,10 @@ void inmWaitForPoolToHaveRoom(void) {
         .events = POLLOUT,
     };
     int64_t timeout_msec;
-    if (ioctl(inmDevRandomFD, RNDGETENTCNT, &ent_count) == 0 && ent_count < inmFillWatermark) {
+    if (ioctl(inmDevRandomFD, RNDGETENTCNT, &ent_count) == 0 && (uint32_t)ent_count < inmFillWatermark) {
         return;
     }
-    timeout_msec = 1000; // One second
+    timeout_msec = 1000u; // One second
     poll(&pfd, 1, timeout_msec);
 }
 

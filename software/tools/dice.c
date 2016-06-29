@@ -9,19 +9,19 @@
 static void rollDie(uint32_t sides, FILE *file) {
   uint32_t randVal;
   do {
-    uint32_t numBytes = 0;
-    randVal = 0;
-    while (1 << (8*numBytes) <= sides) {
+    uint32_t numBytes = 0u;
+    randVal = 0u;
+    while (1u << (8u*numBytes) <= sides) {
       numBytes++;
       int c = getc(file);
       if (c == EOF) {
         printf("Ran out of random data\n");
         exit(1);
       }
-      randVal = (randVal << 8) | getc(file);
+      randVal = (randVal << 8u) | getc(file);
     }
   } while(randVal >= sides);
-  printf(" %u", randVal + 1);
+  printf(" %u", randVal + 1u);
 }
 
 int main(int argc, char **argv) {
@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
   uint32_t sides = atoi(argv[3]);
   uint32_t i;
   printf("Rolling %u %u-sided dice:", dice, sides);
-  for (i = 0; i < dice; i++) {
+  for (i = 0u; i < dice; i++) {
     rollDie(sides, file);
   }
   printf("\n");

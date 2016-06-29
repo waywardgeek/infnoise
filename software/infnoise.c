@@ -13,65 +13,28 @@
 #include "infnoise.h"
 #include "KeccakF-1600-interface.h"
 
-// Convert an address value 0 to 15 to an 8-bit value using ADDR0 .. ADDR3.
-static uint8_t makeAddress(uint8_t addr) {
-    uint8_t value = 0;
-    if(addr & 1) {
-        value |= 1 << ADDR0;
-    }
-    if(addr & 2) {
-        value |= 1 << ADDR1;
-    }
-    if(addr & 4) {
-        value |= 1 << ADDR2;
-    }
-    if(addr & 8) {
-        value |= 1 << ADDR3;
-    }
-    return value;
-}
-
-// Extract a value form 0 to 15 from the ADDR0 .. ADDR3 bits.
-static uint8_t extractAddress(uint8_t value) {
-    uint8_t addr = 0;
-    if(value & (1 << ADDR0)) {
-        addr |= 1;
-    }
-    if(value & (1 << ADDR1)) {
-        addr |= 2;
-    }
-    if(value & (1 << ADDR2)) {
-        addr |= 4;
-    }
-    if(value & (1 << ADDR3)) {
-        addr |= 8;
-    }
-    return addr;
-}
-
 // Extract the INM output from the data received.  Basically, either COMP1 or COMP2
 // changes, not both, so alternate reading bits from them.  We get 1 INM bit of output
 // per byte read.  Feed bits from the INM to the health checker.  Return the expected
 // bits of entropy.
-static uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, bool raw) {
+static uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf) {
     inmClearEntropyLevel();
     //printf("New batch\n");
     uint32_t i;
-    for(i = 0; i < BUFLEN/8; i++) {
+    for(i = 0u; i < BUFLEN/8u; i++) {
         uint32_t j;
-        uint8_t byte = 0;
-        for(j = 0; j < 8; j++) {
-            //printf("%x ", inBuf[i*8 + j] & ~MASK);
-            uint8_t val = inBuf[i*8 + j];
-            uint8_t evenBit = (val >> COMP2) & 1;
-            uint8_t oddBit = (val >> COMP1) & 1;
-            bool even = j & 1; // Use the even bit if j is odd
+        uint8_t byte = 0u;
+        for(j = 0u; j < 8u; j++) {
+            //printf("%x ", inBuf[i*8u + j] & ~MASK);
+            uint8_t val = inBuf[i*8u + j];
+            uint8_t evenBit = (val >> COMP2) & 1u;
+            uint8_t oddBit = (val >> COMP1) & 1u;
+            bool even = j & 1u; // Use the even bit if j is odd
             uint8_t bit = even? evenBit : oddBit;
-            byte = (byte << 1) | bit;
+            byte = (byte << 1u) | bit;
             // This is a good place to feed the bit from the INM to the health checker.
-            uint8_t addr = extractAddress(val);
             //printf("Address: %u, adding evenBit:%u oddBit:%u even:%u\n", addr, evenBit, oddBit, even);
-            if(!inmHealthCheckAddBit(evenBit, oddBit, even, addr)) {
+            if(!inmHealthCheckAddBit(evenBit, oddBit, even)) {
                 fputs("Health check of Infinite Noise Multiplier failed!\n", stderr);
                 exit(1);
             }
@@ -110,8 +73,8 @@ static uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entr
     }
     if(raw) {
         // In raw mode, we just output raw data from the INM.
-        outputBytes(bytes, BUFLEN/8, entropy, writeDevRandom);
-        return BUFLEN/8;
+        outputBytes(bytes, BUFLEN/8u, entropy, writeDevRandom);
+        return BUFLEN/8u;
     }
     // Note that BUFLEN has to be less than 1600 by enough to make the sponge secure,
     // since outputing all 1600 bits would tell an attacker the Keccak state, allowing
@@ -120,37 +83,37 @@ static uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entr
     // we instantly recover (reseed) from a state compromise, which is when an attacker
     // gets a snapshot of the keccak state.  BUFLEN must be a multiple of 64, since
     // Keccak-1600 uses 64-bit "lanes".
-    KeccakAbsorb(keccakState, bytes, BUFLEN/64);
-    uint8_t dataOut[16*8];
-    if(outputMultiplier == 0) {
+    KeccakAbsorb(keccakState, bytes, BUFLEN/64u);
+    uint8_t dataOut[16u*8u];
+    if(outputMultiplier == 0u) {
         // Output all the bytes of entropy we have
-        KeccakExtract(keccakState, dataOut, (entropy + 63)/64);
-        outputBytes(dataOut, entropy/8, entropy & 0x7, writeDevRandom);
-        return entropy/8;
+        KeccakExtract(keccakState, dataOut, (entropy + 63u)/64u);
+        outputBytes(dataOut, entropy/8u, entropy & 0x7u, writeDevRandom);
+        return entropy/8u;
     }
     // Output 256*outputMultipler bytes.
-    int32_t numBits = outputMultiplier*256;
-    uint32_t bytesWritten = 0;
-    while(numBits > 0) {
+    uint32_t numBits = outputMultiplier*256u;
+    uint32_t bytesWritten = 0u;
+    while(numBits > 0u) {
         // Write up to 1024 bits at a time.
-        uint32_t bytesToWrite = 1024/8;
-        if(bytesToWrite > numBits/8) {
-            bytesToWrite = numBits/8;
+        uint32_t bytesToWrite = 1024u/8u;
+        if(bytesToWrite > numBits/8u) {
+            bytesToWrite = numBits/8u;
         }
-        KeccakExtract(keccakState, dataOut, bytesToWrite/8);
+        KeccakExtract(keccakState, dataOut, bytesToWrite/8u);
         uint32_t entropyThisTime = entropy;
-        if(entropyThisTime > 8*bytesToWrite) {
-            entropyThisTime = 8*bytesToWrite;
+        if(entropyThisTime > 8u*bytesToWrite) {
+            entropyThisTime = 8u*bytesToWrite;
         }
         outputBytes(dataOut, bytesToWrite, entropyThisTime, writeDevRandom);
         bytesWritten += bytesToWrite;
-        numBits -= bytesToWrite*8;
+        numBits -= bytesToWrite*8u;
         entropy -= entropyThisTime;
-        if(numBits > 0) {
+        if(numBits > 0u) {
             KeccakPermutation(keccakState);
         }
     }
-    if(bytesWritten != outputMultiplier*(256/8)) {
+    if(bytesWritten != outputMultiplier*(256u/8u)) {
         fprintf(stderr, "Internal error outputing bytes\n");
         exit(1);
     }
@@ -193,7 +156,7 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message) {
     }
     
     // Just test to see that we can write and read.
-    uint8_t buf[64] = {0,};
+    uint8_t buf[64u] = {0u,};
     if(ftdi_write_data(ftdic, buf, 64) != 64) {
         *message = "USB write failed\n";
         return false;
@@ -209,7 +172,7 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message) {
 static double diffTime(struct timespec *start, struct timespec *end) {
     uint32_t seconds = end->tv_sec - start->tv_sec;
     int32_t nanoseconds = end->tv_nsec - start->tv_nsec;
-    return seconds*1e6 + nanoseconds/1000.0;
+    return seconds*1.0e6 + nanoseconds/1000.0;
 }
 
 int main(int argc, char **argv)
@@ -219,8 +182,8 @@ int main(int argc, char **argv)
     bool debug = false;
     bool writeDevRandom = false;
     bool noOutput = false;
-    uint32_t outputMultiplier = 0; // We output all the entropy when outputMultiplier == 0
-    uint32_t xArg;
+    uint32_t outputMultiplier = 0u; // We output all the entropy when outputMultiplier == 0
+    int xArg;
     bool multiplierAssigned = false;
     bool pidFile = false;
     char *pidFileName = NULL;
@@ -276,14 +239,14 @@ int main(int argc, char **argv)
     }
 
     if(!multiplierAssigned && writeDevRandom) {
-        outputMultiplier = 2; // Don't throw away entropy when writing to /dev/random unless told to do so
+        outputMultiplier = 2u; // Don't throw away entropy when writing to /dev/random unless told to do so
     }
 
     // Optionally run in the background and optionally write a PID-file
     startDaemon(runDaemon, pidFile, pidFileName);
 
     if(writeDevRandom) {
-        inmWriteEntropyStart(BUFLEN/8, debug);
+        inmWriteEntropyStart(BUFLEN/8u, debug);
     }
     if(!inmHealthCheckStart(PREDICTION_BITS, DESIGN_K, debug)) {
         fputs("Can't intialize health checker\n", stderr);
@@ -304,36 +267,35 @@ int main(int argc, char **argv)
     // Endless loop: set SW1EN and SW2EN alternately
     uint32_t i;
     uint8_t outBuf[BUFLEN], inBuf[BUFLEN];
-    for(i = 0; i < BUFLEN; i++) {
-        // Alternate Ph1 and Ph2 - maybe should have both off in between
+    for(i = 0u; i < BUFLEN; i++) {
+        // Alternate Ph1 and Ph2
         outBuf[i] = i & 1?  (1 << SWEN2) : (1 << SWEN1);
-        outBuf[i] |= makeAddress(i & 0xf);
     }
 
-    uint64_t totalBytesWritten = 0;
+    uint64_t totalBytesWritten = 0u;
     while(true) {
         struct timespec start;
         clock_gettime(CLOCK_REALTIME, &start);
 
         if(ftdi_write_data(&ftdic, outBuf, BUFLEN) != BUFLEN) {
             fputs("USB write failed\n", stderr);
-            return -1;
+            return 1;
         }
         if(ftdi_read_data(&ftdic, inBuf, BUFLEN) != BUFLEN) {
             fputs("USB read failed\n", stderr);
-            return -1;
+            return 1;
         }
         struct timespec end;
         clock_gettime(CLOCK_REALTIME, &end);
         uint32_t us = diffTime(&start, &end);
         //printf("diffTime:%u us\n", us);
         if(us <= MAX_MICROSEC_FOR_SAMPLES) {
-            uint8_t bytes[BUFLEN/8];
-            uint32_t entropy = extractBytes(bytes, inBuf, raw);
+            uint8_t bytes[BUFLEN/8u];
+            uint32_t entropy = extractBytes(bytes, inBuf);
             if(!noOutput && inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
                 uint64_t prevTotalBytesWritten = totalBytesWritten;
                 totalBytesWritten += processBytes(keccakState, bytes, entropy, raw, writeDevRandom, outputMultiplier);
-                if(debug && (1 << 20)*(totalBytesWritten/(1 << 20)) > (1 << 20)*(prevTotalBytesWritten/(1 << 20))) {
+                if(debug && (1u << 20u)*(totalBytesWritten/(1u << 20u)) > (1u << 20u)*(prevTotalBytesWritten/(1u << 20u))) {
                     fprintf(stderr, "Output %lu bytes\n", (unsigned long)totalBytesWritten);
                 }
             }

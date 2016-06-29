@@ -8,9 +8,9 @@
 #include <math.h>
 #include <time.h>
 
-#define INM_MIN_DATA 80000
-#define INM_MIN_SAMPLE_SIZE 100
-#define INM_MAX_COUNT (1 << 14)
+#define INM_MIN_DATA 80000u
+#define INM_MIN_SAMPLE_SIZE 100u
+#define INM_MAX_COUNT (1u << 14u)
 
 static uint8_t inmN;
 static uint8_t inmNumStreams;
@@ -28,40 +28,40 @@ static bool inmDebug;
 
 // Reset the statistics.
 static void resetStats(void) {
-    inmNumBitsSampled = 0;
+    inmNumBitsSampled = 0u;
     inmCurrentProbability = 1.0;
-    inmNumBitsOfEntropy = 0;
-    inmTotalOnes = 0;
-    inmTotalZeros = 0;
+    inmNumBitsOfEntropy = 0u;
+    inmTotalOnes = 0u;
+    inmTotalZeros = 0u;
 }
 
 // Initialize the entropy check.  N is the number of bits used to predict the next bit.
 // At least 8 bits must be used, and no more than 30.  In general, we should use bits
 // large enough so that INM output will be uncorrelated with bits N samples back in time.
 bool inmEntCheckStart(uint8_t N, uint8_t numStreams, bool debug) {
-    if(N < 1 || N > 30) {
+    if(N < 1u || N > 30u) {
         return false;
     }
     inmDebug = debug;
-    inmNumBitsOfEntropy = 0;
+    inmNumBitsOfEntropy = 0u;
     inmCurrentProbability = 1.0;
     inmN = N;
     inmNumStreams = numStreams;
-    inmPrevBits = 0;
+    inmPrevBits = 0u;
     inmOnes = calloc(numStreams, sizeof(uint32_t *));
     inmZeros = calloc(numStreams, sizeof(uint32_t *));
     if(inmOnes == NULL || inmZeros == NULL) {
         return false;
     }
     uint8_t i;
-    for(i = 0; i < numStreams; i++) {
+    for(i = 0u; i < numStreams; i++) {
         inmOnes[i] = calloc(1u << N, sizeof(uint32_t));
         inmZeros[i] = calloc(1u << N, sizeof(uint32_t));
         if(inmOnes[i] == NULL || inmZeros[i] == NULL) {
             return false;
         }
     }
-    inmTotalBits = 0;
+    inmTotalBits = 0u;
     inmPrevBit = false;
     resetStats();
     return true;
@@ -71,10 +71,10 @@ bool inmEntCheckStart(uint8_t N, uint8_t numStreams, bool debug) {
 // zeros and ones.  Check for this, and scale the stats if needed.
 static void scaleStats(void) {
     uint32_t i, j;
-    for(i = 0; i < inmNumStreams; i++) {
-        for(j = 0; j < (1 << inmN); j++) {
-            inmZeros[i][j] >>= 1;
-            inmOnes[i][j] >>= 1;
+    for(i = 0u; i < inmNumStreams; i++) {
+        for(j = 0u; j < (1u << inmN); j++) {
+            inmZeros[i][j] >>= 1u;
+            inmOnes[i][j] >>= 1u;
         }
     }
 }
@@ -83,8 +83,8 @@ static void scaleStats(void) {
 // zeros and ones.  Check for this, and scale the stats if needed.
 static void scaleEntropy(void) {
     if(inmNumBitsSampled == INM_MIN_DATA) {
-        inmNumBitsOfEntropy >>= 1;
-        inmNumBitsSampled >>= 1;
+        inmNumBitsOfEntropy >>= 1u;
+        inmNumBitsSampled >>= 1u;
     }
 }
 
@@ -93,8 +93,8 @@ static void scaleEntropy(void) {
 static void scaleZeroOneCounts(void) {
     uint64_t maxVal = inmTotalZeros >= inmTotalOnes? inmTotalZeros : inmTotalOnes;
     if(maxVal == INM_MIN_DATA) {
-        inmTotalZeros >>= 1;
-        inmTotalOnes >>= 1;
+        inmTotalZeros >>= 1u;
+        inmTotalOnes >>= 1u;
     }
 }
 
@@ -102,12 +102,12 @@ static void scaleZeroOneCounts(void) {
 bool inmEntCheckAddBit(bool bit) {
     uint8_t stream = inmTotalBits % inmNumStreams;
     inmTotalBits++;
-    inmPrevBits = (inmPrevBits << 1) & ((1 << inmN)-1);
+    inmPrevBits = (inmPrevBits << 1u) & ((1u << inmN)-1u);
     if(inmPrevBit) {
         inmPrevBits |= 1;
     }
     inmPrevBit = bit;
-    if(inmNumBitsSampled > 100) {
+    if(inmNumBitsSampled > 100u) {
         if(bit) {
             inmTotalOnes++;
         } else {
@@ -121,11 +121,11 @@ bool inmEntCheckAddBit(bool bit) {
     numOnes = ones[inmPrevBits];
     uint32_t total = numZeros + numOnes;
     if(bit) {
-        if(numOnes != 0) {
+        if(numOnes != 0u) {
             inmCurrentProbability *= (double)numOnes/total;
         }
     } else {
-        if(numZeros != 0) {
+        if(numZeros != 0u) {
             inmCurrentProbability *= (double)numZeros/total;
         }
     }
@@ -160,9 +160,9 @@ double inmEntCheckEstimateEntropyPerBit(void) {
 // Print the tables of statistics.
 static void inmDumpStats(void) {
     uint32_t i, j;
-    for(i = 0; i < inmNumStreams; i++) {
+    for(i = 0u; i < inmNumStreams; i++) {
         printf("*************************************** stream %u\n", i);
-        for(j = 0; j < 1 << inmN; j++) {
+        for(j = 0u; j < 1u << inmN; j++) {
             printf("%x ones:%u(%.2g%%) zeros:%u(%.2g%%)\n", j, inmOnes[i][j],
                 inmOnes[i][j]*100.0/inmTotalBits, inmZeros[i][j],
                 inmZeros[i][j]*100.0/inmTotalBits);
@@ -185,26 +185,26 @@ static void usage(void) {
 }
 
 int main(int argc, char **argv) {
-    uint8_t N = 12;
-    uint8_t numStreams = 2;
-    uint32_t i;
-    for(i = 1; i < argc; i++) {
-        if(!strcmp(argv[i], "-N")) {
-            i++;
-            if(i == argc) {
+    uint8_t N = 12u;
+    uint8_t numStreams = 2u;
+    int xArg;
+    for(xArg = 1u; xArg < argc; xArg++) {
+        if(!strcmp(argv[xArg], "-N")) {
+            xArg++;
+            if(xArg == argc) {
                 usage();
             }
-            N = atoi(argv[i]);
-            if(N == 0) {
+            N = atoi(argv[xArg]);
+            if(N == 0u) {
                 usage();
             }
-        } else if(!strcmp(argv[i], "-s")) {
-            i++;
-            if(i == argc) {
+        } else if(!strcmp(argv[xArg], "-s")) {
+            xArg++;
+            if(xArg == argc) {
                 usage();
             }
-            numStreams = atoi(argv[i]);
-            if(numStreams == 0 || numStreams > 32) {
+            numStreams = atoi(argv[xArg]);
+            if(numStreams == 0u || numStreams > 32u) {
                 usage();
             }
         } else {
@@ -217,12 +217,13 @@ int main(int argc, char **argv) {
     }
     int value = getchar();
     while(value != EOF) {
-        for(i = 0; i < 8; i++) {
-            bool bit = value & (1 << (7-i))? true : false;
+        uint32_t i;
+        for(i = 0u; i < 8u; i++) {
+            bool bit = value & (1u << (7u-i))? true : false;
 	    inmEntCheckAddBit(bit);
         }
         value = getchar();
-        if((inmTotalBits & 0xffff) == 0) {
+        if((inmTotalBits & 0xffffu) == 0u) {
             printf("Added %llu bits, estimated entropy per bit:%f\n", (long long)inmTotalBits,
                 inmEntCheckEstimateEntropyPerBit());
             //resetStats();
