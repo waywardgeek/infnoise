@@ -172,3 +172,15 @@ to /usr/local/bin, your udev file would like this:
 
 $ cat /etc/udev/rules.d/75-infnoise.rules
 ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", RUN+="/usr/local/bin/infnoise --dev-random --daemon"
+
+I personally run the infnoise tool by hand from a bash shell, typically to test devices like this:
+
+$ sudo ./infnoise --debug --no-output
+
+To avoid having to type 'sudo' each time, I created the following udev rules,
+which worked on my particular Ubuntu 14.04 based laptop:
+
+$ cat 30-infnoise.rules 
+SUBSYSTEM=="usb", ATTRS{idProduct}=="6015", ATTRS{idVendor}=="0403", GROUP="dialout", MODE="0664"
+
+Note that my username is in the dialout group.

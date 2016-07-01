@@ -128,7 +128,11 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message) {
     ftdi_init(ftdic);
     // Open FTDI device based on FT240X vendor & product IDs
     if(ftdi_usb_open(ftdic, 0x0403, 0x6015) < 0) {
-        *message = "Can't find Infinite Noise Multiplier\n";
+        if(!isSuperUser()) {
+            *message = "Can't find Infinite Noise Multiplier.  Try running as super user?\n";
+        } else {
+            *message = "Can't find Infinite Noise Multiplier\n";
+        }
         return false;
     }
 
@@ -231,11 +235,6 @@ int main(int argc, char **argv)
                             "    --daemon - run in the background\n", stderr);
             return 1;
         }
-    }
-
-    if(!isSuperUser()) {
-        fputs("Super user access needed.\n", stderr);
-        return 1;
     }
 
     if(!multiplierAssigned && writeDevRandom) {
