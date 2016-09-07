@@ -1,7 +1,7 @@
 ﻿##Infinite Noise TRNG (True Random Number Generator)
 
 For instructions for compiling the and using Infinite Noise TRNG driver, go to the software
-sub-directory, and read the REAME file there.  Both Linux and Windows are supported.
+sub-directory, and read the [README](software/README) file there.  Both Linux and Windows are supported.
 
 The Infinite Noise TRNG is a USB key hardware true random number generator.  It uses what
 I call a "Modular Entropy Multiplier" architecture (previously Infinite Noise Multiplier or
