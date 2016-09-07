@@ -451,9 +451,9 @@ provide access to the raw data streams for health analysis.
 I prefer to follow the KISS rule when it comes to security.  The more complex the TRNG
 key, the more likely it is insecure.  Therefore, the initial Infinite Noise Multiplier
 does not even have a microcontroller onboard, and only returns raw data, direct from the
-noise source.  Whitening is done in the Inifite Noise driver.
+noise source.  Whitening is done in the Infinite Noise driver.
 
-The Inifite Noise driver uses the reference version of the SHA3 "sponge", called Keccak,
+The Infinite Noise driver uses the reference version of the SHA3 "sponge", called Keccak,
 with a 1600 bit state.  To make the state of the sponge unpredictable, it is initialized
 with 20,000 bits of of Infinite Noise data before any data is output.  After that, reading
 bytes from the SHA3 sponge blocks until twice as many bytes of entropy have been fed into
