@@ -1,0 +1,15 @@
+[Unit]
+Description=Wayward Geek InfNoise TRNG driver
+
+[Service]
+Type=simple
+WorkingDirectory=/tmp
+ExecStart=/usr/local/sbin/infnoise --dev-random
+User=root
+Group=root
+Restart=always
+RestartSec=1min
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
