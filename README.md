@@ -291,7 +291,7 @@ noise samples of this 8MHz noise, when measured at 480KHz, will be completely un
 but only that concentrating a 15-bit representation of sequential samples will have a few
 bits of "surprise", which is log2(1/probability of guessing the next sample).
 
-### Analisys of Analog Modular Multiplication
+### Analysis of Analog Modular Multiplication
 
 Consider a traditional zener TRNG:
 
