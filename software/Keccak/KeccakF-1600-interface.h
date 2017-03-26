@@ -18,6 +18,7 @@ http://creativecommons.org/publicdomain/zero/1.0/
 #define KeccakPermutationSize 1600
 #define KeccakPermutationSizeInBytes (KeccakPermutationSize/8)
 
+void KeccakInitialize(void);
 void KeccakInitializeState(unsigned char *state);
 void KeccakPermutation(unsigned char *state);
 void KeccakAbsorb(unsigned char *state, const unsigned char *data, unsigned int laneCount);

@@ -1,7 +1,7 @@
 CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -I Keccak -I /usr/include/libftdi1
 
-@_=	$(shell ld -lftdi 2> /dev/null)
-ifeq ($$?, 0)
+FOUND = $(shell ldconfig -p | grep --silent libftdi.so && echo found)
+ifeq ($(FOUND), found)
 	FTDI=	-lftdi
 else
 	FTDI=	-lftdi1

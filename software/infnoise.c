@@ -251,6 +251,7 @@ int main(int argc, char **argv)
         fputs("Can't intialize health checker\n", stderr);
         return 1;
     }
+    KeccakInitialize();
     uint8_t keccakState[KeccakPermutationSizeInBytes];
     KeccakInitializeState(keccakState);
 
