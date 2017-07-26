@@ -7,6 +7,10 @@ else
 	FTDI=	-lftdi1
 endif
 
+install:
+	cp infnoise /usr/local/sbin
+	pidof systemd > /dev/null && cp infnoise.service /lib/systemd/system
+
 all: infnoise
 
 infnoise: infnoise.c infnoise.h healthcheck.c writeentropy.c daemon.c Keccak/KeccakF-1600-reference.c Keccak/brg_endian.h
