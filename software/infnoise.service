@@ -2,14 +2,14 @@
 Description=Wayward Geek InfNoise TRNG driver
 
 [Service]
-Type=simple
+Type=forking
 WorkingDirectory=/tmp
-ExecStart=/usr/local/sbin/infnoise --dev-random
+ExecStart=/usr/sbin/infnoise --dev-random --daemon --pidfile /var/run/infnoise.pid
 User=root
 Group=root
-Restart=always
-RestartSec=1min
-Restart=on-failure
+Restart=never
+BindsTo=dev-infnoise.device
+After=dev-infnoise.device
 
 [Install]
 WantedBy=multi-user.target
