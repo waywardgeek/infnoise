@@ -18,6 +18,7 @@ clean:
 	$(RM) infnoise
 
 install:
+        install -d $(PREFIX)/sbin             
 	install -m 0755 infnoise $(PREFIX)/sbin/
 	install -d $(PREFIX)/lib/udev/rules.d/
 	install -m 0644 75-infnoise.rules $(PREFIX)/lib/udev/rules.d/
@@ -27,4 +28,3 @@ install:
 postinstall:
 	systemctl restart systemd-udevd
 	systemctl enable infnoise
-
