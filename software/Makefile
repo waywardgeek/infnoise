@@ -1,3 +1,5 @@
+PREFIX = $(DESTDIR)/usr/local
+
 CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -I Keccak -I /usr/include/libftdi1
 
 FOUND = $(shell ldconfig -p | grep --silent libftdi.so && echo found)
@@ -16,11 +18,11 @@ clean:
 	$(RM) infnoise
 
 install:
-	install -m 0755 infnoise $(DESTDIR)/sbin/
-	install -d $(DESTDIR)/lib/udev/rules.d/
-	install -m 0644 75-infnoise.rules $(DESTDIR)/lib/udev/rules.d/
-	install -d $(DESTDIR)/lib/systemd/system
-	install -m 0644 infnoise.service $(DESTDIR)/lib/systemd/system
+	install -m 0755 infnoise $(PREFIX)/sbin/
+	install -d $(PREFIX)/lib/udev/rules.d/
+	install -m 0644 75-infnoise.rules $(PREFIX)/lib/udev/rules.d/
+	install -d $(PREFIX)/lib/systemd/system
+	install -m 0644 infnoise.service $(PREFIX)/lib/systemd/system
 
 postinstall:
 	systemctl restart systemd-udevd
