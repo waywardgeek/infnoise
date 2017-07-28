@@ -27,3 +27,4 @@ install:
 postinstall:
 	systemctl restart systemd-udevd
 	systemctl enable infnoise
+
