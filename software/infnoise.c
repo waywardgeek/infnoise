@@ -3,9 +3,8 @@
 // Required to include clock_gettime
 #define _POSIX_C_SOURCE 200809L
 
-#define INFNOISE_VENDOR_ID 0x0403
-#define INFNOISE_PRODUCT_ID 0x6015
-#define INFNOISE_DESCRIPTION "FT240X USB FIFO"
+#define VENDOR_ID 0x0403
+#define PRODUCT_ID 0x6015
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -23,13 +22,11 @@
 // bits of entropy.
 static uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf) {
     inmClearEntropyLevel();
-    //printf("New batch\n");
     uint32_t i;
     for(i = 0u; i < BUFLEN/8u; i++) {
         uint32_t j;
         uint8_t byte = 0u;
         for(j = 0u; j < 8u; j++) {
-            //printf("%x ", inBuf[i*8u + j] & ~MASK);
             uint8_t val = inBuf[i*8u + j];
             uint8_t evenBit = (val >> COMP2) & 1u;
             uint8_t oddBit = (val >> COMP1) & 1u;
@@ -37,13 +34,11 @@ static uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf) {
             uint8_t bit = even? evenBit : oddBit;
             byte = (byte << 1u) | bit;
             // This is a good place to feed the bit from the INM to the health checker.
-            //printf("Address: %u, adding evenBit:%u oddBit:%u even:%u\n", addr, evenBit, oddBit, even);
             if(!inmHealthCheckAddBit(evenBit, oddBit, even)) {
                 fputs("Health check of Infinite Noise Multiplier failed!\n", stderr);
                 exit(1);
             }
         }
-        //printf("extracted byte:%x\n", byte);
         bytes[i] = byte;
     }
     return inmGetEntropyLevel();
@@ -124,6 +119,7 @@ static uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entr
     return bytesWritten;
 }
 
+// Return a list of all infinite noise multipliers found.
 static bool listUSBDevices(struct ftdi_context *ftdic) {
     ftdi_init(ftdic);
 
@@ -133,19 +129,18 @@ static bool listUSBDevices(struct ftdi_context *ftdic) {
     int i=0;
 
     // search devices
-    int rc = 0;
-    if ((rc = ftdi_usb_find_all(ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID)) < 0) {
+    int rc = ftdi_usb_find_all(ftdic, &devlist, VENDOR_ID, PRODUCT_ID);
+    if (rc < 0) {
         if(!isSuperUser()) {
-            printf("Can't find Infinite Noise Multiplier.  Try running as super user?\n");
+            fprintf(stderr, "Can't find Infinite Noise Multiplier.  Try running as super user?\n");
         } else {
-            printf("Can't find Infinite Noise Multiplier\n");
+            fprintf(stderr, "Can't find Infinite Noise Multiplier\n");
         }
     }
-    for (curdev = devlist; curdev != NULL; i++)
-    {
+    for (curdev = devlist; curdev != NULL; i++) {
        	printf("Checking device: %d\n", i);
-        if ((rc = ftdi_usb_get_strings(ftdic, curdev->dev, manufacturer, 128, description, 128, serial, 128)) < 0)
-       	{
+        rc = ftdi_usb_get_strings(ftdic, curdev->dev, manufacturer, 128, description, 128, serial, 128);
+        if (rc < 0) {
             fprintf(stderr, "ftdi_usb_get_strings failed: %d (%s)\n", rc, ftdi_get_error_string(ftdic));
 	    return false;
        	}
@@ -163,19 +158,19 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message, char *seri
 
     // search devices
     int rc = 0;
-    if ((rc = ftdi_usb_find_all(ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID)) < 0) {
+    if ((rc = ftdi_usb_find_all(ftdic, &devlist, VENDOR_ID, PRODUCT_ID)) < 0) {
         *message = "Can't find Infinite Noise Multiplier\n";
         return false;
     }
 
     // only one found, or no serial given
     if (rc >= 0) {
-	// only one found, or no serial given
 	if (serial == NULL) {
+            // only one found, or no serial given
             if (rc >= 1) {
 		fprintf(stderr,"Multiple Infnoise TRNGs found. No serial specfified, so using the first one");
             }
-            if (ftdi_usb_open(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID) < 0) {
+            if (ftdi_usb_open(ftdic, VENDOR_ID, PRODUCT_ID) < 0) {
                 if(!isSuperUser()) {
                     *message = "Can't open Infinite Noise Multiplier. Try running as super user?\n";
                 } else {
@@ -183,16 +178,14 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message, char *seri
                 }
                 return false;
 	    }
-	// serial specified
         } else {
-            rc = ftdi_usb_open_desc(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID, INFNOISE_DESCRIPTION, serial);
+            // serial specified
+            rc = ftdi_usb_open_desc(ftdic, VENDOR_ID, PRODUCT_ID, "FT240X USB FIFO", serial);
             if (rc < 0) {
                 if(!isSuperUser()) {
                     *message = "Can't find Infinite Noise Multiplier. Try running as super user?\n";
                 } else {
                     *message = "Can't find Infinite Noise Multiplier with given serial\n";
-//                    strcat(*message, serial);
-//                    strcat(*message, "\n");
                 }
                 return false;
 	    }
@@ -306,7 +299,7 @@ int main(int argc, char **argv)
                             "    --pidfile <file> - write process ID to file\n"
                             "    --daemon - run in the background\n"
                             "    --serial <serial> - use specified device\n"
-                            "    --list-devices - list available devices",stderr);
+                            "    --list-devices - list available devices\n", stderr);
             return 1;
         }
     }
@@ -366,7 +359,6 @@ int main(int argc, char **argv)
         struct timespec end;
         clock_gettime(CLOCK_REALTIME, &end);
         uint32_t us = diffTime(&start, &end);
-        //printf("diffTime:%u us\n", us);
         if(us <= MAX_MICROSEC_FOR_SAMPLES) {
             uint8_t bytes[BUFLEN/8u];
             uint32_t entropy = extractBytes(bytes, inBuf);

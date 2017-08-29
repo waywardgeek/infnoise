@@ -378,7 +378,7 @@ int main() {
             oddBit = bit;
         }
         if(!inmHealthCheckAddBit(evenBit, oddBit, even)) {
-            printf("Failed health check!\n");
+            fprintf(stderr, "Failed health check!\n");
             return 1;
         }
         if(inmTotalBits > 0u && (inmTotalBits & 0xfffffff) == 0) {
