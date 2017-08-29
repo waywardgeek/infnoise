@@ -3,8 +3,9 @@
 // Required to include clock_gettime
 #define _POSIX_C_SOURCE 200809L
 
-#define VENDOR_ID 0x0403
-#define PRODUCT_ID 0x6015
+#define INFNOISE_VENDOR_ID 0x0403
+#define INFNOISE_PRODUCT_ID 0x6015
+#define INFNOISE_DESCRIPTION "FT240X USB FIFO"
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -133,7 +134,7 @@ static bool listUSBDevices(struct ftdi_context *ftdic) {
 
     // search devices
     int rc = 0;
-    if ((rc = ftdi_usb_find_all(ftdic, &devlist, VENDOR_ID, PRODUCT_ID)) < 0) {
+    if ((rc = ftdi_usb_find_all(ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID)) < 0) {
         if(!isSuperUser()) {
             printf("Can't find Infinite Noise Multiplier.  Try running as super user?\n");
         } else {
@@ -162,7 +163,7 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message, char *seri
 
     // search devices
     int rc = 0;
-    if ((rc = ftdi_usb_find_all(ftdic, &devlist, VENDOR_ID, PRODUCT_ID)) < 0) {
+    if ((rc = ftdi_usb_find_all(ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID)) < 0) {
         *message = "Can't find Infinite Noise Multiplier\n";
         return false;
     }
@@ -174,7 +175,7 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message, char *seri
             if (rc >= 1) {
 		fprintf(stderr,"Multiple Infnoise TRNGs found. No serial specfified, so using the first one");
             }
-            if (ftdi_usb_open(ftdic, VENDOR_ID, PRODUCT_ID) < 0) {
+            if (ftdi_usb_open(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID) < 0) {
                 if(!isSuperUser()) {
                     *message = "Can't open Infinite Noise Multiplier. Try running as super user?\n";
                 } else {
@@ -184,7 +185,7 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message, char *seri
 	    }
 	// serial specified
         } else {
-            rc = ftdi_usb_open_desc(ftdic, VENDOR_ID, PRODUCT_ID, "FT240X USB FIFO", serial);
+            rc = ftdi_usb_open_desc(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID, INFNOISE_DESCRIPTION, serial);
             if (rc < 0) {
                 if(!isSuperUser()) {
                     *message = "Can't find Infinite Noise Multiplier. Try running as super user?\n";
