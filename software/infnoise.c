@@ -3,6 +3,9 @@
 // Required to include clock_gettime
 #define _POSIX_C_SOURCE 200809L
 
+#define VENDOR_ID 0x0403
+#define PRODUCT_ID 0x6015
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -120,24 +123,84 @@ static uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entr
     return bytesWritten;
 }
 
-// Initialize the Infinite Noise Multiplier USB ineterface.
-static bool initializeUSB(struct ftdi_context *ftdic, char **message) {
-    *message = NULL;
-
-    // Initialize FTDI context
+static bool listUSBDevices(struct ftdi_context *ftdic) {
     ftdi_init(ftdic);
-    // Open FTDI device based on FT240X vendor & product IDs
-    if(ftdi_usb_open(ftdic, 0x0403, 0x6015) < 0) {
+
+    struct ftdi_device_list *devlist;
+    struct ftdi_device_list *curdev;
+    char manufacturer[128], description[128], serial[128];
+    int i=0;
+
+    // search devices
+    int rc = 0;
+    if ((rc = ftdi_usb_find_all(ftdic, &devlist, VENDOR_ID, PRODUCT_ID)) < 0) {
+        if(!isSuperUser()) {
+            printf("Can't find Infinite Noise Multiplier.  Try running as super user?\n");
+        } else {
+            printf("Can't find Infinite Noise Multiplier\n");
+        }
+    }
+    for (curdev = devlist; curdev != NULL; i++)
+    {
+       	printf("Checking device: %d\n", i);
+        if ((rc = ftdi_usb_get_strings(ftdic, curdev->dev, manufacturer, 128, description, 128, serial, 128)) < 0)
+       	{
+            fprintf(stderr, "ftdi_usb_get_strings failed: %d (%s)\n", rc, ftdi_get_error_string(ftdic));
+	    return false;
+            //goto done;
+       	}
+        printf("Manufacturer: %s, Description: %s, Serial: %s\n\n", manufacturer, description, serial);
+       	curdev = curdev->next;
+    }
+    return true;
+}
+
+
+// Initialize the Infinite Noise Multiplier USB ineterface.
+static bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
+    ftdi_init(ftdic);
+    struct ftdi_device_list *devlist;
+
+    // search devices
+    int rc = 0;
+    if ((rc = ftdi_usb_find_all(ftdic, &devlist, VENDOR_ID, PRODUCT_ID)) < 0) {
         if(!isSuperUser()) {
             *message = "Can't find Infinite Noise Multiplier.  Try running as super user?\n";
         } else {
             *message = "Can't find Infinite Noise Multiplier\n";
         }
-        return false;
+    }
+
+    // only one found, or no serial given
+    if (rc == 1 || serial == NULL) {
+        if(ftdi_usb_open(ftdic, VENDOR_ID, PRODUCT_ID) < 0) {
+            if(!isSuperUser()) {
+                *message = "Can't find Infinite Noise Multiplier.  Try running as super user?\n";
+            } else {
+                *message = "Can't find Infinite Noise Multiplier\n";
+            }
+            return false;
+	}
+	if (rc > 1) {
+            *message = "Multiple devices found. No +serial specified. Using the first one!";
+	}
+    }
+
+    // 1+ found and serial given
+    if (rc >= 1 && serial != NULL) {
+        rc = ftdi_usb_open_desc(ftdic, VENDOR_ID, PRODUCT_ID, "FT240X USB FIFO", serial);
+        if (rc < 0) {
+            if(!isSuperUser()) {
+                *message = "Can't find Infinite Noise Multiplier.  Try running as super user?\n";
+	    } else { 
+                *message = "Can't find Infinite Noise Multiplier\n";
+	    }
+        }
+//	printf("connected");
     }
 
     // Set high baud rate
-    int rc = ftdi_set_baudrate(ftdic, 30000);
+    rc = ftdi_set_baudrate(ftdic, 30000);
     if(rc == -1) {
         *message = "Invalid baud rate\n";
         return false;
@@ -148,8 +211,6 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message) {
         *message = "Infinite Noise Multiplier unavailable\n";
         return false;
     }
-
-    // Enable syncrhonous bitbang mode
     rc = ftdi_set_bitmode(ftdic, MASK, BITMODE_SYNCBB);
     if(rc == -1) {
         *message = "Can't enable bit-bang mode\n";
@@ -158,7 +219,7 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message) {
         *message = "Infinite Noise Multiplier unavailable\n";
         return false;
     }
-    
+
     // Just test to see that we can write and read.
     uint8_t buf[64u] = {0u,};
     if(ftdi_write_data(ftdic, buf, 64) != 64) {
@@ -191,7 +252,9 @@ int main(int argc, char **argv)
     bool multiplierAssigned = false;
     bool pidFile = false;
     char *pidFileName = NULL;
+    char *serial = NULL;
     bool runDaemon = false;
+    bool listDevices = false;
 
     // Process arguments
     for(xArg = 1; xArg < argc; xArg++) {
@@ -220,8 +283,17 @@ int main(int argc, char **argv)
                 fputs("--pidfile without file name\n", stderr);
                 return 1;
             }
+        } else if(!strcmp(argv[xArg], "--serial")) {
+            xArg++;
+            serial = argv[xArg];
+            if(serial == NULL || !strcmp("",serial)) {
+                fputs("--serial without value\n", stderr);
+                return 1;
+            }
         } else if(!strcmp(argv[xArg], "--daemon")) {
             runDaemon = true;
+        } else if(!strcmp(argv[xArg], "--list-devices")) {
+            listDevices = true;
         } else {
             fputs("Usage: infnoise [options]\n"
                             "Options are:\n"
@@ -232,7 +304,9 @@ int main(int argc, char **argv)
                             "      the Keccak sponge.  Default of 0 means write all the entropy.\n"
                             "    --no-output - do not write random output data\n"
                             "    --pidfile <file> - write process ID to file\n"
-                            "    --daemon - run in the background\n", stderr);
+                            "    --daemon - run in the background\n"
+                            "    --serial <serial> - use specified device\n"
+                            "    --list-devices - list available devices",stderr);
             return 1;
         }
     }
@@ -241,6 +315,10 @@ int main(int argc, char **argv)
         outputMultiplier = 2u; // Don't throw away entropy when writing to /dev/random unless told to do so
     }
 
+    if (listDevices) {
+	listUSBDevices(&ftdic);
+	return 0;
+    }
     // Optionally run in the background and optionally write a PID-file
     startDaemon(runDaemon, pidFile, pidFileName);
 
@@ -256,9 +334,9 @@ int main(int argc, char **argv)
     KeccakInitializeState(keccakState);
 
     char *message;
-    if(!initializeUSB(&ftdic, &message)) {
+    if(!initializeUSB(&ftdic, &message, serial)) {
         // Sometimes have to do it twice - not sure why
-        if(!initializeUSB(&ftdic, &message)) {
+        if(!initializeUSB(&ftdic, &message, serial)) {
             fputs(message, stderr);
             return 1;
         }
