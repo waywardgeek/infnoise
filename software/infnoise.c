@@ -3,8 +3,8 @@
 // Required to include clock_gettime
 #define _POSIX_C_SOURCE 200809L
 
-#define INFNOISE_INFNOISE_VENDOR_ID 0x0403
-#define INFNOISE_INFNOISE_PRODUCT_ID 0x6015
+#define INFNOISE_VENDOR_ID 0x0403
+#define INFNOISE_PRODUCT_ID 0x6015
 #define INFNOISE_DESCRIPTION "FT240X USB FIFO"
 
 #include <stdint.h>
