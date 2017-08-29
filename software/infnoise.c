@@ -147,7 +147,6 @@ static bool listUSBDevices(struct ftdi_context *ftdic) {
        	{
             fprintf(stderr, "ftdi_usb_get_strings failed: %d (%s)\n", rc, ftdi_get_error_string(ftdic));
 	    return false;
-            //goto done;
        	}
         printf("Manufacturer: %s, Description: %s, Serial: %s\n\n", manufacturer, description, serial);
        	curdev = curdev->next;
@@ -156,7 +155,7 @@ static bool listUSBDevices(struct ftdi_context *ftdic) {
 }
 
 
-// Initialize the Infinite Noise Multiplier USB ineterface.
+// Initialize the Infinite Noise Multiplier USB interface.
 static bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
     ftdi_init(ftdic);
     struct ftdi_device_list *devlist;
@@ -164,39 +163,39 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message, char *seri
     // search devices
     int rc = 0;
     if ((rc = ftdi_usb_find_all(ftdic, &devlist, VENDOR_ID, PRODUCT_ID)) < 0) {
-        if(!isSuperUser()) {
-            *message = "Can't find Infinite Noise Multiplier.  Try running as super user?\n";
-        } else {
-            *message = "Can't find Infinite Noise Multiplier\n";
-        }
+        *message = "Can't find Infinite Noise Multiplier\n";
+        return false;
     }
 
     // only one found, or no serial given
-    if (rc == 1 || serial == NULL) {
-        if(ftdi_usb_open(ftdic, VENDOR_ID, PRODUCT_ID) < 0) {
-            if(!isSuperUser()) {
-                *message = "Can't find Infinite Noise Multiplier.  Try running as super user?\n";
-            } else {
-                *message = "Can't find Infinite Noise Multiplier\n";
+    if (rc >= 0) {
+	// only one found, or no serial given
+	if (serial == NULL) {
+            if (rc >= 1) {
+		fprintf(stderr,"Multiple Infnoise TRNGs found. No serial specfified, so using the first one");
             }
-            return false;
-	}
-	if (rc > 1) {
-            *message = "Multiple devices found. No +serial specified. Using the first one!";
-	}
-    }
-
-    // 1+ found and serial given
-    if (rc >= 1 && serial != NULL) {
-        rc = ftdi_usb_open_desc(ftdic, VENDOR_ID, PRODUCT_ID, "FT240X USB FIFO", serial);
-        if (rc < 0) {
-            if(!isSuperUser()) {
-                *message = "Can't find Infinite Noise Multiplier.  Try running as super user?\n";
-	    } else { 
-                *message = "Can't find Infinite Noise Multiplier\n";
+            if (ftdi_usb_open(ftdic, VENDOR_ID, PRODUCT_ID) < 0) {
+                if(!isSuperUser()) {
+                    *message = "Can't open Infinite Noise Multiplier. Try running as super user?\n";
+                } else {
+                    *message = "Can't open Infinite Noise Multiplier\n";
+                }
+                return false;
+	    }
+	// serial specified
+        } else {
+            rc = ftdi_usb_open_desc(ftdic, VENDOR_ID, PRODUCT_ID, "FT240X USB FIFO", serial);
+            if (rc < 0) {
+                if(!isSuperUser()) {
+                    *message = "Can't find Infinite Noise Multiplier. Try running as super user?\n";
+                } else {
+                    *message = "Can't find Infinite Noise Multiplier with given serial\n";
+//                    strcat(*message, serial);
+//                    strcat(*message, "\n");
+                }
+                return false;
 	    }
         }
-//	printf("connected");
     }
 
     // Set high baud rate
