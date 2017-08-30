@@ -149,6 +149,9 @@ fall below the watermark, and after that writes another 512 bits anyway.
 This means it runs at full speed when needed, and when not, it randomizes
 /dev/random once per second anyway.
 
+Sample init scripts are provided in `software/init_scripts` as a starting point
+for setting up system services using this approach.
+
 The other approach people use is rngd.  I had a poor experience with this
 program, so I do not use it.  In Ubuntu 14.04, I found that when I told it to
 use hardware sources, it also enabled the RDRAND instruction by default, which
