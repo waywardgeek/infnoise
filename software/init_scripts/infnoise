@@ -1,0 +1,12 @@
+#!/sbin/openrc-run
+
+description="infnoise - Feed entropy pool using the Infinite Noise TRNG"
+pidfile="/var/run/infnoise.pid"
+command="/usr/local/sbin/infnoise"
+command_args="--dev-random"
+start_stop_daemon_args="--make-pidfile --background"
+
+depend() {
+	before urandom
+	provide random
+}

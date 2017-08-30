@@ -1,0 +1,10 @@
+[Unit]
+Description=Infinite Noise
+
+[Service]
+Type=simple
+ExecStart=/usr/local/sbin/infnoise --dev-random
+
+[Install]
+WantedBy=multi-user.target
+
