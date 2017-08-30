@@ -12,12 +12,35 @@ and let it run for a while until you have as much random data in foo as you need
 
 The VisualStudio project for infnoise is in the infnoise/software/VisualStudio directory.
 
+Using prebuilt packages for Linux
+---------------------------------
+
+Precompiled binaries can be downloaded from the releases section of manuel-domke's fork:
+https://github.com/manuel-domke/infnoise/releases
+
+All packages are signed with the same PGP-Key (Key-ID: 0x4E730A3C) used for the repositories below. 
+
+Repositories for Ubuntu, Debian and Raspbian are also available. To add them follow this procedure:
+
+    $ wget -O - https://13-37.org/files/pubkey.gpg | sudo apt-key add -
+
+Available for Ubuntu ("xenial", "yakkety" and "zesty") and Debian ("wheezy", "jessie" and "stretch").
+Replace <DISTRO> with the specific distro you're using. 
+
+    $ echo "deb http://repo.13-37.org/ <DISTRO> main" | sudo tee /etc/apt/sources.list.d/infnoise.list
+    $ sudo apt-get update
+    $ sudo apt-get install infnoise
+
+Connect the Infinite Noise TRNG (if not already) and the service will be started via a udev rule.
+Check status of driver:
+    $ systemctl status infnoise
+
 Compiling the Driver for Linux
 ------------------------------
 
 The infnoise application reads random data from the Infinite Noise USB key and writes
 binary data to stdout.  To compile it, you will need to install the libftdi and libusb
-development libraries to compile infnoise.  In Ubuntu (probabliy also Debian), you can use
+development libraries to compile infnoise.  In Ubuntu (probably also Debian), you can use
 this command:
 
     $ sudo apt-get install libftdi-dev libusb-dev
@@ -52,6 +75,8 @@ Options are:
     --no-output - do not write random output data
     --daemon - run in the background. Output should be redirected to a file or the options should be used with --dev-random
     --pidfile <filename> - write the process ID to a file. If --daemon is used, it is the ID of the background process.
+    --serial <serial> - use Infinite Noise TRNG/FT240 with the given serial number (see --list-devices)
+    --list-devices - list available devices
 
 Note: The options --daemon and --pidfile are only implemented in the Linux version.
 
@@ -167,11 +192,13 @@ Udev rules
 
 This is thanks to user Abigail on github.  If you want to automatically feed
 random data into /dev/random when the TRNG is plugged in, you can ask Linux to
-do this by creating a file in etc/udev/rules.d.  Assuming you copied infnosie
-to /usr/local/bin, your udev file would like this:
+do this by creating a file in etc/udev/rules.d. 
+It relies on the systemd service "infnoise.service" provided under init_scripts, as udev is not designed to start long-running processes. 
 
-$ cat /etc/udev/rules.d/75-infnoise.rules
-ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", RUN+="/usr/local/bin/infnoise --dev-random --daemon"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", SYMLINK+="infnoise" 
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015" ,TAG+="systemd", ENV{SYSTEMD_WANTS}="infnoise.service"
+
+This also adds a symlink so the device removal can also be reacted on.
 
 I personally run the infnoise tool by hand from a bash shell, typically to test devices like this:
 
@@ -180,7 +207,7 @@ $ sudo ./infnoise --debug --no-output
 To avoid having to type 'sudo' each time, I created the following udev rules,
 which worked on my particular Ubuntu 14.04 based laptop:
 
-$ cat 30-infnoise.rules 
+$ cat 30-infnoise.rules
 SUBSYSTEM=="usb", ATTRS{idProduct}=="6015", ATTRS{idVendor}=="0403", GROUP="dialout", MODE="0664"
 
 Note that my username is in the dialout group.
