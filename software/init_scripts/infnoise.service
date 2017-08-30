@@ -1,10 +1,15 @@
 [Unit]
-Description=Infinite Noise
+Description=Wayward Geek InfNoise TRNG driver
 
 [Service]
-Type=simple
-ExecStart=/usr/local/sbin/infnoise --dev-random
+Type=forking
+WorkingDirectory=/tmp
+ExecStart=/usr/local/sbin/infnoise --dev-random --daemon --pidfile /var/run/infnoise.pid
+User=root
+Group=root
+Restart=no
+BindsTo=dev-infnoise.device
+After=dev-infnoise.device
 
 [Install]
 WantedBy=multi-user.target
-
