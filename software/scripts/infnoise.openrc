@@ -3,7 +3,8 @@
 PIDFILE=/run/infnoise.pid
 
 depend() {
-	need udev-settle
+	need udev-settle localmount
+	provide trng	# Support need/use trng in other scripts
 }
 
 start() {
