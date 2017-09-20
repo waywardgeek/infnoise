@@ -17,6 +17,9 @@
 #include "infnoise.h"
 #include "KeccakF-1600-interface.h"
 
+#define VEND_ID 0x0403
+#define PROD_ID 0x6015
+
 // Extract the INM output from the data received.  Basically, either COMP1 or COMP2
 // changes, not both, so alternate reading bits from them.  We get 1 INM bit of output
 // per byte read.  Feed bits from the INM to the health checker.  Return the expected
@@ -131,6 +134,7 @@ static bool listUSBDevices(struct ftdi_context *ftdic) {
 
     // search devices
     int rc = ftdi_usb_find_all(ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID);
+
     if (rc < 0) {
         if(!isSuperUser()) {
             fprintf(stderr, "Can't find Infinite Noise Multiplier.  Try running as super user?\n");
@@ -182,6 +186,7 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message, char *seri
         } else {
             // serial specified
             rc = ftdi_usb_open_desc(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID, INFNOISE_DESCRIPTION, serial);
+
             if (rc < 0) {
                 if(!isSuperUser()) {
                     *message = "Can't find Infinite Noise Multiplier. Try running as super user?\n";

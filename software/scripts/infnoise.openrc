@@ -1,0 +1,22 @@
+#!/sbin/openrc-run
+
+PIDFILE=/run/infnoise.pid
+
+depend() {
+	need udev-settle localmount
+	provide trng	# Support need/use trng in other scripts
+}
+
+start() {
+	ebegin "Starting infnoise"
+	/usr/local/sbin/infnoise --dev-random --daemon --pidfile $PIDFILE
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping infnoise"
+	kill `cat $PIDFILE`
+	RC=$?
+	rm -f $PIDFILE
+	eend $RC
+}
