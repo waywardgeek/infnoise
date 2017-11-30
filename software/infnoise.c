@@ -49,8 +49,8 @@ static uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf) {
 }
 
 // Write the bytes to either stdout, or /dev/random.
-static void outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom) {
-    if(!writeDevRandom) {
+static void outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, struct opt_struct *opts) {
+    if(!opts->devRandom) {
         if(fwrite(bytes, 1, length, stdout) != length) {
             fputs("Unable to write output from Infinite Noise Multiplier\n", stderr);
             exit(1);
@@ -67,16 +67,15 @@ static void outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool 
 // outputMultiplier is 0, we output only as many bits as we measure in entropy.
 // This allows a user to generate hundreds of MiB per second if needed, for use
 // as cryptogrpahic keys.
-static uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entropy, bool raw,
-        bool writeDevRandom, uint32_t outputMultiplier) {
+static uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entropy, struct opt_struct* opts) {
     //Use the lower of the measured entropy and the provable lower bound on
     //average entropy.
     if(entropy > inmExpectedEntropyPerBit*BUFLEN/INM_ACCURACY) {
         entropy = inmExpectedEntropyPerBit*BUFLEN/INM_ACCURACY;
     }
-    if(raw) {
+    if(opts->raw) {
         // In raw mode, we just output raw data from the INM.
-        outputBytes(bytes, BUFLEN/8u, entropy, writeDevRandom);
+        outputBytes(bytes, BUFLEN/8u, entropy, opts);
         return BUFLEN/8u;
     }
     // Note that BUFLEN has to be less than 1600 by enough to make the sponge secure,
@@ -88,14 +87,14 @@ static uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entr
     // Keccak-1600 uses 64-bit "lanes".
     KeccakAbsorb(keccakState, bytes, BUFLEN/64u);
     uint8_t dataOut[16u*8u];
-    if(outputMultiplier == 0u) {
+    if(opts->outputMultiplier == 0u) {
         // Output all the bytes of entropy we have
         KeccakExtract(keccakState, dataOut, (entropy + 63u)/64u);
-        outputBytes(dataOut, entropy/8u, entropy & 0x7u, writeDevRandom);
+        outputBytes(dataOut, entropy/8u, entropy & 0x7u, opts);
         return entropy/8u;
     }
     // Output 256*outputMultipler bytes.
-    uint32_t numBits = outputMultiplier*256u;
+    uint32_t numBits = opts->outputMultiplier*256u;
     uint32_t bytesWritten = 0u;
     while(numBits > 0u) {
         // Write up to 1024 bits at a time.
@@ -108,7 +107,7 @@ static uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entr
         if(entropyThisTime > 8u*bytesToWrite) {
             entropyThisTime = 8u*bytesToWrite;
         }
-        outputBytes(dataOut, bytesToWrite, entropyThisTime, writeDevRandom);
+        outputBytes(dataOut, bytesToWrite, entropyThisTime, opts);
         bytesWritten += bytesToWrite;
         numBits -= bytesToWrite*8u;
         entropy -= entropyThisTime;
@@ -116,7 +115,7 @@ static uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entr
             KeccakPermutation(keccakState);
         }
     }
-    if(bytesWritten != outputMultiplier*(256u/8u)) {
+    if(bytesWritten != opts->outputMultiplier*(256u/8u)) {
         fprintf(stderr, "Internal error outputing bytes\n");
         exit(1);
     }
@@ -232,6 +231,19 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message, char *seri
     return true;
 }
 
+static void initOpts(struct opt_struct *opts) {
+	opts->outputMultiplier = 0u;
+	opts->daemon =
+	opts->debug =
+	opts->devRandom =
+	opts->noOutput =
+	opts->listDevices =
+	opts->raw = false;
+
+	opts->pidFileName =
+	opts->serial = NULL;
+}
+
 // Return the differnece in the times as a double in microseconds.
 static double diffTime(struct timespec *start, struct timespec *end) {
     uint32_t seconds = end->tv_sec - start->tv_sec;
@@ -242,29 +254,22 @@ static double diffTime(struct timespec *start, struct timespec *end) {
 int main(int argc, char **argv)
 {
     struct ftdi_context ftdic;
-    bool raw = false;
-    bool debug = false;
-    bool writeDevRandom = false;
-    bool noOutput = false;
-    uint32_t outputMultiplier = 0u; // We output all the entropy when outputMultiplier == 0
+    struct opt_struct opts;
     int xArg;
     bool multiplierAssigned = false;
-    bool pidFile = false;
-    char *pidFileName = NULL;
-    char *serial = NULL;
-    bool runDaemon = false;
-    bool listDevices = false;
+
+    initOpts(&opts);
 
     // Process arguments
     for(xArg = 1; xArg < argc; xArg++) {
         if(!strcmp(argv[xArg], "--raw")) {
-            raw = true;
+            opts.raw = true;
         } else if(!strcmp(argv[xArg], "--debug")) {
-            debug = true;
+            opts.debug = true;
         } else if(!strcmp(argv[xArg], "--dev-random")) {
-            writeDevRandom = true;
+            opts.devRandom = true;
         } else if(!strcmp(argv[xArg], "--no-output")) {
-            noOutput = true;
+            opts.noOutput = true;
         } else if(!strcmp(argv[xArg], "--multiplier") && xArg+1 < argc) {
             xArg++;
             multiplierAssigned = true;
@@ -273,26 +278,25 @@ int main(int argc, char **argv)
                 fputs("Multiplier must be >= 0\n", stderr);
                 return 1;
             }
-            outputMultiplier = tmpOutputMult;
+            opts.outputMultiplier = tmpOutputMult;
         } else if(!strcmp(argv[xArg], "--pidfile")) {
             xArg++;
-            pidFileName = argv[xArg];
-            pidFile = true;
-            if(pidFileName == NULL || !strcmp("",pidFileName)) {
+            opts.pidFileName = argv[xArg];
+            if(opts.pidFileName == NULL || !strcmp("", opts.pidFileName)) {
                 fputs("--pidfile without file name\n", stderr);
                 return 1;
             }
         } else if(!strcmp(argv[xArg], "--serial")) {
             xArg++;
-            serial = argv[xArg];
-            if(serial == NULL || !strcmp("",serial)) {
+            opts.serial = argv[xArg];
+            if(opts.serial == NULL || !strcmp("",opts.serial)) {
                 fputs("--serial without value\n", stderr);
                 return 1;
             }
         } else if(!strcmp(argv[xArg], "--daemon")) {
-            runDaemon = true;
+            opts.daemon = true;
         } else if(!strcmp(argv[xArg], "--list-devices")) {
-            listDevices = true;
+            opts.listDevices = true;
         } else {
             fputs("Usage: infnoise [options]\n"
                             "Options are:\n"
@@ -310,21 +314,21 @@ int main(int argc, char **argv)
         }
     }
 
-    if(!multiplierAssigned && writeDevRandom) {
-        outputMultiplier = 2u; // Don't throw away entropy when writing to /dev/random unless told to do so
+    if(!multiplierAssigned && opts.devRandom) {
+        opts.outputMultiplier = 2u; // Don't throw away entropy when writing to /dev/random unless told to do so
     }
 
-    if (listDevices) {
+    if (opts.listDevices) {
 	listUSBDevices(&ftdic);
 	return 0;
     }
     // Optionally run in the background and optionally write a PID-file
-    startDaemon(runDaemon, pidFile, pidFileName);
+    startDaemon(&opts);
 
-    if(writeDevRandom) {
-        inmWriteEntropyStart(BUFLEN/8u, debug);
+    if(opts.devRandom) {
+        inmWriteEntropyStart(BUFLEN/8u, &opts);
     }
-    if(!inmHealthCheckStart(PREDICTION_BITS, DESIGN_K, debug)) {
+    if(!inmHealthCheckStart(PREDICTION_BITS, DESIGN_K, &opts)) {
         fputs("Can't intialize health checker\n", stderr);
         return 1;
     }
@@ -333,9 +337,9 @@ int main(int argc, char **argv)
     KeccakInitializeState(keccakState);
 
     char *message;
-    if(!initializeUSB(&ftdic, &message, serial)) {
+    if(!initializeUSB(&ftdic, &message, opts.serial)) {
         // Sometimes have to do it twice - not sure why
-        if(!initializeUSB(&ftdic, &message, serial)) {
+        if(!initializeUSB(&ftdic, &message, opts.serial)) {
             fputs(message, stderr);
             return 1;
         }
@@ -368,10 +372,10 @@ int main(int argc, char **argv)
         if(us <= MAX_MICROSEC_FOR_SAMPLES) {
             uint8_t bytes[BUFLEN/8u];
             uint32_t entropy = extractBytes(bytes, inBuf);
-            if(!noOutput && inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
+            if(!opts.noOutput && inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
                 uint64_t prevTotalBytesWritten = totalBytesWritten;
-                totalBytesWritten += processBytes(keccakState, bytes, entropy, raw, writeDevRandom, outputMultiplier);
-                if(debug && (1u << 20u)*(totalBytesWritten/(1u << 20u)) > (1u << 20u)*(prevTotalBytesWritten/(1u << 20u))) {
+                totalBytesWritten += processBytes(keccakState, bytes, entropy, &opts);
+                if(opts.debug && (1u << 20u)*(totalBytesWritten/(1u << 20u)) > (1u << 20u)*(prevTotalBytesWritten/(1u << 20u))) {
                     fprintf(stderr, "Output %lu bytes\n", (unsigned long)totalBytesWritten);
                 }
             }

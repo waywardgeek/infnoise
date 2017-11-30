@@ -24,11 +24,11 @@ static bool writePid(int32_t pid, char *fileName) {
     return true;
 }
 
-void startDaemon(bool daemon, bool pidFile, char *fileName) {
-	if(!daemon) {
+void startDaemon(struct opt_struct* opts) {
+	if(!opts->daemon) {
 		// No backgrounding, optionslly write current PID
-		if(pidFile) {
-			writePid(getpid(), fileName);
+		if(opts->pidFileName != NULL) {
+			writePid(getpid(), opts->pidFileName);
 		}
 		return;
 	}
@@ -38,8 +38,8 @@ void startDaemon(bool daemon, bool pidFile, char *fileName) {
 		exit(1);
 	} else if(pid > 0) {
 		// Parent
-		if(pidFile) {
-			if(!writePid(pid, fileName)) {
+		if(opts->pidFileName != NULL) {
+			if(!writePid(pid, opts->pidFileName)) {
 				exit(1);
 			}
 		}

@@ -91,11 +91,11 @@ static void resetStats(void) {
 // Initialize the health check.  N is the number of bits used to predict the next bit.
 // At least 8 bits must be used, and no more than 30.  In general, we should use bits
 // large enough so that INM output will be uncorrelated with bits N samples back in time.
-bool inmHealthCheckStart(uint8_t N, double K, bool debug) {
+bool inmHealthCheckStart(uint8_t N, double K, struct opt_struct *opts) {
     if(N < 1u || N > 30u) {
         return false;
     }
-    inmDebug = debug;
+    inmDebug = opts->debug;
     inmNumBitsOfEntropy = 0u;
     inmCurrentProbability = 1.0;
     inmK = K;

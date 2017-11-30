@@ -40,9 +40,9 @@ static uint32_t readNumberFromFile(char *fileName) {
 }
 
 // Open /dev/random
-void inmWriteEntropyStart(uint32_t bufLen, bool debug) {
+void inmWriteEntropyStart(uint32_t bufLen, struct opt_struct* opts) {
     inmBufLen = bufLen;
-    inmDebug = debug;
+    inmDebug = opts->debug;
     //inmDevRandomFD = open("/dev/random", O_WRONLY);
     inmDevRandomFD = open("/dev/random", O_RDWR);
     if(inmDevRandomFD < 0) {

@@ -30,7 +30,20 @@
 // All data bus bits of the FT240X are outputs, except COMP1 and COMP2
 #define MASK (0xffu & ~(1u << COMP1) & ~(1u << COMP2))
 
-bool inmHealthCheckStart(uint8_t N, double K, bool debug);
+// Structure for parsed command line options
+struct opt_struct {
+	uint32_t outputMultiplier; // We output all the entropy when outputMultiplier == 0
+	bool daemon;		// Run as daemon?
+	bool debug;		// Print debugging info?
+	bool devRandom;		// Feed /dev/random?
+	bool noOutput;		// Supress output?
+	bool listDevices;	// List possible USB-devices?
+	bool raw;		// No whitening?
+	char *pidFileName;	// Name of optional PID-file
+	char *serial;		// Name of selected device
+};
+
+bool inmHealthCheckStart(uint8_t N, double K, struct opt_struct *opts);
 void inmHealthCheckStop(void);
 bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even);
 bool inmHealthCheckOkToUseData(void);
@@ -39,11 +52,11 @@ double inmHealthCheckEstimateEntropyPerBit(void);
 uint32_t inmGetEntropyLevel(void);
 void inmClearEntropyLevel(void);
 bool inmEntropyOnTarget(uint32_t entropy, uint32_t bits);
-void inmWriteEntropyStart(uint32_t bufLen, bool debug);
+void inmWriteEntropyStart(uint32_t bufLen, struct opt_struct *opts);
 void inmWriteEntropyToPool(uint8_t *bytes, uint32_t length, uint32_t entropy);
 void inmWaitForPoolToHaveRoom(void);
 void inmDumpStats(void);
-void startDaemon(bool daemon, bool pidFile, char *fileName);
+void startDaemon(struct opt_struct *opts);
 bool isSuperUser(void);
 
 extern double inmK, inmExpectedEntropyPerBit;
