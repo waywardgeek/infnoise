@@ -54,7 +54,7 @@ void inmClearEntropyLevel(void);
 bool inmEntropyOnTarget(uint32_t entropy, uint32_t bits);
 void inmWriteEntropyStart(uint32_t bufLen, struct opt_struct *opts);
 void inmWriteEntropyToPool(uint8_t *bytes, uint32_t length, uint32_t entropy);
-void inmWaitForPoolToHaveRoom(void);
+void inmWaitForPoolToHaveRoom(struct opt_struct *opts);
 void inmDumpStats(void);
 void startDaemon(struct opt_struct *opts);
 bool isSuperUser(void);
