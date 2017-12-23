@@ -140,7 +140,7 @@ static bool listUSBDevices(struct ftdi_context *ftdic) {
         }
     }
     for (curdev = devlist; curdev != NULL; i++) {
-	printf("Device: %d, ", i);
+        printf("Device: %d, ", i);
         rc = ftdi_usb_get_strings(ftdic, curdev->dev, manufacturer, 128, description, 128, serial, 128);
         if (rc < 0) {
             if (!isSuperUser()) {
@@ -149,7 +149,7 @@ static bool listUSBDevices(struct ftdi_context *ftdic) {
             fprintf(stderr, "ftdi_usb_get_strings failed: %d (%s)\n", rc, ftdi_get_error_string(ftdic));
 	    return false;
        	}
-	printf("Manufacturer: %s, Description: %s, Serial: %s\n", manufacturer, description, serial);
+        printf("Manufacturer: %s, Description: %s, Serial: %s\n", manufacturer, description, serial);
        	curdev = curdev->next;
     }
     return true;
