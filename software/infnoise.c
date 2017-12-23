@@ -136,20 +136,23 @@ static bool listUSBDevices(struct ftdi_context *ftdic) {
     int rc = ftdi_usb_find_all(ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID);
 
     if (rc < 0) {
-        if(!isSuperUser()) {
+        if (!isSuperUser()) {
             fprintf(stderr, "Can't find Infinite Noise Multiplier.  Try running as super user?\n");
         } else {
             fprintf(stderr, "Can't find Infinite Noise Multiplier\n");
         }
     }
     for (curdev = devlist; curdev != NULL; i++) {
-       	printf("Checking device: %d\n", i);
+	printf("Device: %d, ", i);
         rc = ftdi_usb_get_strings(ftdic, curdev->dev, manufacturer, 128, description, 128, serial, 128);
         if (rc < 0) {
+            if (!isSuperUser()) {
+                fprintf(stderr, "Can't find Infinite Noise Multiplier.  Try running as super user?\n");
+            }
             fprintf(stderr, "ftdi_usb_get_strings failed: %d (%s)\n", rc, ftdi_get_error_string(ftdic));
 	    return false;
        	}
-        printf("Manufacturer: %s, Description: %s, Serial: %s\n\n", manufacturer, description, serial);
+	printf("Manufacturer: %s, Description: %s, Serial: %s\n", manufacturer, description, serial);
        	curdev = curdev->next;
     }
     return true;
@@ -171,9 +174,9 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message, char *seri
     // only one found, or no serial given
     if (rc >= 0) {
 	if (serial == NULL) {
-            // only one found, or no serial given
-            if (rc >= 1) {
-		fprintf(stderr,"Multiple Infnoise TRNGs found. No serial specfified, so using the first one");
+            // more than one found AND no serial given
+            if (rc >= 2) {
+		fprintf(stderr,"Multiple Infnoise TRNGs found and serial not specified, using the first one!");
             }
             if (ftdi_usb_open(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID) < 0) {
                 if(!isSuperUser()) {
