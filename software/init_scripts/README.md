@@ -8,5 +8,8 @@ Should someone create distribution packages for infnoise in future, hopefully th
 
 - `infnoise`: OpenRC, tested in Gentoo, untested in Alpine Linux, FreeBSD, TrueOS
 - `infnoise.conf`: Upstart, tested in Ubuntu 14.04, 16.04 (requires upstart install)
-- `infnoise.service`: Systemd, untested in Redhat, Ubuntu etc
+- `infnoise.service`: Systemd, works for CentOS, Ubuntu, Debian, ArchLinux
+- `infnoise.service.bin`: Same as infnoise.service, binary path = /usr/bin/
+- `infnoise.service.sbin`: Same as infnoise.service, binary path = /usr/sbin/
+- `75-infnoise.rules`: udev rule to be used together with the systemd service
 
