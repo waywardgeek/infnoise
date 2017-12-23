@@ -17,9 +17,6 @@
 #include "infnoise.h"
 #include "KeccakF-1600-interface.h"
 
-#define VEND_ID 0x0403
-#define PROD_ID 0x6015
-
 // Extract the INM output from the data received.  Basically, either COMP1 or COMP2
 // changes, not both, so alternate reading bits from them.  We get 1 INM bit of output
 // per byte read.  Feed bits from the INM to the health checker.  Return the expected
@@ -176,7 +173,7 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message, char *seri
 	if (serial == NULL) {
             // more than one found AND no serial given
             if (rc >= 2) {
-		fprintf(stderr,"Multiple Infnoise TRNGs found and serial not specified, using the first one!");
+		fprintf(stderr,"Multiple Infnoise TRNGs found and serial not specified, using the first one!\n");
             }
             if (ftdi_usb_open(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID) < 0) {
                 if(!isSuperUser()) {
