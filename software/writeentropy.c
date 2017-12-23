@@ -40,9 +40,9 @@ static uint32_t readNumberFromFile(char *fileName) {
 }
 
 // Open /dev/random
-void inmWriteEntropyStart(uint32_t bufLen, bool debug) {
+void inmWriteEntropyStart(uint32_t bufLen, struct opt_struct* opts) {
     inmBufLen = bufLen;
-    inmDebug = debug;
+    inmDebug = opts->debug;
     //inmDevRandomFD = open("/dev/random", O_WRONLY);
     inmDevRandomFD = open("/dev/random", O_RDWR);
     if(inmDevRandomFD < 0) {
@@ -61,7 +61,7 @@ void inmWriteEntropyStart(uint32_t bufLen, bool debug) {
 }
 
 // Block until either the entropy pool has room, or 1 second has passed.
-void inmWaitForPoolToHaveRoom(void) {
+void inmWaitForPoolToHaveRoom(struct opt_struct *opts) {
     int ent_count;
     struct pollfd pfd = {
         .fd = inmDevRandomFD,
@@ -72,6 +72,8 @@ void inmWaitForPoolToHaveRoom(void) {
         return;
     }
     timeout_msec = 1000u; // One second
+    if (opts->daemon)
+	timeout_msec *= 60u; // Do not poll aggressively when in the background
     poll(&pfd, 1, timeout_msec);
 }
 
