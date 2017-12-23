@@ -6,7 +6,7 @@ After=dev-infnoise.device
 [Service]
 Type=forking
 WorkingDirectory=/tmp
-ExecStart=/usr/local/sbin/infnoise --dev-random --daemon --pidfile /var/run/infnoise.pid
+ExecStart=/usr/sbin/infnoise --dev-random --daemon --pidfile /var/run/infnoise.pid
 User=root
 Group=root
 Restart=always

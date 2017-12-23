@@ -4,9 +4,16 @@ Scripts in this folder are for use in systems where the Infnoise hardware is alw
 
 Should someone create distribution packages for infnoise in future, hopefully these will help!
 
+## RPM, DEB and ArchLinux packages
+The prebuilt packages availble for .rpm and .deb based distros described in the [README](../README.md) are built using a combination of a systemd unit and udev rules 
+which start the service when the Infinite Noise TRNG is connected and also stops it immediately on disconnect.
+
 ## Contents
 
-- `infnoise`: OpenRC, tested in Gentoo, untested in Alpine Linux, FreeBSD, TrueOS
+- `infnoise.gentoo.openrc`: OpenRC, tested in Gentoo, untested in Alpine Linux, FreeBSD, TrueOS
+- `infnoise.openrc`: OpenRC, ?
 - `infnoise.conf`: Upstart, tested in Ubuntu 14.04, 16.04 (requires upstart install)
-- `infnoise.service`: Systemd, untested in Redhat, Ubuntu etc
-
+- `infnoise.service`: Systemd, works for CentOS, Ubuntu, Debian, ArchLinux
+- `infnoise.service.bin`: Same as infnoise.service, binary path = /usr/bin/
+- `infnoise.service.sbin`: Same as infnoise.service, binary path = /usr/sbin/
+- `75-infnoise.rules`: udev rule to be used together with the systemd service
