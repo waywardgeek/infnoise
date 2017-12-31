@@ -317,19 +317,19 @@ int main(int argc, char **argv)
 
     // read environment variables, not overriding command line options
     if (opts.serial == NULL) {
-	if (getenv("INFNOISE_SERIAL") != NULL) {
+        if (getenv("INFNOISE_SERIAL") != NULL) {
             opts.serial = getenv("INFNOISE_SERIAL");
         }
     }
 
     if (multiplierAssigned == false) {
-	if (getenv("INFNOISE_MULTIPLIER") != NULL) {
+        if (getenv("INFNOISE_MULTIPLIER") != NULL) {
             int tmpOutputMult = atoi(getenv("INFNOISE_MULTIPLIER"));
             if (tmpOutputMult < 0) {
                 fputs("Multiplier must be >= 0\n", stderr);
                 return 1;
             }
-	    multiplierAssigned = true;
+            multiplierAssigned = true;
             opts.outputMultiplier = tmpOutputMult;
         }
     }
