@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <time.h>
 #include <ftdi.h>
@@ -290,8 +291,8 @@ int main(int argc, char **argv)
             xArg++;
             opts.serial = argv[xArg];
             if(opts.serial == NULL || !strcmp("",opts.serial)) {
-		opts.serial = NULL;
                 fputs("WARNING: --serial without value\n", stderr);
+		return 1;
             }
         } else if(!strcmp(argv[xArg], "--daemon")) {
             opts.daemon = true;
@@ -314,6 +315,25 @@ int main(int argc, char **argv)
         }
     }
 
+    // read environment variables, not overriding command line options
+    if (opts.serial == NULL) {
+	if (getenv("INFNOISE_SERIAL") != NULL) {
+            opts.serial = getenv("INFNOISE_SERIAL");
+        }
+    }
+
+    if (multiplierAssigned == false) {
+	if (getenv("INFNOISE_MULTIPLIER") != NULL) {
+            int tmpOutputMult = atoi(getenv("INFNOISE_MULTIPLIER"));
+            if (tmpOutputMult < 0) {
+                fputs("Multiplier must be >= 0\n", stderr);
+                return 1;
+            }
+	    multiplierAssigned = true;
+            opts.outputMultiplier = tmpOutputMult;
+        }
+    }
+
     if(!multiplierAssigned && opts.devRandom) {
         opts.outputMultiplier = 2u; // Don't throw away entropy when writing to /dev/random unless told to do so
     }
@@ -322,6 +342,7 @@ int main(int argc, char **argv)
 	listUSBDevices(&ftdic);
 	return 0;
     }
+
     // Optionally run in the background and optionally write a PID-file
     startDaemon(&opts);
 
