@@ -1,0 +1,7 @@
+# systemd configuration file for the Infinite Noise TRNG
+
+INFNOISE_MULTIPLIER=1
+# keccak multiplier, default = 1
+
+INFNOISE_SERIAL=
+# serial number of device, default: ""

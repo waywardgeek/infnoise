@@ -4,9 +4,10 @@ BindsTo=dev-infnoise.device
 After=dev-infnoise.device
 
 [Service]
+EnvironmentFile=/etc/infnoise.conf
 Type=forking
 WorkingDirectory=/tmp
-ExecStart=/usr/sbin/infnoise --dev-random --daemon --pidfile /var/run/infnoise.pid
+ExecStart=/usr/sbin/infnoise --dev-random --daemon --pidfile /var/run/infnoise.pid --multiplier ${INFNOISE_MULTIPLIER} --serial ${INFNOISE_SERIAL}
 User=root
 Group=root
 Restart=always

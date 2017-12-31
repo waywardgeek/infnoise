@@ -14,6 +14,7 @@ which start the service when the Infinite Noise TRNG is connected and also stops
 - `infnoise.openrc`: OpenRC, ?
 - `infnoise.conf`: Upstart, tested in Ubuntu 14.04, 16.04 (requires upstart install)
 - `infnoise.service`: Systemd, works for CentOS, Ubuntu, Debian, ArchLinux
-- `infnoise.service.bin`: Same as infnoise.service, binary path = /usr/bin/
-- `infnoise.service.sbin`: Same as infnoise.service, binary path = /usr/sbin/
+- `infnoise.service.bin`: Same as infnoise.service, binary path = /usr/bin/ - uses config file from /etc/infnoise.conf
+- `infnoise.service.sbin`: Same as infnoise.service, binary path = /usr/sbin/ - uses config file from /etc/infnoise.conf
+- `infnoise.conf.systemd`: Config file for the systemd service, to set multiplier and serial number of device
 - `75-infnoise.rules`: udev rule to be used together with the systemd service

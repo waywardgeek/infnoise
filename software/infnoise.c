@@ -290,8 +290,8 @@ int main(int argc, char **argv)
             xArg++;
             opts.serial = argv[xArg];
             if(opts.serial == NULL || !strcmp("",opts.serial)) {
-                fputs("--serial without value\n", stderr);
-                return 1;
+		opts.serial = NULL;
+                fputs("WARNING: --serial without value\n", stderr);
             }
         } else if(!strcmp(argv[xArg], "--daemon")) {
             opts.daemon = true;
