@@ -53,7 +53,7 @@ static void outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, struc
             exit(1);
         }
     } else {
-        inmWaitForPoolToHaveRoom(opts);
+        inmWaitForPoolToHaveRoom();
         inmWriteEntropyToPool(bytes, length, entropy);
     }
 }
