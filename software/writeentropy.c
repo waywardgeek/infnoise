@@ -60,21 +60,17 @@ void inmWriteEntropyStart(uint32_t bufLen, struct opt_struct* opts) {
     }
 }
 
-// Block until either the entropy pool has room, or 1 second has passed.
-void inmWaitForPoolToHaveRoom(struct opt_struct *opts) {
+// Block until either the entropy pool has room, or 1 minute has passed.
+void inmWaitForPoolToHaveRoom() {
     int ent_count;
     struct pollfd pfd = {
         .fd = inmDevRandomFD,
         .events = POLLOUT,
     };
-    int64_t timeout_msec;
     if (ioctl(inmDevRandomFD, RNDGETENTCNT, &ent_count) == 0 && (uint32_t)ent_count < inmFillWatermark) {
         return;
     }
-    timeout_msec = 1000u; // One second
-    if (opts->daemon)
-	timeout_msec *= 60u; // Do not poll aggressively when in the background
-    poll(&pfd, 1, timeout_msec);
+    poll(&pfd, 1, 1000u * 60u); // One minute
 }
 
 // Add the bytes to the entropy pool.  This can be unwhitenened, but the estimated bits of
