@@ -1,0 +1,12 @@
+# systemd configuration file for the Infinite Noise TRNG
+
+#INFNOISE_MULTIPLIER=10
+# keccak multiplier, default = 1
+
+#INFNOISE_SERIAL=DO0032ZA
+# serial number of device, default: ""
+# use infnoise --list-devices to find out your serial number
+
+#INFNOISE_DEBUG=true 
+# debug mode, default: false
+# debug logging to syslog

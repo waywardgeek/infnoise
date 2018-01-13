@@ -4,6 +4,7 @@ BindsTo=dev-infnoise.device
 After=dev-infnoise.device
 
 [Service]
+EnvironmentFile=/etc/infnoise.conf
 Type=forking
 WorkingDirectory=/tmp
 ExecStart=/usr/sbin/infnoise --dev-random --daemon --pidfile /var/run/infnoise.pid

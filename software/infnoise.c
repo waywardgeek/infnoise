@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <time.h>
 #include <ftdi.h>
@@ -90,6 +91,7 @@ static uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entr
         outputBytes(dataOut, entropy/8u, entropy & 0x7u, opts);
         return entropy/8u;
     }
+
     // Output 256*outputMultipler bytes.
     uint32_t numBits = opts->outputMultiplier*256u;
     uint32_t bytesWritten = 0u;
@@ -314,6 +316,33 @@ int main(int argc, char **argv)
         }
     }
 
+    // read environment variables, not overriding command line options
+    if (opts.serial == NULL) {
+        if (getenv("INFNOISE_SERIAL") != NULL) {
+            opts.serial = getenv("INFNOISE_SERIAL");
+        }
+    }
+
+    if (opts.debug == false) {
+        if (getenv("INFNOISE_DEBUG") != NULL) {
+            if (!strcmp("true",getenv("INFNOISE_DEBUG"))) {
+                opts.debug = true;
+            }
+        }
+    }
+
+    if (multiplierAssigned == false) {
+        if (getenv("INFNOISE_MULTIPLIER") != NULL) {
+            int tmpOutputMult = atoi(getenv("INFNOISE_MULTIPLIER"));
+            if (tmpOutputMult < 0) {
+                fputs("Multiplier must be >= 0\n", stderr);
+                return 1;
+            }
+            multiplierAssigned = true;
+            opts.outputMultiplier = tmpOutputMult;
+        }
+    }
+
     if(!multiplierAssigned && opts.devRandom) {
         opts.outputMultiplier = 2u; // Don't throw away entropy when writing to /dev/random unless told to do so
     }
@@ -322,12 +351,14 @@ int main(int argc, char **argv)
 	listUSBDevices(&ftdic);
 	return 0;
     }
+
     // Optionally run in the background and optionally write a PID-file
     startDaemon(&opts);
 
     if(opts.devRandom) {
         inmWriteEntropyStart(BUFLEN/8u, &opts);
     }
+
     if(!inmHealthCheckStart(PREDICTION_BITS, DESIGN_K, &opts)) {
         fputs("Can't intialize health checker\n", stderr);
         return 1;
