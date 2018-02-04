@@ -1,4 +1,5 @@
-###Infinite Noise TRNG (True Random Number Generator)
+
+### Infinite Noise TRNG (True Random Number Generator)
 
 For instructions for compiling the and using Infinite Noise TRNG driver, go to the software
 sub-directory, and read the [README](software/README) file there.  Both Linux and Windows
