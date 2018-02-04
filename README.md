@@ -1,4 +1,4 @@
-﻿##Infinite Noise TRNG (True Random Number Generator)
+###Infinite Noise TRNG (True Random Number Generator)
 
 For instructions for compiling the and using Infinite Noise TRNG driver, go to the software
 sub-directory, and read the [README](software/README) file there.  Both Linux and Windows
@@ -37,9 +37,17 @@ version called [the Redoubler](https://github.com/alwynallan/redoubler), which
 is awesome.  It really is the _right_ way to generate random bits, whether on a
 board with standard parts, or on an custom chip.
 
+### Crowdsupply campaign
+
+![Infinite Noise Crowdsupply campaign](images/infinite-noise-crowdsupply.jpg?raw=true "Infinite Noise Crowdsupply campaign.")
+
+With the aid of crowdfunding, the Infinite Noise will soon be produced (again)! The campaign is driven by Manuel Domke, founder of a fresh electronics manufacturing company called 13-37.org electronics. 
+
+[Check the Crowdsupply project page for latest updates](https://www.crowdsupply.com/13-37/infinite-noise-trng)
+
 ### The Eagle open-source boards work!
 
-Here is the first completed Infinite Noise USB key.  I offered this modle on
+Here is the first completed Infinite Noise USB key.  I offered this model on
 Tindie to help get the modular entropy multiplier concept out there initially.
 
 ![Picture of Infinite Noise USB key](images/infnoise_key.jpg?raw=true "Infinite Noise USB key")
