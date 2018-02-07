@@ -38,13 +38,13 @@ version called [the Redoubler](https://github.com/alwynallan/redoubler), which
 is awesome.  It really is the _right_ way to generate random bits, whether on a
 board with standard parts, or on an custom chip.
 
-### Crowdsupply campaign
+### Crowd Supply campaign
 
-![Infinite Noise Crowdsupply campaign](images/infinite-noise-crowdsupply.jpg?raw=true "Infinite Noise Crowdsupply campaign.")
+![Infinite Noise Crowd Supply campaign](images/infinite-noise-crowdsupply.jpg?raw=true "Infinite Noise Crowdsupply campaign.")
 
 With the aid of crowdfunding, the Infinite Noise will soon be produced (again)! The campaign is driven by Manuel Domke, founder of a fresh electronics manufacturing company called 13-37.org electronics. 
 
-[Check the Crowdsupply project page for latest updates](https://www.crowdsupply.com/13-37/infinite-noise-trng)
+[Check the Crowd Supply project page for latest updates](https://www.crowdsupply.com/13-37/infinite-noise-trng)
 
 ### The Eagle open-source boards work!
 
