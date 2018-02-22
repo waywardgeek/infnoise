@@ -2,9 +2,9 @@
 
 ## Test results
 
-These test results were produced with 25MiB 
-(200.000.000 bits) of random numbers from the device,
-resulting in 10.000 FIPS blocks with 20.000 bit each.
+These test results were produced with 250MiB 
+(2.000.000.000 bits) of random numbers from the device,
+resulting in 100.000 FIPS blocks with 20.000 bit each.
 
 ### Output speed
 |Multiplier/Mode|raw|whitened (SHA-3)|/dev/random|
@@ -15,20 +15,21 @@ resulting in 10.000 FIPS blocks with 20.000 bit each.
 |             100 |    -     | 2,25 MiB/s | 20,9 KiB/s  |
 |            1000 |    -     | 17,2 MiB/s | 14,0 KiB/s  |
 |           10000 |    -     | 68,3 MiB/s | 4,21 KiB/s  |
-* 
+
+(*) with an Intel i7-4558U CPU @ 2.80GHz.
 
 ### FIPS Tests
 
-| Multiplier/Mode | raw  | whitened | /dev/random | Whitened (%fail) | /dev/random (% fail) |
-|-----------------|------|----------|-------------|------------------|----------------------|
-|               0 | 9999 |        6 |           6 |             0,06 |                 0,06 |
-|               1 |   -  |        6 |          13 |             0,06 |                 0,13 |
-|              10 |   -  |        6 |           8 |             0,06 |                 0,08 |
-|             100 |   -  |        0 |           6 |                0 |                 0,06 |
-|            1000 |   -  |        6 |          13 |             0,06 |                 0,13 |
-|           10000 |   -  |       14 |           8 |             0,14 |                 0,08 |
+| Multiplier/Mode | raw  | failed blocks (SHA-3) | failed blocks /dev/random |
+|-----------------|------|--------------|--------------|
+|               0 | 9999 | 70 (0,07 %)  | 81 (0,08 %)  |
+|               1 |   -  | 78 (0,08 %)  | 73 (0,07 %)  |
+|              10 |   -  | 87 (0,09 %)  | 89 (0,09 %)  |
+|             100 |   -  | 87 (0,09 %)  | 95 (0,1 %)    |
+|            1000 |   -  | 78  (0,08 %)  | 73 (0,07 %)   |
+|           10000 |   -  | 74  (0,07 %)  | 86  (0,09 %)  |
 
-* The percentage of failed FIPS blocks should always remain at < 0,2%. 
+* The percentage of failed FIPS blocks should always remain at < 0,1%. 
 While the Infinite Noise TRNG driver is active, it ensures the entropy is within 
 the expected levels, so once you've confirmed your device works within its specs,
 it won't change its behaviour. 
