@@ -52,10 +52,10 @@ The tests can be run with the script "runtests.sh" - as root!
 The output directory will be created automatically.
 
 In the header of the script, you can define the test parameters:
-
+```
 declare -a TEST_KBYTES=('25000')
 declare -a TEST_MULTIPLIERS=('0' '1' '10' '100' '1000' '10000')
-
+```
 Tests are run for each combination of these parameters. 
 
 A full test run takes almost 2 days, this is only due to /dev/random 
