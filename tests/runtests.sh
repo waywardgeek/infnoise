@@ -32,8 +32,8 @@ do
 		dieharder -a -f results/data/raw-$kbytes\K.out > results/raw-$kbytes\K-dieharder.txt
 	fi
 	if [ $GRAPHS -eq 1 ] ; then
-		python colormap.py results/data/raw-$kbytes\K.out &
-		python scatterplot.py results/data/raw-$kbytes\K.out &
+		python plots/colormap.py results/data/raw-$kbytes\K.out &
+		python plots/scatterplot.py results/data/raw-$kbytes\K.out &
 		mv results/data/raw-$kbytes\K.out-colormap.png results/plots/
 		mv results/data/raw-$kbytes\K.out-scatter.png results/plots/
 	fi
@@ -55,8 +55,8 @@ do
 			dieharder -a -f results/data/whitened-$multiplier-$kbytes\K.out > results/whitened-$multiplier-$kbytes\K-dieharder.txt
 		fi
 		if [ $GRAPHS -eq 1 ] ; then
-			python colormap.py results/data/whitened-$multiplier-$kbytes\K.out &
-			python scatterplot.py results/data/whitened-$multiplier-$kbytes\K.out &
+			python plots/colormap.py results/data/whitened-$multiplier-$kbytes\K.out &
+			python plots/scatterplot.py results/data/whitened-$multiplier-$kbytes\K.out &
 			mv results/data/whitened-$multiplier-$kbytes\K.out-colormap.png results/plots/
 			mv results/data/whitened-$multiplier-$kbytes\K.out-scatter.png results/plots/
 		fi
@@ -82,8 +82,8 @@ do
 			dieharder -a -f results/data/devrandom-$multiplier-$kbytes\K.out > results/devrandom-$multiplier-$kbytes\K-dieharder.txt
 		fi
 		if [ $GRAPHS -eq 1 ] ; then
-			python colormap.py results/data/devrandom-$multiplier-$kbytes\K.out &
-			python scatterplot.py results/data/devrandom-$multiplier-$kbytes\K.out &
+			python plots/colormap.py results/data/devrandom-$multiplier-$kbytes\K.out &
+			python plots/scatterplot.py results/data/devrandom-$multiplier-$kbytes\K.out &
 			mv results/data/devrandom-$multiplier-$kbytes\K.out-colormap.png results/plots/
 			mv results/data/devrandom-$multiplier-$kbytes\K.out-scatter.png results/plots/
 		fi
