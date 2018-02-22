@@ -47,12 +47,15 @@ Make sure you have the following tools installed:
 
 In the header of the script, you can define the test parameters:
 ```
-declare -a TEST_KBYTES=('250000')
+declare -a TEST_KBYTES=('25000')
 declare -a TEST_MULTIPLIERS=('0' '1' '10' '100' '1000' '10000')
 ```
-Tests are run for each combination of these parameters. 
+A full test run like this with 25MiB takes almost 2 days, mostly because of /dev/random 
+tests with a multiplier of zero.
 
-The tests can be run with the script "runtests.sh":
+This is why by default it performs a reduced run which takes only 1-2 hours.
+
+Tests are run for each combination of these parameters and can be started by running runtests.sh:
 ```
 $ git clone https://github.com/manuel-domke/infnoise
 $ cd tests
@@ -60,13 +63,8 @@ $ sudo ./runtests.sh
 ```
 The output directories will be created automatically.
 
-A full test run with 25MiB takes almost 2 days, mostly because of /dev/random 
-tests with a multiplier of zero.
-
-The reduced run, as configured by default takes only 1-2 hours.
-
 ## Files and Directories:
-This shows the structure created by a test run:
+Directory structure created by a test run:
 
 	- results: 
 	  - <testcase>-<multiplier>-<kbytes>-dieharder.txt
