@@ -14,6 +14,7 @@ DIEHARDER=1
 GRAPHS=1
 
 mkdir -p results/data
+mkdir -p results/plots
 
 for kbytes in "${TEST_KBYTES[@]}"
 do
