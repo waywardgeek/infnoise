@@ -4,7 +4,7 @@
 
 These test results were produced with 250MiB 
 (2.000.000.000 bits) of random numbers from the device,
-resulting in 100.000 FIPS blocks with 20.000 bit each.
+resulting in 100.000 FIPS blocks with 20.000 bit each - and took two weeks.
 
 ### Output speed
 |Multiplier/Mode|raw|whitened (SHA-3)|/dev/random|
@@ -29,11 +29,7 @@ resulting in 100.000 FIPS blocks with 20.000 bit each.
 |            1000 |   -  | 78  (0,08 %)  | 73 (0,07 %)   |
 |           10000 |   -  | 74  (0,07 %)  | 86  (0,09 %)  |
 
-* The percentage of failed FIPS blocks should always remain at < 0,1%. 
-While the Infinite Noise TRNG driver is active, it ensures the entropy is within 
-the expected levels, so once you've confirmed your device works within its specs,
-it won't change its behaviour. 
-Its been designed to stop output if unexpected behaviour occurs.
+* The percentage of failed FIPS blocks should always remain below 0,1%. 
 
 ## Run your own tests
 
@@ -48,22 +44,30 @@ Make sure you have the following tools installed:
 - python (numpy, matplotlib)
 - infnoise driver
 
-The tests can be run with the script "runtests.sh" - as root! 
-The output directory will be created automatically.
 
 In the header of the script, you can define the test parameters:
 ```
-declare -a TEST_KBYTES=('25000')
+declare -a TEST_KBYTES=('250000')
 declare -a TEST_MULTIPLIERS=('0' '1' '10' '100' '1000' '10000')
 ```
 Tests are run for each combination of these parameters. 
 
-A full test run takes almost 2 days, this is only due to /dev/random 
-tests with multiplier 0. Thats why this test is disabled by default.
+The tests can be run with the script "runtests.sh":
+```
+$ git clone https://github.com/manuel-domke/infnoise
+$ cd tests
+$ sudo ./runtests.sh
+```
+The output directories will be created automatically.
+
+A full test run with 25MiB takes almost 2 days, mostly because of /dev/random 
+tests with a multiplier of zero.
 
 The reduced run, as configured by default takes only 1-2 hours.
 
 ## Files and Directories:
+This shows the structure created by a test run:
+
 	- results: 
 	  - <testcase>-<multiplier>-<kbytes>-dieharder.txt
 	  - <testcase>-<multiplier>-<kbytes>-ent.txt
