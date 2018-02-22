@@ -67,9 +67,10 @@ The reduced run, as configured by default takes only 1-2 hours.
 	  - <testcase>-<multiplier>-<kbytes>-dieharder.txt
 	  - <testcase>-<multiplier>-<kbytes>-ent.txt
 	  - <testcase>-<multiplier>-<kbytes>-rngtest.txt
+	  - plots:
+	    - <testcase>-<multiplier>-<kbytes>K.out-colormap.png: 	square distribution
+	    - <testcase>-<multiplier>-<kbytes>K.out-scatterplot.png:	scatter plots
 	  - data:
 	    - <testcase>-<multiplier>-<kbytes>K.log: 			log output of the infnoise utility
 	    - <testcase>-<multiplier>-<kbytes>K-pv.log: 		log output of pv
 	    - <testcase>-<multiplier>-<kbytes>K.out:			random data produced in the test run
-	    - <testcase>-<multiplier>-<kbytes>K.out-colormap.png: 	square distribution
-	    - <testcase>-<multiplier>-<kbytes>K.out-scatterplot.png:	scatter plots
