@@ -7,29 +7,26 @@ These test results were produced with 25MiB
 resulting in 10.000 FIPS blocks with 20.000 bit each.
 
 ### Output speed
-+-----------------+----------+------------+-------------+
-| Multiplier/Mode |   raw    | whitened   | /dev/random |
-+-----------------+----------+------------+-------------+
+|Multiplier/Mode|raw|whitened (SHA-3)|/dev/random|
+|----|----|----|----|
 |               0 | 50 KiB/s | 42,5 KiB/s | 0,3  KiB/s  |
 |               1 |    -     | 25   KiB/s | 14,0 KiB/s  |
 |              10 |    -     | 250  KiB/s | 23   KiB/s  |
 |             100 |    -     | 2,25 MiB/s | 20,9 KiB/s  |
 |            1000 |    -     | 17,2 MiB/s | 14,0 KiB/s  |
 |           10000 |    -     | 68,3 MiB/s | 4,21 KiB/s  |
-+-----------------+----------+------------+-------------+
-* CPU: Intel 
+* 
 
 ### FIPS Tests
-+-----------------+------+----------+-------------+------------------+----------------------+
+
 | Multiplier/Mode | raw  | whitened | /dev/random | Whitened (%fail) | /dev/random (% fail) |
-+-----------------+------+----------+-------------+------------------+----------------------+
+|-----------------|------|----------|-------------|------------------|----------------------|
 |               0 | 9999 |        6 |           6 |             0,06 |                 0,06 |
 |               1 |   -  |        6 |          13 |             0,06 |                 0,13 |
 |              10 |   -  |        6 |           8 |             0,06 |                 0,08 |
 |             100 |   -  |        0 |           6 |                0 |                 0,06 |
 |            1000 |   -  |        6 |          13 |             0,06 |                 0,13 |
 |           10000 |   -  |       14 |           8 |             0,14 |                 0,08 |
-+-----------------+------+----------+-------------+------------------+----------------------+
 
 * The percentage of failed FIPS blocks should always remain at < 0,2%. 
 While the Infinite Noise TRNG driver is active, it ensures the entropy is within 
