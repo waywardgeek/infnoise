@@ -101,8 +101,8 @@ modular entropy multiplier come out to $0.97.
 
 Cor van Wandelen was kind enough to create these scatter plots showing the non-randomness
 in the raw output.
-![color plot of raw data](plots/infnoise-raw.bin-colormap.png?raw=true "Color plot")
-![scatter plot of raw data](plots/infnoise-raw-notraw-scatter.gif?raw=true "Scatter plot")
+![color plot of raw data](tests/plots/infnoise-raw.bin-colormap.png?raw=true "Color plot")
+![scatter plot of raw data](tests/plots/infnoise-raw-notraw-scatter.gif?raw=true "Scatter plot")
 
 Here is a faster version that uses a more expensive op-amp from TI:
 
