@@ -5,13 +5,46 @@ service rng-tools stop
 
 echo "4096" > /proc/sys/kernel/random/write_wakeup_threshold
 
-declare -a TEST_KBYTES=('25000')
-declare -a TEST_MULTIPLIERS=('1' '10' '100' '1000' '10000') # be careful with multiplier of 0 - tests with /dev/random take over a day.
+declare -a TEST_KBYTES=('1000')
+declare -a TEST_MULTIPLIERS=('0' '1' '10' '100' '1000' '10000') # be careful with multiplier of 0 - tests with /dev/random take over a day.
 
 RNGTEST=1
 ENT=1
 DIEHARDER=1
 GRAPHS=1
+
+function checkCommand {
+	$1 $2 >/dev/null
+	if [ $? -ne 0 ]; then
+		echo "$1 not installed. Exiting.."
+		exit 1
+	fi
+}
+
+function checkPythonModule {
+	python -c "import $1" >/dev/null
+	if [ $? -ne 0 ]; then
+		echo "python module $1 not installed. Exiting.."
+		exit 1
+	fi
+}
+
+checkCommand "pv" "-h"
+checkCommand "infnoise" "-h"
+if [ $RNGTEST -eq 1 ] ; then
+	checkCommand "rngtest" "--help"
+fi
+if [ $ENT -eq 1 ] ; then
+	checkCommand "ent" "-u"
+fi
+if [ $DIEHARDER -eq 1 ] ; then
+	checkCommand "dieharder"
+fi
+if [ $GRAPHS -eq 1 ] ; then
+	checkCommand "python" "-h"
+	checkPythonModule "numpy"
+	checkPythonModule "matplotlib"
+fi
 
 mkdir -p results/data
 mkdir -p results/plots
