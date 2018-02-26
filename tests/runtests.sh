@@ -5,8 +5,8 @@ service rng-tools stop
 
 echo "4096" > /proc/sys/kernel/random/write_wakeup_threshold
 
-declare -a TEST_KBYTES=('1000')
-declare -a TEST_MULTIPLIERS=('0' '1' '10' '100' '1000' '10000') # be careful with multiplier of 0 - tests with /dev/random take over a day.
+declare -a TEST_KBYTES=('25000')
+declare -a TEST_MULTIPLIERS=('1' '10' '100' '1000' '10000') # be careful with multiplier of 0 - tests with /dev/random take over a day.
 
 RNGTEST=1
 ENT=1
@@ -27,6 +27,14 @@ function checkPythonModule {
 		echo "python module $1 not installed. Exiting.."
 		exit 1
 	fi
+}
+
+function makePlots {
+		python plots/colormap.py $1 &
+		python plots/scatterplot.py $1 &
+		sleep 3
+		mv results/data/$1-colormap.png results/plots/
+		mv results/data/$1-scatter.png results/plots/
 }
 
 checkCommand "pv" "-h"
@@ -65,10 +73,7 @@ do
 		dieharder -a -f results/data/raw-$kbytes\K.out > results/raw-$kbytes\K-dieharder.txt
 	fi
 	if [ $GRAPHS -eq 1 ] ; then
-		python plots/colormap.py results/data/raw-$kbytes\K.out &
-		python plots/scatterplot.py results/data/raw-$kbytes\K.out &
-		mv results/data/raw-$kbytes\K.out-colormap.png results/plots/
-		mv results/data/raw-$kbytes\K.out-scatter.png results/plots/
+		makePlots "results/data/raw-$kbytes\K.out"
 	fi
 	echo "---"
 
@@ -88,10 +93,7 @@ do
 			dieharder -a -f results/data/whitened-$multiplier-$kbytes\K.out > results/whitened-$multiplier-$kbytes\K-dieharder.txt
 		fi
 		if [ $GRAPHS -eq 1 ] ; then
-			python plots/colormap.py results/data/whitened-$multiplier-$kbytes\K.out &
-			python plots/scatterplot.py results/data/whitened-$multiplier-$kbytes\K.out &
-			mv results/data/whitened-$multiplier-$kbytes\K.out-colormap.png results/plots/
-			mv results/data/whitened-$multiplier-$kbytes\K.out-scatter.png results/plots/
+			makePlots "results/data/whitened-$multiplier-$kbytes\K.out"
 		fi
 		echo "---"
 
@@ -115,10 +117,7 @@ do
 			dieharder -a -f results/data/devrandom-$multiplier-$kbytes\K.out > results/devrandom-$multiplier-$kbytes\K-dieharder.txt
 		fi
 		if [ $GRAPHS -eq 1 ] ; then
-			python plots/colormap.py results/data/devrandom-$multiplier-$kbytes\K.out &
-			python plots/scatterplot.py results/data/devrandom-$multiplier-$kbytes\K.out &
-			mv results/data/devrandom-$multiplier-$kbytes\K.out-colormap.png results/plots/
-			mv results/data/devrandom-$multiplier-$kbytes\K.out-scatter.png results/plots/
+			makePlots "results/data/devrandom-$multiplier-$kbytes\K.out"
 		fi
 		echo "---"
 	done
