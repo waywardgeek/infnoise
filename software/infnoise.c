@@ -187,7 +187,6 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message, char *seri
         } else {
             // serial specified
             rc = ftdi_usb_open_desc(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID, INFNOISE_DESCRIPTION, serial);
-
             if (rc < 0) {
                 if(!isSuperUser()) {
                     *message = "Can't find Infinite Noise Multiplier. Try running as super user?\n";
@@ -241,7 +240,8 @@ static void initOpts(struct opt_struct *opts) {
 	opts->noOutput =
 	opts->listDevices =
 	opts->raw = false;
-
+	opts->help = false;
+	opts->none = false;
 	opts->pidFileName =
 	opts->serial = NULL;
 }
@@ -299,7 +299,15 @@ int main(int argc, char **argv)
             opts.daemon = true;
         } else if(!strcmp(argv[xArg], "--list-devices")) {
             opts.listDevices = true;
+        } else if(!strcmp(argv[xArg], "--help") || !strcmp(argv[xArg], "-h")) {
+            opts.help = true;
         } else {
+            opts.help = true;
+	    opts.none = true;
+        }
+    }
+
+    if (opts.help) {
             fputs("Usage: infnoise [options]\n"
                             "Options are:\n"
                             "    --debug - turn on some debug output\n"
@@ -311,10 +319,15 @@ int main(int argc, char **argv)
                             "    --pidfile <file> - write process ID to file\n"
                             "    --daemon - run in the background\n"
                             "    --serial <serial> - use specified device\n"
-                            "    --list-devices - list available devices\n", stderr);
+                            "    --list-devices - list available devices\n"
+                            "    --help - this help output\n", stdout);
+	if (opts.none) {
             return 1;
+        } else {
+            return 0;
         }
     }
+
 
     // read environment variables, not overriding command line options
     if (opts.serial == NULL) {
