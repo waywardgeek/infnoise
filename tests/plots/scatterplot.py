@@ -2,8 +2,13 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
 
-filename='infnoise.bin'
+if sys.argv[1]:
+        filename=sys.argv[1]
+else:
+        filename='infnoise.bin'
+
 
 bp = np.dtype([('byte1',np.uint8),('byte2',np.uint8)]) # 'struct' byte pairs
 
