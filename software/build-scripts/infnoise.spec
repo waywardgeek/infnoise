@@ -1,6 +1,6 @@
 Name:           infnoise
 Version:        __VERSION__
-Release:        0
+Release:        __RELEASE__
 Summary:        Infinite Noise TRNG
 Group:          Applications/Security
 License:        GPL

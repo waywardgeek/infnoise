@@ -3,6 +3,10 @@
 VERSION=`git --no-pager describe --tags --always | cut -d'-' -f1`
 PKGREL=`git --no-pager describe --tags --always | cut -d'-' -f2`
 
+if [ $VERSION == $PKGREL ]; then # this is a release
+	PKGREL=0
+fi
+
 # x86_64
 mkdir -p x86_64
 cd x86_64
