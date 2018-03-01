@@ -22,7 +22,7 @@ resulting in 100.000 FIPS blocks with 20.000 bit each - and took two weeks.
 
 | Multiplier/Mode | raw  | failed blocks (SHA-3) | failed blocks /dev/random |
 |-----------------|------|--------------|--------------|
-|               0 | 9999 | 70 (0,07 %)  | 81 (0,08 %)  |
+|               0 | 99999| 70 (0,07 %)  | 81 (0,08 %)  |
 |               1 |   -  | 78 (0,08 %)  | 73 (0,07 %)  |
 |              10 |   -  | 87 (0,09 %)  | 89 (0,09 %)  |
 |             100 |   -  | 87 (0,09 %)  | 95 (0,1 %)    |
@@ -43,7 +43,6 @@ Make sure you have the following tools installed:
 - pv
 - python (numpy, matplotlib)
 - infnoise driver
-
 
 In the header of the script, you can define the test parameters:
 ```
