@@ -299,7 +299,7 @@ int main(int argc, char **argv)
             opts.daemon = true;
         } else if(!strcmp(argv[xArg], "--list-devices")) {
             opts.listDevices = true;
-        } else if(!strcmp(argv[xArg], "--version")) {
+        } else if(!strcmp(argv[xArg], "--version") || !strcmp(argv[xArg], "-v")) {
             opts.version = true;
         } else if(!strcmp(argv[xArg], "--help") || !strcmp(argv[xArg], "-h")) {
             opts.help = true;
