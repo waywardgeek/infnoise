@@ -22,5 +22,6 @@ cd x86
 cp ../build-scripts/PKGBUILD.arch PKGBUILD
 cp ../build-scripts/INSTALL.arch INSTALL
 echo "pkgver=$VERSION" >> PKGBUILD
+echo "pkgrel=$PKGREL" >> PKGBUILD
 echo "arch=('i686')" >> PKGBUILD
 makechrootpkg -r /x86 -U jenkins -- --sign --key 975DC25C4E730A3C

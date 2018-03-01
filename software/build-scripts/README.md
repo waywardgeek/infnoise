@@ -1,9 +1,13 @@
-these scripts need to be copied to the software directory to be used.
+The scripts need to be copied to the software directory to be used.
 
-currently creating packages of the following:
+Currently creating packages of the following:
 - DEB (Debian, Ubuntu, Raspbian)
 - RPM (CentOS, Fedora)
 - ArchLinux
 
-These are signed and made available at the repository:
+The packages get signed afterwards and made available as Github releases 
+and this repository:
+
+
+
 
