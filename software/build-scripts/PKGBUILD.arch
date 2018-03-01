@@ -1,6 +1,5 @@
-# Maintainer: Manuel Domke <info@manuel-domke.de>
+# Maintainer: Manuel Domke <info@13-37.org>
 pkgname=infnoise
-pkgrel=1
 pkgdesc='Infinite Noise TRNG'
 license=('open')
 url='https://github.com/manuel-domke/infnoise'

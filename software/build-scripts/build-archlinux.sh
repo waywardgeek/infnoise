@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VERSION=`git --no-pager describe --tags --always | cut -d'-' -f0`
-PKGREL=`git --no-pager describe --tags --always | cut -d'-' -f1`
+VERSION=`git --no-pager describe --tags --always | cut -d'-' -f1`
+PKGREL=`git --no-pager describe --tags --always | cut -d'-' -f2`
 
 # x86_64
 mkdir -p x86_64
