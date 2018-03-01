@@ -299,6 +299,8 @@ int main(int argc, char **argv)
             opts.daemon = true;
         } else if(!strcmp(argv[xArg], "--list-devices")) {
             opts.listDevices = true;
+        } else if(!strcmp(argv[xArg], "--version") || !strcmp(argv[xArg], "-v")) {
+            opts.version = true;
         } else if(!strcmp(argv[xArg], "--help") || !strcmp(argv[xArg], "-h")) {
             opts.help = true;
         } else {
@@ -320,6 +322,7 @@ int main(int argc, char **argv)
                             "    --daemon - run in the background\n"
                             "    --serial <serial> - use specified device\n"
                             "    --list-devices - list available devices\n"
+                            "    --version - show version information\n"
                             "    --help - this help output\n", stdout);
 	if (opts.none) {
             return 1;
@@ -358,6 +361,14 @@ int main(int argc, char **argv)
 
     if(!multiplierAssigned && opts.devRandom) {
         opts.outputMultiplier = 2u; // Don't throw away entropy when writing to /dev/random unless told to do so
+    }
+
+    if (opts.version) {
+	printf("GIT VERSION - %s\n", GIT_VERSION);
+	printf("GIT COMMIT  - %s\n", GIT_COMMIT);
+	printf("GIT DATE    - %s\n", GIT_DATE);
+	printf("BUILD DATE  - %s\n", BUILD_DATE);
+	return 0;
     }
 
     if (opts.listDevices) {
