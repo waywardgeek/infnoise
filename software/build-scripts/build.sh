@@ -31,6 +31,6 @@ fi
 
 # debuild -b -uc -us
 dpkg -b build/ infnoise_${VERSION}_${ARCH}.deb
-debuild -uc -us
+#debbuild -uc -us
 
 rm -r build
