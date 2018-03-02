@@ -240,6 +240,7 @@ static void initOpts(struct opt_struct *opts) {
 	opts->noOutput =
 	opts->listDevices =
 	opts->raw = false;
+	opts->version = false;
 	opts->help = false;
 	opts->none = false;
 	opts->pidFileName =
