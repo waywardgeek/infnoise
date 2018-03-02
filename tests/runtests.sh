@@ -13,6 +13,47 @@ ENT=1
 DIEHARDER=1
 GRAPHS=1
 
+function checkCommand {
+	$1 $2 >/dev/null
+	if [ $? -ne 0 ]; then
+		echo "$1 not installed. Exiting.."
+		exit 1
+	fi
+}
+
+function checkPythonModule {
+	python -c "import $1" >/dev/null
+	if [ $? -ne 0 ]; then
+		echo "python module $1 not installed. Exiting.."
+		exit 1
+	fi
+}
+
+function makePlots {
+		python plots/colormap.py $1 &
+		python plots/scatterplot.py $1 &
+		sleep 3
+		mv results/data/$1-colormap.png results/plots/
+		mv results/data/$1-scatter.png results/plots/
+}
+
+checkCommand "pv" "-h"
+checkCommand "infnoise" "-h"
+if [ $RNGTEST -eq 1 ] ; then
+	checkCommand "rngtest" "--help"
+fi
+if [ $ENT -eq 1 ] ; then
+	checkCommand "ent" "-u"
+fi
+if [ $DIEHARDER -eq 1 ] ; then
+	checkCommand "dieharder"
+fi
+if [ $GRAPHS -eq 1 ] ; then
+	checkCommand "python" "-h"
+	checkPythonModule "numpy"
+	checkPythonModule "matplotlib"
+fi
+
 mkdir -p results/data
 mkdir -p results/plots
 
@@ -32,10 +73,7 @@ do
 		dieharder -a -f results/data/raw-$kbytes\K.out > results/raw-$kbytes\K-dieharder.txt
 	fi
 	if [ $GRAPHS -eq 1 ] ; then
-		python plots/colormap.py results/data/raw-$kbytes\K.out &
-		python plots/scatterplot.py results/data/raw-$kbytes\K.out &
-		mv results/data/raw-$kbytes\K.out-colormap.png results/plots/
-		mv results/data/raw-$kbytes\K.out-scatter.png results/plots/
+		makePlots "results/data/raw-$kbytes\K.out"
 	fi
 	echo "---"
 
@@ -55,10 +93,7 @@ do
 			dieharder -a -f results/data/whitened-$multiplier-$kbytes\K.out > results/whitened-$multiplier-$kbytes\K-dieharder.txt
 		fi
 		if [ $GRAPHS -eq 1 ] ; then
-			python plots/colormap.py results/data/whitened-$multiplier-$kbytes\K.out &
-			python plots/scatterplot.py results/data/whitened-$multiplier-$kbytes\K.out &
-			mv results/data/whitened-$multiplier-$kbytes\K.out-colormap.png results/plots/
-			mv results/data/whitened-$multiplier-$kbytes\K.out-scatter.png results/plots/
+			makePlots "results/data/whitened-$multiplier-$kbytes\K.out"
 		fi
 		echo "---"
 
@@ -82,10 +117,7 @@ do
 			dieharder -a -f results/data/devrandom-$multiplier-$kbytes\K.out > results/devrandom-$multiplier-$kbytes\K-dieharder.txt
 		fi
 		if [ $GRAPHS -eq 1 ] ; then
-			python plots/colormap.py results/data/devrandom-$multiplier-$kbytes\K.out &
-			python plots/scatterplot.py results/data/devrandom-$multiplier-$kbytes\K.out &
-			mv results/data/devrandom-$multiplier-$kbytes\K.out-colormap.png results/plots/
-			mv results/data/devrandom-$multiplier-$kbytes\K.out-scatter.png results/plots/
+			makePlots "results/data/devrandom-$multiplier-$kbytes\K.out"
 		fi
 		echo "---"
 	done

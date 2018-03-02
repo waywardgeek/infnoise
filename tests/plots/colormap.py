@@ -2,9 +2,13 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
 from matplotlib import cm
 
-filename='infnoise.bin'
+if sys.argv[1]:
+	filename=sys.argv[1]
+else:
+	filename='infnoise.bin'
 
 nx = 1000
 ny = 1000
@@ -25,4 +29,4 @@ cbar = plt.colorbar(cax, ticks=[255, 127, 0])
 cbar.ax.set_yticklabels(['255', '127', '0'])
 
 plt.savefig(filename + '-colormap.png')
-plt.show() 
+plt.show()

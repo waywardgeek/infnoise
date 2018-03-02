@@ -1,0 +1,9 @@
+post_install() {
+systemctl enable infnoise
+systemctl restart systemd-udevd
+}
+
+pre_remove() {
+systemctl disable infnoise
+systemctl restart systemd-udevd
+}

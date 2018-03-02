@@ -1,0 +1,21 @@
+# Maintainer: Manuel Domke <info@13-37.org>
+pkgname=infnoise
+pkgdesc='Infinite Noise TRNG'
+license=('open')
+url='https://github.com/manuel-domke/infnoise'
+depends=('libftdi-compat')
+makedepends=()
+source=('git+https://github.com/manuel-domke/infnoise.git')
+md5sums=('SKIP')
+install='INSTALL'
+build() {
+  cd "${srcdir}/infnoise/software/"
+  make
+}
+
+package() {
+  install -Dvm755 "${srcdir}/infnoise/software/infnoise" "${pkgdir}/usr/bin/infnoise"
+  install -Dvm644 "${srcdir}/infnoise/software/init_scripts/75-infnoise.rules" "${pkgdir}/etc/udev/rules.d/75-infnoise.rules"
+  install -Dvm644 "${srcdir}/infnoise/software/init_scripts/infnoise.conf.systemd" "${pkgdir}/etc/infnoise.conf"
+  install -Dvm644 "${srcdir}/infnoise/software/init_scripts/infnoise.service.bin" "${pkgdir}/etc/systemd/system/infnoise.service"
+}

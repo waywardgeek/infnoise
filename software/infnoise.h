@@ -38,7 +38,10 @@ struct opt_struct {
 	bool devRandom;		// Feed /dev/random?
 	bool noOutput;		// Supress output?
 	bool listDevices;	// List possible USB-devices?
+	bool help;		// Show help
+	bool none;		// set to true when no valid arguments where detected
 	bool raw;		// No whitening?
+	bool version;		// Show version
 	char *pidFileName;	// Name of optional PID-file
 	char *serial;		// Name of selected device
 };
