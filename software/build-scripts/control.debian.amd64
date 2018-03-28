@@ -1,9 +1,0 @@
-Package: infnoise
-Architecture: amd64
-Essential: no
-Section: security 
-Priority: optional
-Depends: libftdi1
-Maintainer: Manuel Domke
-Installed-Size: 12K
-Description: Infinite Noise TRNG driver.

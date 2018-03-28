@@ -10,10 +10,11 @@ make
 
 rm -rf build
 mkdir -p build/DEBIAN
-cp build-scripts/control.debian.$ARCH build/DEBIAN/control
+cp build-scripts/control.debian.tools build/DEBIAN/control
 cp build-scripts/infnoise.postinst build/DEBIAN/postinst
 chmod 775 build/DEBIAN/postinst
 echo "Version: $VERSION" >> build/DEBIAN/control
+echo "Architecture: $ARCH" >> build/DEBIAN/control
 
 mkdir -p build/usr/sbin/
 mkdir -p build/etc/udev/rules.d/
@@ -33,4 +34,26 @@ fi
 dpkg -b build/ infnoise_${VERSION}_${ARCH}.deb
 #debbuild -uc -us
 
-rm -r build
+### build infnoise-tools ###
+rm -rf build
+cd tools
+
+make
+
+cp passgen build/usr/bin/infnoise-passgen
+cp dice build/usr/bin/infnoise-dice
+cp entheck build/usr/bin/infnoise-entcheck
+cp healtcheck build/usr/bin/infnoise-healthcheck
+cp hex2bin build/usr/bin/infnoise-hex2bin
+cp bin2hex build/usr/bin/infnoise-bin2hex
+cp findlongest build/usr/bin/infnoise-findlongest
+cp flipbits build/usr/bin/infnoise-flipbits
+
+mkdir -p build/DEBIAN
+cp build-scripts/control.debian.tools build/DEBIAN/control
+echo "Version: $VERSION" >> build/DEBIAN/control
+echo "Architecture: $ARCH" >> build/DEBIAN/control
+
+dpkg -b build/ infnoise-tools_${VERSION}_${ARCH}.deb
+
+rm -rf build
