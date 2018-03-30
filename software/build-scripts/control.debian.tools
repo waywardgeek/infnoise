@@ -1,9 +1,8 @@
-Package: infnoise
-Architecture: armhf
+Package: infnoise-tools
 Essential: no
 Section: security 
+Depends: infnoise
 Priority: optional
-Depends: libftdi1
 Maintainer: Manuel Domke
 Installed-Size: 12K
-Description: Infinite Noise TRNG driver.
+Description: Infinite Noise TRNG tools

@@ -354,15 +354,33 @@ static inline bool computeRandBit(double *A, double K, double noiseAmplitude) {
     return updateA(A, K, noise);
 }
 
+static void initOpts(struct opt_struct *opts) {
+        opts->outputMultiplier = 0u;
+        opts->daemon =
+        opts->debug =
+        opts->devRandom =
+        opts->noOutput =
+        opts->listDevices =
+        opts->raw = false;
+        opts->version = false;
+        opts->help = false;
+        opts->none = false;
+        opts->pidFileName =
+        opts->serial = NULL;
+}
+
 int main() {
+    struct opt_struct opts;
+    initOpts(&opts);
     //double K = sqrt(2.0);
     double K = 1.82;
     uint8_t N = 16u;
-    inmHealthCheckStart(N, K, true);
+    inmHealthCheckStart(N, K, &opts);
     srand(time(NULL));
     double A = (double)rand()/RAND_MAX; // Simulating INM
     double noiseAmplitude = 1.0/(1u << 10);
     uint32_t i;
+
     for(i = 0u; i < 32u; i++) {
         // Throw away some initial bits.
         computeRandBit(&A, K, noiseAmplitude);
