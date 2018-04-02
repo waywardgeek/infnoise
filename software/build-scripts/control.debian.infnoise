@@ -1,5 +1,4 @@
 Package: infnoise
-Architecture: amd64
 Essential: no
 Section: security 
 Priority: optional
