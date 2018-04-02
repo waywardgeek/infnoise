@@ -10,7 +10,7 @@ make
 
 rm -rf build
 mkdir -p build/DEBIAN
-cp build-scripts/control.debian.tools build/DEBIAN/control
+cp build-scripts/control.debian.infnoise build/DEBIAN/control
 cp build-scripts/infnoise.postinst build/DEBIAN/postinst
 chmod 775 build/DEBIAN/postinst
 echo "Version: $VERSION" >> build/DEBIAN/control
