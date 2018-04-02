@@ -38,7 +38,7 @@ dpkg -b build/ infnoise_${VERSION}_${ARCH}.deb
 rm -rf build
 
 cd tools
-mkdir build
+mkdir -p build/usr/bin/
 
 make
 
