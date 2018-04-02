@@ -36,4 +36,10 @@ install -Dvm755 "tools/flipbits" "$RPM_BUILD_ROOT/usr/bin/infnoise-flipbits"
 
 %files
 %defattr(-,root,root)
-%{_bindir}/infnoise
+%{_bindir}/infnoise-passgen
+%{_bindir}/infnoise-dice
+%{_bindir}/infnoise-entcheck
+%{_bindir}/infnoise-hex2bin
+%{_bindir}/infnoise-bin2hex
+%{_bindir}/infnoise-findlongest
+%{_bindir}/infnoise-flipbits
