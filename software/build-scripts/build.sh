@@ -36,7 +36,9 @@ dpkg -b build/ infnoise_${VERSION}_${ARCH}.deb
 
 ### build infnoise-tools ###
 rm -rf build
+
 cd tools
+mkdir build
 
 make
 
