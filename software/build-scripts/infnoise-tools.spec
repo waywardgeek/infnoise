@@ -43,3 +43,4 @@ install -Dvm755 "tools/flipbits" "$RPM_BUILD_ROOT/usr/bin/infnoise-flipbits"
 %{_bindir}/infnoise-bin2hex
 %{_bindir}/infnoise-findlongest
 %{_bindir}/infnoise-flipbits
+%{_bindir}/infnoise-healthcheck
