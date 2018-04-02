@@ -44,15 +44,15 @@ make
 
 cp passgen build/usr/bin/infnoise-passgen
 cp dice build/usr/bin/infnoise-dice
-cp entheck build/usr/bin/infnoise-entcheck
-cp healtcheck build/usr/bin/infnoise-healthcheck
+cp entcheck build/usr/bin/infnoise-entcheck
+cp healthcheck build/usr/bin/infnoise-healthcheck
 cp hex2bin build/usr/bin/infnoise-hex2bin
 cp bin2hex build/usr/bin/infnoise-bin2hex
 cp findlongest build/usr/bin/infnoise-findlongest
 cp flipbits build/usr/bin/infnoise-flipbits
 
 mkdir -p build/DEBIAN
-cp build-scripts/control.debian.tools build/DEBIAN/control
+cp ../build-scripts/control.debian.tools build/DEBIAN/control
 echo "Version: $VERSION" >> build/DEBIAN/control
 echo "Architecture: $ARCH" >> build/DEBIAN/control
 
