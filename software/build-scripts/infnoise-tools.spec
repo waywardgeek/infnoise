@@ -22,14 +22,14 @@ make
 
 %install
 #make DESTDIR=$RPM_BUILD_ROOT install
-install -Dvm755 "passgen" "$RPM_BUILD_ROOT/usr/bin/infnoise-passgen"
-install -Dvm755 "dice" "$RPM_BUILD_ROOT/usr/bin/infnoise-dice"
-install -Dvm755 "healthcheck" "$RPM_BUILD_ROOT/usr/bin/infnoise-entcheck"
-install -Dvm755 "entcheck" "$RPM_BUILD_ROOT/usr/bin/infnoise-healthcheck"
-install -Dvm755 "hex2bin" "$RPM_BUILD_ROOT/usr/bin/infnoise-hex2bin"
-install -Dvm755 "bin2hex" "$RPM_BUILD_ROOT/usr/bin/infnoise-bin2hex"
-install -Dvm755 "findlongest" "$RPM_BUILD_ROOT/usr/bin/infnoise-findlongest"
-install -Dvm755 "flipbits" "$RPM_BUILD_ROOT/usr/bin/infnoise-flipbits"
+install -Dvm755 "tools/passgen" "$RPM_BUILD_ROOT/usr/bin/infnoise-passgen"
+install -Dvm755 "tools/dice" "$RPM_BUILD_ROOT/usr/bin/infnoise-dice"
+install -Dvm755 "tools/healthcheck" "$RPM_BUILD_ROOT/usr/bin/infnoise-entcheck"
+install -Dvm755 "tools/entcheck" "$RPM_BUILD_ROOT/usr/bin/infnoise-healthcheck"
+install -Dvm755 "tools/hex2bin" "$RPM_BUILD_ROOT/usr/bin/infnoise-hex2bin"
+install -Dvm755 "tools/bin2hex" "$RPM_BUILD_ROOT/usr/bin/infnoise-bin2hex"
+install -Dvm755 "tools/findlongest" "$RPM_BUILD_ROOT/usr/bin/infnoise-findlongest"
+install -Dvm755 "tools/flipbits" "$RPM_BUILD_ROOT/usr/bin/infnoise-flipbits"
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
