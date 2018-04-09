@@ -18,12 +18,12 @@ echo "Architecture: $ARCH" >> build/DEBIAN/control
 
 mkdir -p build/usr/sbin/
 mkdir -p build/etc/udev/rules.d/
-mkdir -p build/etc/systemd/system/
+mkdir -p build/lib/systemd/system/
 
 cp infnoise build/usr/sbin/
 cp init_scripts/infnoise.conf.systemd build/etc/infnoise.conf
 cp init_scripts/75-infnoise.rules build/etc/udev/rules.d/75-infnoise.rules
-cp init_scripts/infnoise.service.sbin build/etc/systemd/system/infnoise.service
+cp init_scripts/infnoise.service.sbin build/lib/systemd/system/infnoise.service
 
 if [ ! -e build/usr/sbin/infnoise ] ; then
 	echo "$2 binary missing"

@@ -26,6 +26,16 @@ install -Dvm644 "init_scripts/infnoise.conf.systemd" "$RPM_BUILD_ROOT/etc/infnoi
 install -Dvm644 "init_scripts/75-infnoise.rules" "$RPM_BUILD_ROOT/usr/lib/udev/rules.d/75-infnoise.rules"
 install -Dvm644 "init_scripts/infnoise.service.bin" "$RPM_BUILD_ROOT/usr/lib/systemd/system/infnoise.service"
 
+%post
+systemctl daemon-reload
+systemctl enable infnoise.service
+systemctl daemon-reload
+
+%preun
+systemctl stop infnoise.service >/dev/null 2>&1
+systemctl disable infnoise.service
+systemctl daemon-reload
+
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 
