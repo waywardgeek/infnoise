@@ -5,7 +5,6 @@
 
 #define INFNOISE_VENDOR_ID 0x0403
 #define INFNOISE_PRODUCT_ID 0x6015
-#define INFNOISE_DESCRIPTION "FT240X USB FIFO"
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -186,7 +185,7 @@ static bool initializeUSB(struct ftdi_context *ftdic, char **message, char *seri
 	    }
         } else {
             // serial specified
-            rc = ftdi_usb_open_desc(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID, INFNOISE_DESCRIPTION, serial);
+            rc = ftdi_usb_open_desc(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID, NULL, serial);
             if (rc < 0) {
                 if(!isSuperUser()) {
                     *message = "Can't find Infinite Noise Multiplier. Try running as super user?\n";

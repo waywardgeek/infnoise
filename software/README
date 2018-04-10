@@ -15,16 +15,27 @@ The VisualStudio project for infnoise is in the infnoise/software/VisualStudio d
 Using prebuilt packages for Linux
 ---------------------------------
 
-Precompiled binaries can be downloaded from the releases section of manuel-domke's fork:
-https://github.com/manuel-domke/infnoise/releases
+Precompiled binaries can be downloaded from the releases section of the 13-37.org fork:
+https://github.com/13-37.org/infnoise/releases
 
 All packages are signed with the same PGP-Key (Key-ID: 0x4E730A3C) used for the repositories below. 
+Full Fingerprint: 71AE 099B 262D C0B4 93E6 EE71 975D C25C 4E73 0A3C. You can also check the 
+fingerprints at 13-37.org/pgp-keys and in the Crowd Supply campaign.
 
 Repositories for Ubuntu, Debian and Raspbian are also available. To add them follow this procedure:
 
-    $ wget -O - https://13-37.org/files/pubkey.gpg | sudo apt-key add -
-
-Available for Ubuntu ("xenial", "yakkety" and "zesty") and Debian ("wheezy", "jessie" and "stretch").
+    $ wget -O 13-37.org-code.asc https://13-37.org/files/pubkey.gpg 
+    
+    Verify the keys fingerprint:
+    
+    # GPG1
+    $ gpg --with-fingerprints 13-37.org-code.asc
+    # GPG2:
+    $ gpg2 --import-options import-show --dry-run --import < 13-37.org-code.asc
+    
+    $ sudo apt-key add 13-37.org-code.gpg
+    
+Available for Ubuntu ("xenial", "zesty", "artful" and "bionic") and Debian ("wheezy", "jessie" and "stretch").
 Replace <DISTRO> with the specific distro you're using. 
 
     $ echo "deb http://repo.13-37.org/ <DISTRO> main" | sudo tee /etc/apt/sources.list.d/infnoise.list
