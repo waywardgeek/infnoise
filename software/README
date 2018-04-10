@@ -15,8 +15,8 @@ The VisualStudio project for infnoise is in the infnoise/software/VisualStudio d
 Using prebuilt packages for Linux
 ---------------------------------
 
-Precompiled binaries can be downloaded from the releases section of the 13-37.org fork:
-https://github.com/13-37.org/infnoise/releases
+Precompiled binaries can be downloaded from the releases section of the 13-37-org fork:
+https://github.com/13-37-org/infnoise/releases
 
 All packages are signed with the same PGP-Key (Key-ID: 0x4E730A3C) used for the repositories below. 
 Full Fingerprint: 71AE 099B 262D C0B4 93E6 EE71 975D C25C 4E73 0A3C. You can also check the 
