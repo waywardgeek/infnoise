@@ -153,17 +153,20 @@ int main(int argc, char **argv)
         struct inm_devlist *device_list;
         device_list = malloc(sizeof(struct inm_devlist));
 
-        if(!listUSBDevices(&ftdic, &device_list, &message)) {
+        if(!listUSBDevices(&ftdic, device_list, &message)) {
             fputs(message, stderr);
             return 1;
         }
 
+	// debug:
+        uint8_t i=0;
         struct inm_devlist_node *tmp;
         for ( tmp = device_list->head; tmp != NULL; tmp=tmp->next) {
             if (tmp->device->serial != NULL) {
                 printf("%s\n", tmp->device->serial);
             }
-            //tmp = tmp->next;
+            printf("%d\n", i);
+            i+=1;
         }
 	return 0;
     }
@@ -177,7 +180,8 @@ int main(int argc, char **argv)
     startDaemon(&opts);
 
     // initialize USB device and health check
-    if (initInfnoise(&ftdic, opts.serial, opts.debug) != true) {
+    if (initInfnoise(&ftdic, opts.serial, &message, opts.debug) != true) {
+        fputs(message, stderr);
         return 1; // ERROR (message still goes to stderr)
     }
 
@@ -190,18 +194,17 @@ int main(int argc, char **argv)
 
     uint64_t totalBytesWritten = 0u;
     while(true) {
-                uint64_t prevTotalBytesWritten = totalBytesWritten;
-		uint64_t bytesWritten = readData1(&ftdic, keccakState, result, opts.noOutput, opts.raw, opts.outputMultiplier, opts.devRandom);
-                //printf("%d", (uint8_t)opts.noOutput);
+        uint64_t prevTotalBytesWritten = totalBytesWritten;
+        uint64_t bytesWritten = readData_private(&ftdic, keccakState, result, &message, opts.noOutput, opts.raw, opts.outputMultiplier, opts.devRandom); // calling libinfnoise's private readData method
 
-		if (totalBytesWritten == (unsigned long)-1) {
-			return 1; // ERROR (message goes to stderr)
-		}
-                totalBytesWritten += bytesWritten;
-                if(opts.debug && (1u << 20u)*(totalBytesWritten/(1u << 20u)) > (1u << 20u)*(prevTotalBytesWritten/(1u << 20u))) {
-                    fprintf(stderr, "Output %lu bytes\n", (unsigned long)totalBytesWritten);
-                }
-
+        if (totalBytesWritten == (unsigned long)-1) {
+            fputs(message, stderr);
+            return 1;
+        }
+        totalBytesWritten += bytesWritten;
+        if(opts.debug && (1u << 20u)*(totalBytesWritten/(1u << 20u)) > (1u << 20u)*(prevTotalBytesWritten/(1u << 20u))) {
+            fprintf(stderr, "Output %lu bytes\n", (unsigned long)totalBytesWritten);
+        }
     }
     return 0;
 }

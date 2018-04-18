@@ -32,6 +32,8 @@
 // All data bus bits of the FT240X are outputs, except COMP1 and COMP2
 #define MASK (0xffu & ~(1u << COMP1) & ~(1u << COMP2))
 
+
+
 bool inmHealthCheckStart(uint8_t N, double K, bool debug);
 void inmHealthCheckStop(void);
 bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even);
@@ -53,5 +55,10 @@ double diffTime(struct timespec *start, struct timespec *end);
 uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf);
 void outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom);
 uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint8_t *result, uint32_t entropy, bool raw,
-        bool writeDevRandom, uint32_t outputMultiplier, bool noOutput);
+                      bool writeDevRandom, uint32_t outputMultiplier, bool noOutput);
+
+uint64_t readData_private(struct ftdi_context *ftdic, uint8_t *keccakState, uint8_t *result, char **message, 
+                          bool noOutput, bool raw, uint32_t outputMultiplier, bool devRandom);
+
+//void add_to_list(struct inm_devlist *list, struct infnoise_device *dev);
 

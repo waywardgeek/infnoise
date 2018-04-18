@@ -130,8 +130,8 @@ uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint8_t *result, uin
 	} else {
             // append data in result array until we have finished squeezing the keccak sponge
 	    // its important to have an result array of the approriate size: outputMultiplier*32
-            fprintf(stderr, "bytes written: %d\n", bytesWritten);
-            fprintf(stderr, "bytes to write: %d\n", bytesToWrite);
+            //fprintf(stderr, "bytes written: %d\n", bytesWritten);
+            //fprintf(stderr, "bytes to write: %d\n", bytesToWrite);
 
             //memcpy(result + bytesWritten, dataOut, bytesToWrite * sizeof(uint8_t)); //doesn't work
             // alternative: loop through dataOut and append array elements to result..
@@ -154,20 +154,20 @@ uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint8_t *result, uin
     fprintf(stderr, "bytes written: %d\n", bytesWritten);
     return bytesWritten;
 }
-
-
-void add_to_list(struct inm_devlist **list, struct infnoise_device **dev) {
+void add_to_list(struct inm_devlist *list, struct infnoise_device **dev) {
     struct inm_devlist_node *tmp = malloc(sizeof(struct inm_devlist_node ) );
     tmp->device = (*dev);
     printf("added serial1: %s\n", (*dev)->serial);
-    tmp->next = (*list)->head;
+    tmp->next = list->head;
     printf("added serial2: %s\n", tmp->device->serial);
-    (*list)->head = tmp;
-    printf("added serial3: %s\n", (*list)->head->device->serial);
+    list->head = tmp;
+    printf("added serial3: %s\n", list->head->device->serial);
 }
 
+
+
 // Return a list of all infinite noise multipliers found.
-bool listUSBDevices(struct ftdi_context *ftdic, struct inm_devlist **result, char** message) {
+bool listUSBDevices(struct ftdi_context *ftdic, struct inm_devlist *result, char** message) {
     ftdi_init(ftdic);
 
     struct ftdi_device_list *devlist;
@@ -211,22 +211,14 @@ bool listUSBDevices(struct ftdi_context *ftdic, struct inm_devlist **result, cha
         add_to_list(result, &result_dev);
 
     struct inm_devlist_node *tmp;
-    for ( tmp = (*result)->head; tmp != NULL; tmp=tmp->next) {
+    for ( tmp = result->head; tmp != NULL; tmp=tmp->next) {
         if (tmp->device->serial != NULL) {
             printf("%s\n", tmp->device->serial);
         }
            //tmp = tmp->next;
         }
-
        	curdev = curdev->next;
     }
-    struct inm_devlist_node *tmp;
-    for ( tmp = (*result)->head; tmp != NULL; tmp=tmp->next) {
-        if (tmp->device->serial != NULL) {
-            printf("%s\n", tmp->device->serial);
-        }
-           //tmp = tmp->next;
-        }
 
     return true;
 }
@@ -307,35 +299,39 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
 }
 
 
-uint64_t readRawData(struct ftdi_context *ftdic, uint8_t *result) {
-    return readData1(ftdic, NULL, result, false, true, 0, false);
+uint64_t readRawData(struct ftdi_context *ftdic, uint8_t *result, char **message) {
+    return readData_private(ftdic, NULL, result, message, false, true, 0, false);
 }
 
-uint64_t readData(struct ftdi_context *ftdic, uint8_t *keccakState, uint8_t *result, uint32_t outputMultiplier) {
-    return readData1(ftdic, keccakState, result, false, false, outputMultiplier, false);
+uint64_t readData(struct ftdi_context *ftdic, uint8_t *keccakState, uint8_t *result, char **message, uint32_t outputMultiplier) {
+    return readData_private(ftdic, keccakState, result, message, false, false, outputMultiplier, false);
 }
 
-uint64_t readData1(struct ftdi_context *ftdic, uint8_t *keccakState, uint8_t *result, bool noOutput, bool raw, uint32_t outputMultiplier, bool devRandom) {
-    // Endless loop: set SW1EN and SW2EN alternately
+uint8_t outBuf[BUFLEN];
+void prepareOutputBuffer() {
     uint32_t i;
-    uint8_t outBuf[BUFLEN], inBuf[BUFLEN];
+
+    // Endless loop: set SW1EN and SW2EN alternately
     for(i = 0u; i < BUFLEN; i++) {
         // Alternate Ph1 and Ph2
         outBuf[i] = i & 1?  (1 << SWEN2) : (1 << SWEN1);
     }
+}
 
+uint64_t readData_private(struct ftdi_context *ftdic, uint8_t *keccakState, uint8_t *result, char **message, bool noOutput, bool raw, uint32_t outputMultiplier, bool devRandom) {
+    uint8_t inBuf[BUFLEN];
     uint64_t totalBytesWritten = 0u;
     struct timespec start;
     clock_gettime(CLOCK_REALTIME, &start);
 
     // write clock signal
     if(ftdi_write_data(ftdic, outBuf, BUFLEN) != BUFLEN) {
-        fputs("USB write failed\n", stderr);
+        *message = "USB write failed";
         return -1;
     }
     // and read 512 byte from the internal buffer (in synchronous bitbang mode)
     if(ftdi_read_data(ftdic, inBuf, BUFLEN) != BUFLEN) {
-        fputs("USB read failed\n", stderr);
+        *message = "USB read failed";
         return -1;
     }
 
@@ -354,22 +350,18 @@ uint64_t readData1(struct ftdi_context *ftdic, uint8_t *keccakState, uint8_t *re
     return totalBytesWritten;
 }
 
-bool initInfnoise(struct ftdi_context *ftdic,char *serial, bool debug) {
-
-    //inmWriteEntropyStart(BUFLEN/8u, debug); // todo: create method in libinfnoise.h for this
-
+bool initInfnoise(struct ftdi_context *ftdic,char *serial, char **message, bool debug) {
+    prepareOutputBuffer();
     // initialize health check
     if (!inmHealthCheckStart(PREDICTION_BITS, DESIGN_K, debug)) {
-        fputs("Can't initialize health checker\n", stderr);
+        *message="Can't initialize health checker";
         return false;
     }
 
     // initialize USB
-    char *message;
-    if(!initializeUSB(ftdic, &message, serial)) {
+    if(!initializeUSB(ftdic, message, serial)) {
         // Sometimes have to do it twice - not sure why
-        if(!initializeUSB(ftdic, &message, serial)) {
-            fputs(message, stderr);
+        if(!initializeUSB(ftdic, message, serial)) {
             return false;
         }
     }

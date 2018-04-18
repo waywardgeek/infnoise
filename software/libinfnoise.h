@@ -35,14 +35,12 @@ struct infnoise_device_list {
 	struct infnoise_device_list * next;
 };
 
-bool listUSBDevices(struct ftdi_context *ftdic, struct inm_devlist **result, char **message);
+bool listUSBDevices(struct ftdi_context *ftdic, struct inm_devlist *result, char **message);
 
-bool initInfnoise(struct ftdi_context *ftdic, char *serial, bool debug);
+bool initInfnoise(struct ftdi_context *ftdic, char *serial, char **message, bool debug);
 
 bool initKeccak(struct ftdi_context *ftdic, char *serial);
 
-uint64_t readRawData(struct ftdi_context *ftdic, uint8_t *result);
+uint64_t readRawData(struct ftdi_context *ftdic, uint8_t *result, char **message);
 
-uint64_t readData(struct ftdi_context *ftdic, uint8_t *keccakState, uint8_t *result, uint32_t outputMultiplier);
-
-uint64_t readData1(struct ftdi_context *ftdic, uint8_t *keccakState, uint8_t *result, bool noOutput, bool raw, uint32_t outputMultiplier, bool devRandom);
+uint64_t readData(struct ftdi_context *ftdic, uint8_t *keccakState, uint8_t *result, char **message, uint32_t outputMultiplier);
