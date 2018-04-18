@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/types.h>
+#include <ftdi.h>
 
 // Structure for parsed command line options
 struct opt_struct {
@@ -18,23 +19,4 @@ struct opt_struct {
 	char *serial;		// Name of selected device
 };
 
-//bool inmHealthCheckStart(uint8_t N, double K, struct opt_struct *opts);
-//void inmHealthCheckStop(void);
-/*bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even);
-bool inmHealthCheckOkToUseData(void);
-double inmHealthCheckEstimateK(void);
-double inmHealthCheckEstimateEntropyPerBit(void);
-uint32_t inmGetEntropyLevel(void);
-void inmClearEntropyLevel(void);
-bool inmEntropyOnTarget(uint32_t entropy, uint32_t bits);
-void inmWriteEntropyStart(uint32_t bufLen, struct opt_struct *opts);
-void inmWriteEntropyToPool(uint8_t *bytes, uint32_t length, uint32_t entropy);
-void inmWaitForPoolToHaveRoom(void);
-void inmDumpStats(void);
-*/
 void startDaemon(struct opt_struct *opts);
-bool isSuperUser(void);
-
-
-//extern double inmK, inmExpectedEntropyPerBit;
-

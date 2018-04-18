@@ -14,6 +14,7 @@
 #include <string.h>
 #include <time.h>
 #include <ftdi.h>
+#include "libinfnoise_private.h"
 #include "libinfnoise.h"
 #include "KeccakF-1600-interface.h"
 
@@ -101,7 +102,11 @@ uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint8_t *result, uin
     if(outputMultiplier == 0u) {
         // Output all the bytes of entropy we have
         KeccakExtract(keccakState, dataOut, (entropy + 63u)/64u);
-        outputBytes(dataOut, entropy/8u, entropy & 0x7u, writeDevRandom);
+	if (!noOutput) {
+	    outputBytes(dataOut, entropy/8u, entropy & 0x7u, writeDevRandom);
+	} else {
+            memcpy(result, dataOut, entropy/8u * sizeof(uint8_t));
+	}
         return entropy/8u;
     } // todo: write to result array
 
@@ -149,6 +154,7 @@ uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint8_t *result, uin
     fprintf(stderr, "bytes written: %d\n", bytesWritten);
     return bytesWritten;
 }
+
 
 void add_to_list(struct inm_devlist **list, struct infnoise_device **dev) {
     struct inm_devlist_node *tmp = malloc(sizeof(struct inm_devlist_node ) );
@@ -300,7 +306,16 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
     return true;
 }
 
-uint64_t readData(struct ftdi_context *ftdic, uint8_t *keccakState, uint8_t *result, bool raw, uint32_t outputMultiplier, bool debug) {
+
+uint64_t readRawData(struct ftdi_context *ftdic, uint8_t *result) {
+    return readData1(ftdic, NULL, result, false, true, 0, false);
+}
+
+uint64_t readData(struct ftdi_context *ftdic, uint8_t *keccakState, uint8_t *result, uint32_t outputMultiplier) {
+    return readData1(ftdic, keccakState, result, false, false, outputMultiplier, false);
+}
+
+uint64_t readData1(struct ftdi_context *ftdic, uint8_t *keccakState, uint8_t *result, bool noOutput, bool raw, uint32_t outputMultiplier, bool devRandom) {
     // Endless loop: set SW1EN and SW2EN alternately
     uint32_t i;
     uint8_t outBuf[BUFLEN], inBuf[BUFLEN];
@@ -331,46 +346,49 @@ uint64_t readData(struct ftdi_context *ftdic, uint8_t *keccakState, uint8_t *res
         uint8_t bytes[BUFLEN/8u];
         uint32_t entropy = extractBytes(bytes, inBuf);
 
-        if(inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
-            uint64_t prevTotalBytesWritten = totalBytesWritten;
-            totalBytesWritten += processBytes(keccakState, bytes, result, entropy, raw, false, outputMultiplier, true);
-            fprintf(stderr, "bw3: %lu\n", (unsigned long)totalBytesWritten);
-
-            if(debug && (1u << 20u)*(totalBytesWritten/(1u << 20u)) > (1u << 20u)*(prevTotalBytesWritten/(1u << 20u))) {
-                fprintf(stderr, "Output %lu bytes\n", (unsigned long)totalBytesWritten);
-            }
+	// call health check and process bytes if OK
+        if(!noOutput && inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
+            totalBytesWritten += processBytes(keccakState, bytes, result, entropy, raw, devRandom, outputMultiplier, noOutput);
         }
     }
     return totalBytesWritten;
 }
 
-#ifdef LIB_EXAMPLE_PROGRAM
-// example use of libinfnoise
-int main() {
+bool initInfnoise(struct ftdi_context *ftdic,char *serial, bool debug) {
+
+    //inmWriteEntropyStart(BUFLEN/8u, debug); // todo: create method in libinfnoise.h for this
+
     // initialize health check
-    if (!inmHealthCheckStart(PREDICTION_BITS, DESIGN_K, false)) {
+    if (!inmHealthCheckStart(PREDICTION_BITS, DESIGN_K, debug)) {
         fputs("Can't initialize health checker\n", stderr);
-        return 1;
+        return false;
     }
+
+    // initialize USB
+    char *message;
+    if(!initializeUSB(ftdic, &message, serial)) {
+        // Sometimes have to do it twice - not sure why
+        if(!initializeUSB(ftdic, &message, serial)) {
+            fputs(message, stderr);
+            return false;
+        }
+    }
+    return true;
+}
+
+#ifdef LIB_EXAMPLE_PROGRAM
+// example use of libinfnoise - with keccak
+int main() {
+    char *serial=NULL; // use any device, can be set to a specific serial
+
+    // initialize USB
+    struct ftdi_context ftdic;
+    initInfnoise(&ftdic, serial);
 
     // initialize keccak
     KeccakInitialize();
     uint8_t keccakState[KeccakPermutationSizeInBytes];
     KeccakInitializeState(keccakState);
-
-    // initialize USB
-    struct ftdi_context ftdic;
-    char *message;
-    char *serial=NULL; // use any device, can be set to a specific serial
-    if(!initializeUSB(&ftdic, &message, serial)) {
-        // Sometimes have to do it twice - not sure why
-        if(!initializeUSB(&ftdic, &message, serial)) {
-            fputs(message, stderr);
-            return 1;
-        }
-    }
-
-    uint64_t totalBytesWritten = 0u;
 
     // parameters for readData(..):
     bool rawOutput = true;
@@ -378,26 +396,27 @@ int main() {
     bool debug = false;
 
     // calculate output size based on the parameters:
-    // when using the multiplier, we need a result array of multiplier*32 bytes - otherwise the full buffer size (512 bytes)
+    // when using the multiplier, we need a result array of max 1024 bytes - otherwise 64(BUFLEN/8) bytes
     uint32_t resultSize;
     if (multiplier == 0 || rawOutput == true) {
-        resultSize = BUFLEN;
+        resultSize = BUFLEN/8u;
     } else {
-        resultSize = multiplier*32;
+        resultSize = 1024; // optimize?
     }
     fprintf(stderr, "%d\n", resultSize);
 
-    // read and print
+    uint64_t totalBytesWritten = 0u;
+
+    // read and print in a loop
     while (totalBytesWritten < 100000) {
-        fprintf(stderr, "%lu\n", (unsigned long)totalBytesWritten);
         uint8_t result[resultSize];
-        //uint8_t *result = malloc(resultSize * sizeof(uint8_t)); // array to hold the (whitened) result
-
         uint64_t bytesWritten = 0u;
-        bytesWritten = readData(&ftdic, keccakState, result, rawOutput, multiplier, debug);
-        fprintf(stderr, "bw2: %lu\n", (unsigned long)bytesWritten);
+        bytesWritten = readData(&ftdic, keccakState, result, multiplier);
 
-	totalBytesWritten += bytesWritten;
+	// check for -1!
+        totalBytesWritten += bytesWritten;
+
+	// make sure to only read as many bytes as readData returned. Only those have passed the health check in this round (usually all but..)
         fwrite(result, 1, bytesWritten, stdout);
     }
 }

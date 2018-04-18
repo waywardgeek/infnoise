@@ -8,7 +8,7 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <linux/random.h>
-#include "infnoise.h"
+#include "libinfnoise.h"
 
 #define SIZE_PROC_FILENAME "/proc/sys/kernel/random/poolsize"
 #define FILL_PROC_FILENAME "/proc/sys/kernel/random/write_wakeup_threshold"
@@ -40,9 +40,9 @@ static uint32_t readNumberFromFile(char *fileName) {
 }
 
 // Open /dev/random
-void inmWriteEntropyStart(uint32_t bufLen, struct opt_struct* opts) {
+void inmWriteEntropyStart(uint32_t bufLen, bool debug) {
     inmBufLen = bufLen;
-    inmDebug = opts->debug;
+    inmDebug = debug;
     //inmDevRandomFD = open("/dev/random", O_WRONLY);
     inmDevRandomFD = open("/dev/random", O_RDWR);
     if(inmDevRandomFD < 0) {

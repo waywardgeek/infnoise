@@ -18,20 +18,35 @@ endif
 
 all: libinfnoise.a infnoise
 
-infnoise: infnoise.c infnoise.h libinfnoise.a healthcheck.c writeentropy.c daemon.c
-	$(CC) $(CFLAGS) -o infnoise infnoise.c writeentropy.c healthcheck.c daemon.c $(FTDI) -lm -lrt -L . -linfnoise
+infnoise: infnoise.c infnoise.h libinfnoise.a infnoise.o daemon.o
+	$(CC) $(CFLAGS) -o infnoise infnoise.o daemon.o libinfnoise.a $(FTDI) -lm -lrt -L. -linfnoise
 
-libinfnoise.a: libinfnoise.c libinfnoise.h healthcheck.c healthcheck.h Keccak/brg_endian.h Keccak/KeccakF-1600-reference.c
-	$(CC) $(CFLAGS) -c libinfnoise.c libinfnoise.h healthcheck.c Keccak/KeccakF-1600-reference.c $(FTDI) -lm
-	ar rcs libinfnoise.a libinfnoise.o healthcheck.o KeccakF-1600-reference.o
+infnoise.o: infnoise.c infnoise.h
+	$(CC) $(CFLAGS) -c infnoise.c
 
+daemon.o: daemon.c
+	$(CC) $(CFLAGS) -c daemon.c
+
+writeentropy.o: writeentropy.c
+	$(CC) $(CFLAGS) -c writeentropy.c
+
+libinfnoise.o: libinfnoise.c libinfnoise.h libinfnoise_private.h healthcheck.c healthcheck.h Keccak/brg_endian.h Keccak/KeccakF-1600-reference.c
+	$(CC) $(CFLAGS) -c libinfnoise.c healthcheck.c Keccak/KeccakF-1600-reference.c
+
+libinfnoise.a: libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o
+	ar rcs libinfnoise.a libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o
+	ranlib libinfnoise.a
+
+KeccakF-1600-reference.o: Keccak/brg_endian.h Keccak/KeccakF-1600-reference.c
+	$(CC) $(CFLAGS) -c Keccak/KeccakF-1600-reference.c -lm -lrt
+ 
 libs: libinfnoise.a
 
 libinfnoise-example: libinfnoise.c libinfnoise.h
 	$(CC) $(CFLAGS) -D LIB_EXAMPLE_PROGRAM -o libinfnoise-example libinfnoise.c libinfnoise.h healthcheck.c writeentropy.c daemon.c Keccak/KeccakF-1600-reference.c $(FTDI) -lm -lrt
 
 clean:
-	$(RM) infnoise *.o *.a libinfnoise-example
+	$(RM) infnoise *.o *.a *.gch libinfnoise-example
 
 install:
 	install -d $(PREFIX)/sbin

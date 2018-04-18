@@ -10,16 +10,20 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
+
+#include <ftdi.h>
+#include "infnoise.h"
 #include "libinfnoise.h"
+#include "libinfnoise_private.h"
 #include "KeccakF-1600-interface.h"
 
 static void initOpts(struct opt_struct *opts) {
 	opts->outputMultiplier = 0u;
-	opts->daemon =
-	opts->debug =
-	opts->devRandom =
-	opts->noOutput =
-	opts->listDevices =
+	opts->daemon = false;
+	opts->debug = false;
+	opts->devRandom = false;
+	opts->noOutput = false;
+	opts->listDevices = false;
 	opts->raw = false;
 	opts->version = false;
 	opts->help = false;
@@ -164,66 +168,40 @@ int main(int argc, char **argv)
 	return 0;
     }
 
+    if (opts.devRandom) {
+        inmWriteEntropyStart(BUFLEN/8u, opts.debug); // todo: create method in libinfnoise.h for this
+	// also todo: check if superUser in this mode (it will fail silently if not :-/)
+    }
+
     // Optionally run in the background and optionally write a PID-file
     startDaemon(&opts);
 
-    if (opts.devRandom) {
-        inmWriteEntropyStart(BUFLEN/8u, opts.debug);
+    // initialize USB device and health check
+    if (initInfnoise(&ftdic, opts.serial, opts.debug) != true) {
+        return 1; // ERROR (message still goes to stderr)
     }
 
-    if (!inmHealthCheckStart(PREDICTION_BITS, DESIGN_K, opts.debug)) {
-        fputs("Can't initialize health checker\n", stderr);
-        return 1;
-    }
+    // initialize keccak
     KeccakInitialize();
     uint8_t keccakState[KeccakPermutationSizeInBytes];
     KeccakInitializeState(keccakState);
 
-    if(!initializeUSB(&ftdic, &message, opts.serial)) {
-        // Sometimes have to do it twice - not sure why
-        if(!initializeUSB(&ftdic, &message, opts.serial)) {
-            fputs(message, stderr);
-            return 1;
-        }
-    }
-
-    // Endless loop: set SW1EN and SW2EN alternately
-    uint32_t i;
-    uint8_t outBuf[BUFLEN], inBuf[BUFLEN];
-    for(i = 0u; i < BUFLEN; i++) {
-        // Alternate Ph1 and Ph2
-        outBuf[i] = i & 1?  (1 << SWEN2) : (1 << SWEN1);
-    }
+    uint8_t result[1024]; // only used in noOutput mode (and libinfnoise)
 
     uint64_t totalBytesWritten = 0u;
     while(true) {
-        struct timespec start;
-        clock_gettime(CLOCK_REALTIME, &start);
-
-        if(ftdi_write_data(&ftdic, outBuf, BUFLEN) != BUFLEN) {
-            fputs("USB write failed\n", stderr);
-            return 1;
-        }
-        if(ftdi_read_data(&ftdic, inBuf, BUFLEN) != BUFLEN) {
-            fputs("USB read failed\n", stderr);
-            return 1;
-        }
-        struct timespec end;
-        clock_gettime(CLOCK_REALTIME, &end);
-        uint32_t us = diffTime(&start, &end);
-        if(us <= MAX_MICROSEC_FOR_SAMPLES) {
-            uint8_t bytes[BUFLEN/8u];
-            uint32_t entropy = extractBytes(bytes, inBuf);
-            if(!opts.noOutput && inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
                 uint64_t prevTotalBytesWritten = totalBytesWritten;
-                totalBytesWritten += processBytes(keccakState, bytes, NULL, entropy, opts.raw,
-                                                  opts.devRandom, opts.outputMultiplier, opts.noOutput);
+		uint64_t bytesWritten = readData1(&ftdic, keccakState, result, opts.noOutput, opts.raw, opts.outputMultiplier, opts.devRandom);
+                //printf("%d", (uint8_t)opts.noOutput);
 
+		if (totalBytesWritten == (unsigned long)-1) {
+			return 1; // ERROR (message goes to stderr)
+		}
+                totalBytesWritten += bytesWritten;
                 if(opts.debug && (1u << 20u)*(totalBytesWritten/(1u << 20u)) > (1u << 20u)*(prevTotalBytesWritten/(1u << 20u))) {
                     fprintf(stderr, "Output %lu bytes\n", (unsigned long)totalBytesWritten);
                 }
-            }
-        }
+
     }
     return 0;
 }

@@ -24,7 +24,7 @@ confirmed.
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#include "libinfnoise.h"
+#include "libinfnoise_private.h"
 
 #define INM_MIN_DATA 80000u
 #define INM_MIN_SAMPLE_SIZE 100u
