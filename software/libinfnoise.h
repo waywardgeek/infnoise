@@ -8,7 +8,6 @@
 // We also write this in one go to the Keccak sponge, which is at most 1600 bits
 #define BUFLEN 512u
 
-
 // struct for ftdi_device_descriptor
 struct infnoise_device {
 	uint8_t index;
@@ -16,7 +15,6 @@ struct infnoise_device {
 	char *product;
 	char *serial;
 };
-
 
 struct inm_devlist_node
 {
@@ -29,11 +27,6 @@ struct inm_devlist
     struct inm_devlist_node *head;
 };
 
-// struct for list of devices
-struct infnoise_device_list {
-	struct infnoise_device device;
-	struct infnoise_device_list * next;
-};
 
 bool listUSBDevices(struct ftdi_context *ftdic, struct inm_devlist *result, char **message);
 

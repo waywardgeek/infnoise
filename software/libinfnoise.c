@@ -66,6 +66,10 @@ void outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDe
     }
 }
 
+bool isSuperUser(void) {
+        return (geteuid() == 0);
+}
+
 // Whiten the output, if requested, with a Keccak sponge. Output bytes only if the health
 // checker says it's OK.  Using outputMultiplier > 1 is a nice way to generate a lot more
 // cryptographically secure pseudo-random data than the INM generates.  If
@@ -350,6 +354,7 @@ uint64_t readData_private(struct ftdi_context *ftdic, uint8_t *keccakState, uint
     return totalBytesWritten;
 }
 
+uint8_t keccakState[KeccakPermutationSizeInBytes];
 bool initInfnoise(struct ftdi_context *ftdic,char *serial, char **message, bool debug) {
     prepareOutputBuffer();
     // initialize health check
@@ -366,6 +371,10 @@ bool initInfnoise(struct ftdi_context *ftdic,char *serial, char **message, bool 
         }
     }
     return true;
+
+    // initialize keccak
+    KeccakInitialize();
+    KeccakInitializeState(keccakState);
 }
 
 #ifdef LIB_EXAMPLE_PROGRAM
@@ -376,11 +385,6 @@ int main() {
     // initialize USB
     struct ftdi_context ftdic;
     initInfnoise(&ftdic, serial);
-
-    // initialize keccak
-    KeccakInitialize();
-    uint8_t keccakState[KeccakPermutationSizeInBytes];
-    KeccakInitializeState(keccakState);
 
     // parameters for readData(..):
     bool rawOutput = true;

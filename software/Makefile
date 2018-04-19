@@ -4,10 +4,12 @@ GIT_DATE    := $(firstword $(shell git --no-pager show --date=iso-strict --forma
 
 PREFIX = $(DESTDIR)/usr/local
 
-CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -I Keccak -I /usr/include/libftdi1 \
+CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I /usr/include/libftdi1 \
  -DGIT_VERSION=\"$(GIT_VERSION)\"\
  -DGIT_COMMIT=\"$(GIT_COMMIT)\"\
  -DGIT_DATE=\"$(GIT_DATE)\"\
+
+LDFLAGS= -shared
 
 FOUND = $(shell ldconfig -p | grep --silent libftdi.so && echo found)
 ifeq ($(FOUND), found)
@@ -37,16 +39,16 @@ libinfnoise.a: libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy
 	ar rcs libinfnoise.a libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o
 	ranlib libinfnoise.a
 
+libinfnoise.so: libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o
+	$(CC) $(CFLAGS) -fvisibility=hidden -o libinfnoise.so libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o -Wl,--version-script=libinfnoise.version $(FTDI) -lm -shared 
+
 KeccakF-1600-reference.o: Keccak/brg_endian.h Keccak/KeccakF-1600-reference.c
 	$(CC) $(CFLAGS) -c Keccak/KeccakF-1600-reference.c -lm -lrt
- 
+
 libs: libinfnoise.a
 
-libinfnoise-example: libinfnoise.c libinfnoise.h
-	$(CC) $(CFLAGS) -D LIB_EXAMPLE_PROGRAM -o libinfnoise-example libinfnoise.c libinfnoise.h healthcheck.c writeentropy.c daemon.c Keccak/KeccakF-1600-reference.c $(FTDI) -lm -lrt
-
 clean:
-	$(RM) infnoise *.o *.a *.gch libinfnoise-example
+	$(RM) infnoise *.o *.a *.gch *.so libinfnoise-example
 
 install:
 	install -d $(PREFIX)/sbin
