@@ -43,6 +43,7 @@ static uint32_t readNumberFromFile(char *fileName) {
 void inmWriteEntropyStart(uint32_t bufLen, bool debug) {
     inmBufLen = bufLen;
     inmDebug = debug;
+
     //inmDevRandomFD = open("/dev/random", O_WRONLY);
     inmDevRandomFD = open("/dev/random", O_RDWR);
     if(inmDevRandomFD < 0) {
