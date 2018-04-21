@@ -11,12 +11,7 @@ CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I /usr/include/libf
 
 LDFLAGS= -shared
 
-FOUND = $(shell ldconfig -p | grep --silent libftdi.so && echo found)
-ifeq ($(FOUND), found)
-	FTDI=	-lftdi
-else
-	FTDI=	-lftdi1
-endif
+FTDI := $(shell libftdi-config --libs)
 
 all: libinfnoise.a infnoise
 
@@ -54,9 +49,9 @@ install:
 	install -d $(PREFIX)/sbin
 	install -m 0755 infnoise $(PREFIX)/sbin/
 	install -d $(PREFIX)/lib/udev/rules.d/
-	install -m 0644 75-infnoise.rules $(PREFIX)/lib/udev/rules.d/
+	install -m 0644 init_scripts/75-infnoise.rules $(PREFIX)/lib/udev/rules.d/
 	install -d $(PREFIX)/lib/systemd/system
-	install -m 0644 infnoise.service $(PREFIX)/lib/systemd/system
+	install -m 0644 init_scripts/infnoise.service $(PREFIX)/lib/systemd/system
 
 postinstall:
 	systemctl restart systemd-udevd
