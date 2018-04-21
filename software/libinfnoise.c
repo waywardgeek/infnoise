@@ -359,7 +359,6 @@ int main() {
     // parameters for readData(..):
     bool rawOutput = true;
     uint32_t multiplier = 10u;
-    bool debug = false;
 
     // calculate output size based on the parameters:
     // when using the multiplier, we need a result array of 32*MULTIPLIER - otherwise 64(BUFLEN/8) bytes
