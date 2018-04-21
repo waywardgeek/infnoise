@@ -27,13 +27,15 @@ daemon.o: daemon.c
 writeentropy.o: writeentropy.c
 	$(CC) $(CFLAGS) -c writeentropy.c
 
+# static lib compiled into infnoise binary
 libinfnoise.o: libinfnoise.c libinfnoise.h libinfnoise_private.h healthcheck.c healthcheck.h Keccak/brg_endian.h Keccak/KeccakF-1600-reference.c
-	$(CC) $(CFLAGS) -c libinfnoise.c healthcheck.c Keccak/KeccakF-1600-reference.c
+	$(CC) $(CFLAGS) -c libinfnoise.c healthcheck.c
 
 libinfnoise.a: libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o
 	ar rcs libinfnoise.a libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o
 	ranlib libinfnoise.a
 
+# shared lib
 libinfnoise.so: libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o
 	$(CC) $(CFLAGS) -fvisibility=hidden -o libinfnoise.so libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o -Wl,--version-script=libinfnoise.version $(FTDI) -lm -shared 
 

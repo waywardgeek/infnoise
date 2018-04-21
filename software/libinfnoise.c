@@ -158,20 +158,9 @@ uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint8_t *result, uin
     fprintf(stderr, "bytes written: %d\n", bytesWritten);
     return bytesWritten;
 }
-void add_to_list(struct inm_devlist *list, struct infnoise_device **dev) {
-    struct inm_devlist_node *tmp = malloc(sizeof(struct inm_devlist_node ) );
-    tmp->device = (*dev);
-    printf("added serial1: %s\n", (*dev)->serial);
-    tmp->next = list->head;
-    printf("added serial2: %s\n", tmp->device->serial);
-    list->head = tmp;
-    printf("added serial3: %s\n", list->head->device->serial);
-}
-
-
 
 // Return a list of all infinite noise multipliers found.
-bool listUSBDevices(struct ftdi_context *ftdic, struct inm_devlist *result, char** message) {
+bool listUSBDevices(struct ftdi_context *ftdic, char** message) {
     ftdi_init(ftdic);
 
     struct ftdi_device_list *devlist;
@@ -196,31 +185,14 @@ bool listUSBDevices(struct ftdi_context *ftdic, struct inm_devlist *result, char
         if (rc < 0) {
             if (!isSuperUser()) {
                 *message = "Can't find Infinite Noise Multiplier.  Try running as super user?\n";
+		return false;
             }
-            //todo: fprintf(stderr, "ftdi_usb_get_strings failed: %d (%s)\n", rc, ftdi_get_error_string(ftdic));
+            //*message = "ftdi_usb_get_strings failed: %d (%s)\n", rc, ftdi_get_error_string(ftdic));
 	    return false;
        	}
 
-	// build struct of device descriptor & add to list
+	// print to stdout
         printf("Manufacturer: %s, Description: %s, Serial: %s\n", manufacturer, description, serial);
-
-	struct infnoise_device *result_dev = malloc(sizeof(struct infnoise_device));
-
-	result_dev->index = i;
-        result_dev->manufacturer = manufacturer;
-        result_dev->product = description;
-        result_dev->serial = serial;
-
-        //printf("debug: %s\n", result_dev);
-        add_to_list(result, &result_dev);
-
-    struct inm_devlist_node *tmp;
-    for ( tmp = result->head; tmp != NULL; tmp=tmp->next) {
-        if (tmp->device->serial != NULL) {
-            printf("%s\n", tmp->device->serial);
-        }
-           //tmp = tmp->next;
-        }
        	curdev = curdev->next;
     }
 

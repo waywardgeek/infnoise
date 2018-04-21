@@ -47,7 +47,7 @@ void inmWriteEntropyStart(uint32_t bufLen, bool debug);
 void inmWriteEntropyToPool(uint8_t *bytes, uint32_t length, uint32_t entropy);
 void inmWaitForPoolToHaveRoom(void);
 void inmDumpStats(void);
-bool isSuperUser(void);
+//bool isSuperUser(void);
 
 extern double inmK, inmExpectedEntropyPerBit;
 struct timespec;

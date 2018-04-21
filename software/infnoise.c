@@ -150,23 +150,9 @@ int main(int argc, char **argv)
 
     char *message;
     if (opts.listDevices) {
-        struct inm_devlist *device_list;
-        device_list = malloc(sizeof(struct inm_devlist));
-
-        if(!listUSBDevices(&ftdic, device_list, &message)) {
+        if(!listUSBDevices(&ftdic, &message)) {
             fputs(message, stderr);
             return 1;
-        }
-
-	// debug:
-        uint8_t i=0;
-        struct inm_devlist_node *tmp;
-        for ( tmp = device_list->head; tmp != NULL; tmp=tmp->next) {
-            if (tmp->device->serial != NULL) {
-                printf("%s\n", tmp->device->serial);
-            }
-            printf("%d\n", i);
-            i+=1;
         }
 	return 0;
     }
