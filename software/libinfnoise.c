@@ -88,8 +88,9 @@ uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint8_t *result, uin
         if (!noOutput) {
             outputBytes(bytes, BUFLEN/8u, entropy, writeDevRandom);
         } else {
-            memcpy(result, bytes, BUFLEN/8u * sizeof(uint8_t));
-            //result=bytes;
+	    if (result != NULL) {
+                memcpy(result, bytes, BUFLEN/8u * sizeof(uint8_t));
+            }
 	}
         return BUFLEN/8u;
     }
@@ -109,10 +110,12 @@ uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint8_t *result, uin
 	if (!noOutput) {
 	    outputBytes(dataOut, entropy/8u, entropy & 0x7u, writeDevRandom);
 	} else {
-            memcpy(result, dataOut, entropy/8u * sizeof(uint8_t));
+	    if (result != NULL) {
+                memcpy(result, dataOut, entropy/8u * sizeof(uint8_t));
+            }
 	}
         return entropy/8u;
-    } // todo: write to result array
+    }
 
     // Output 256*outputMultipler bits.
     uint32_t numBits = outputMultiplier*256u;
@@ -132,16 +135,12 @@ uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint8_t *result, uin
 	if (!noOutput) {
             outputBytes(dataOut, bytesToWrite, entropyThisTime, writeDevRandom);
 	} else {
-            // append data in result array until we have finished squeezing the keccak sponge
-	    // its important to have an result array of the approriate size: outputMultiplier*32
-            //fprintf(stderr, "bytes written: %d\n", bytesWritten);
-            //fprintf(stderr, "bytes to write: %d\n", bytesToWrite);
-
-            //memcpy(result + bytesWritten, dataOut, bytesToWrite * sizeof(uint8_t)); //doesn't work
+            //memcpy(result + bytesWritten, dataOut, bytesToWrite * sizeof(uint8_t)); //doesn't work?
             // alternative: loop through dataOut and append array elements to result..
-            for (uint32_t i =0; i < bytesToWrite; i++ ) {
-                 fprintf(stderr, "                 result[%d] = dataOut[%d];\n", bytesWritten + i, i);
-                 result[bytesWritten + i] = dataOut[i];
+	    if (result != NULL) {
+                for (uint32_t i =0; i < bytesToWrite; i++ ) {
+                    result[bytesWritten + i] = dataOut[i];
+                }
             }
 	}
         bytesWritten += bytesToWrite;
@@ -155,7 +154,6 @@ uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint8_t *result, uin
         fprintf(stderr, "Internal error outputing bytes\n");
         exit(1);
     }
-    fprintf(stderr, "bytes written: %d\n", bytesWritten);
     return bytesWritten;
 }
 
@@ -364,12 +362,12 @@ int main() {
     bool debug = false;
 
     // calculate output size based on the parameters:
-    // when using the multiplier, we need a result array of max 1024 bytes - otherwise 64(BUFLEN/8) bytes
+    // when using the multiplier, we need a result array of 32*MULTIPLIER - otherwise 64(BUFLEN/8) bytes
     uint32_t resultSize;
     if (multiplier == 0 || rawOutput == true) {
         resultSize = BUFLEN/8u;
     } else {
-        resultSize = 1024; // optimize?
+        resultSize = multiplier*32u;
     }
     fprintf(stderr, "%d\n", resultSize);
 
@@ -381,10 +379,10 @@ int main() {
         uint64_t bytesWritten = 0u;
         bytesWritten = readData(&ftdic, keccakState, result, multiplier);
 
-	// check for -1!
+	// check for -1, indicating an error
         totalBytesWritten += bytesWritten;
 
-	// make sure to only read as many bytes as readData returned. Only those have passed the health check in this round (usually all but..)
+	// make sure to only read as many bytes as readData returned. Only those have passed the health check in this round (usually all)
         fwrite(result, 1, bytesWritten, stdout);
     }
 }

@@ -176,12 +176,10 @@ int main(int argc, char **argv)
     uint8_t keccakState[KeccakPermutationSizeInBytes];
     KeccakInitializeState(keccakState);
 
-    uint8_t result[1024]; // only used in noOutput mode (and libinfnoise)
-
     uint64_t totalBytesWritten = 0u;
     while(true) {
         uint64_t prevTotalBytesWritten = totalBytesWritten;
-        uint64_t bytesWritten = readData_private(&ftdic, keccakState, result, &message, opts.noOutput, opts.raw, opts.outputMultiplier, opts.devRandom); // calling libinfnoise's private readData method
+        uint64_t bytesWritten = readData_private(&ftdic, keccakState, NULL, &message, opts.noOutput, opts.raw, opts.outputMultiplier, opts.devRandom); // calling libinfnoise's private readData method
 
         if (totalBytesWritten == (unsigned long)-1) {
             fputs(message, stderr);

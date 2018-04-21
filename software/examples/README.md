@@ -1,30 +1,6 @@
 # Usage examples for Infinite Noise
 
-## Driver (binary)
-
-### Command-Line
-
-Raw output to file:
-
-    infnoise --raw > output.txt
-
-Whitened output to file:
-
-    infnoise > output.txt
-
-Whietened, mutliplied output to file:
-
-    infnoise --multiplier 10 > output.txt
-
-Debug mode:
-
-    infnoise --debug --no-output
-
-/dev/random mode:
-
-    infnoise --debug --dev-random (--multiplier)
-
-### Integrate
+## Integrate the binary to python
 
 See the python examples `serial-numbers.py` and `randomserver.py` to see how you could integrate it with python.
 
@@ -42,9 +18,9 @@ This simple version just prints the serials to stdout. Call like this:
 
 A simple webserver based on the web.py framework to serve random data via a REST interface. An example is hosted at https://rng.13-37.org (running on a Raspberry Pi in Amsterdam, thanks to pcextreme.nl!)
 
-It has only two resources: `/get` and `/status`.
+It has only two resources: `/get` and `/status`. 
 
-## Library
+## libinfnoise
 
 TODO
 
