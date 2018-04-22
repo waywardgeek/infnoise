@@ -148,44 +148,42 @@ int main(int argc, char **argv)
 	return 0;
     }
 
-    char *message;
+    char *message = "no data?";
+    bool errorFlag = false;
     if (opts.listDevices) {
         if(!listUSBDevices(&ftdic, &message)) {
             fputs(message, stderr);
             return 1;
         }
+        //fputs(message, stdout); // todo: put list of devices to &message and print here, not in libinfnoise
 	return 0;
     }
 
     if (opts.devRandom) {
-        inmWriteEntropyStart(BUFLEN/8u, opts.debug); // todo: create method in libinfnoise.h for this
-	// also todo: check if superUser in this mode (it will fail silently if not :-/)
+        inmWriteEntropyStart(BUFLEN/8u, opts.debug); // todo: create method in libinfnoise.h for this?
+	// also todo: check superUser in this mode (it will fail silently if not :-/)
     }
 
     // Optionally run in the background and optionally write a PID-file
     startDaemon(&opts);
 
-    // initialize USB device and health check
-    if (initInfnoise(&ftdic, opts.serial, &message, opts.debug) != true) {
+    // initialize USB device, health check and Keccak state (see libinfnoise)
+    if (initInfnoise(&ftdic, opts.serial, &message, !opts.raw, opts.debug) != true) {
         fputs(message, stderr);
-        return 1; // ERROR (message still goes to stderr)
+        return 1; // ERROR
     }
 
-    // initialize keccak
-    KeccakInitialize();
-    uint8_t keccakState[KeccakPermutationSizeInBytes];
-    KeccakInitializeState(keccakState);
-
+    // endless loop
     uint64_t totalBytesWritten = 0u;
     while(true) {
         uint64_t prevTotalBytesWritten = totalBytesWritten;
-        uint64_t bytesWritten = readData_private(&ftdic, keccakState, NULL, &message, opts.noOutput, opts.raw, opts.outputMultiplier, opts.devRandom); // calling libinfnoise's private readData method
+        totalBytesWritten += readData_private(&ftdic, NULL, &message, &errorFlag, opts.noOutput, opts.raw, opts.outputMultiplier, opts.devRandom); // calling libinfnoise's private readData method
 
-        if (totalBytesWritten == (unsigned long)-1) {
-            fputs(message, stderr);
+        if (errorFlag) {
+            fprintf(stderr, "%s\n", message);
             return 1;
         }
-        totalBytesWritten += bytesWritten;
+
         if(opts.debug && (1u << 20u)*(totalBytesWritten/(1u << 20u)) > (1u << 20u)*(prevTotalBytesWritten/(1u << 20u))) {
             fprintf(stderr, "Output %lu bytes\n", (unsigned long)totalBytesWritten);
         }

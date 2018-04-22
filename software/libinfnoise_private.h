@@ -47,18 +47,18 @@ void inmWriteEntropyStart(uint32_t bufLen, bool debug);
 void inmWriteEntropyToPool(uint8_t *bytes, uint32_t length, uint32_t entropy);
 void inmWaitForPoolToHaveRoom(void);
 void inmDumpStats(void);
-//bool isSuperUser(void);
 
 extern double inmK, inmExpectedEntropyPerBit;
+
+bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial);
+void prepareOutputBuffer();
+
 struct timespec;
 double diffTime(struct timespec *start, struct timespec *end);
-uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf);
-void outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom);
-uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint8_t *result, uint32_t entropy, bool raw,
-                      bool writeDevRandom, uint32_t outputMultiplier, bool noOutput);
+uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, char **message, bool *errorFlag);
 
-uint64_t readData_private(struct ftdi_context *ftdic, uint8_t *keccakState, uint8_t *result, char **message, 
-                          bool noOutput, bool raw, uint32_t outputMultiplier, bool devRandom);
+bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom, char **message);
+uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy, bool raw,
+                      bool writeDevRandom, uint32_t outputMultiplier, bool noOutput, char **message, bool *errorFlag);
 
-//void add_to_list(struct inm_devlist *list, struct infnoise_device *dev);
-
+uint32_t readData_private(struct ftdi_context *ftdic, uint8_t *result, char **message, bool *errorFlag, bool noOutput, bool raw, uint32_t outputMultiplier, bool devRandom);
