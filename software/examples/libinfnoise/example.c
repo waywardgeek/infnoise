@@ -1,5 +1,4 @@
-/* Example program for use of libfinfnoise
-
+/*
 This is a simple example to use libinfnoise with whitened and multiplied output.
 */
 
@@ -13,17 +12,17 @@ This is a simple example to use libinfnoise with whitened and multiplied output.
 int main()
 {
     // parameters
-    bool rawOutput = false; 	// raw or whitened output?
-    uint32_t multiplier = 10u;	// multiplier for whitening
     char *serial=NULL; 		// can be set to a specific serial, NULL uses the first found device
-    bool debug=false;		// debug mode (health monitor writes to stderr)
+    bool initKeccak = true;	// initialize Keccak sponge (used for whitening)
+    uint32_t multiplier = 10u;	// multiplier for whitening
+    bool debug = false;		// debug mode (health monitor writes to stderr)
 
     char *message;
     bool errorFlag = false;
 
     // initialize hardware and health monitor
     struct ftdi_context ftdic;
-    if (!initInfnoise(&ftdic, serial, &message, !rawOutput, debug)) {
+    if (!initInfnoise(&ftdic, serial, &message, true, debug)) {
         fputs(message, stderr);
         return 1; // ERROR
     }

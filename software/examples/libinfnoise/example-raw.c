@@ -1,6 +1,5 @@
-/* Example program for use of libfinfnoise
-
-This is an very simple example to use libinfnoise in raw output mode.
+/*
+This is a very simple example to use libinfnoise in raw output mode.
 */
 
 // Required to include clock_gettime
