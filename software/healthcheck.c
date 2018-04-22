@@ -297,6 +297,7 @@ bool inmEntropyOnTarget(uint32_t entropy, uint32_t numBits) {
 }
 
 #ifdef TEST_HEALTHCHECK
+#include "infnoise.h"
 
 // Compare the ability to predict with 1 fewer bits and see how much less accurate we are.
 static void checkLSBStatsForNBits(uint8_t N) {
@@ -375,7 +376,7 @@ int main() {
     //double K = sqrt(2.0);
     double K = 1.82;
     uint8_t N = 16u;
-    inmHealthCheckStart(N, K, &opts);
+    inmHealthCheckStart(N, K, false);
     srand(time(NULL));
     double A = (double)rand()/RAND_MAX; // Simulating INM
     double noiseAmplitude = 1.0/(1u << 10);

@@ -77,6 +77,6 @@ cp ../build-scripts/control.debian.lib build/DEBIAN/control
 echo "Version: $VERSION" >> build/DEBIAN/control
 echo "Architecture: $ARCH" >> build/DEBIAN/control
 
-dpkg -b build/ libinfnoise-tools_${VERSION}_${ARCH}.deb
+dpkg -b build/ libinfnoise_${VERSION}_${ARCH}.deb
 
 rm -rf build

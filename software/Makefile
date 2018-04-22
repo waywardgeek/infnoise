@@ -2,7 +2,7 @@ GIT_VERSION := $(shell git --no-pager describe --tags --always)
 GIT_COMMIT  := $(shell git rev-parse --verify HEAD)
 GIT_DATE    := $(firstword $(shell git --no-pager show --date=iso-strict --format="%ad" --name-only))
 
-PREFIX = $(DESTDIR)/usr/
+PREFIX = $(DESTDIR)/usr/local
 
 CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I /usr/include/libftdi1 \
  -DGIT_VERSION=\"$(GIT_VERSION)\"\
@@ -10,7 +10,6 @@ CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I /usr/include/libf
  -DGIT_DATE=\"$(GIT_DATE)\"\
 
 LDFLAGS= -shared
-ODIR=obj
 
 FTDI := $(shell libftdi-config --libs)
 
@@ -22,7 +21,7 @@ infnoise: libinfnoise.a infnoise.o daemon.o
 %.o: %.c infnoise.h libinfnoise.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-KeccakF-1600-reference.o: Keccak/KeccakF-1600-reference.c infnoise.h libinfnoise.h
+KeccakF-1600-reference.o: Keccak/KeccakF-1600-reference.c Keccak/KeccakF-1600-interface.h Keccak/brg_endian.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 # static lib compiled into infnoise binary
@@ -43,6 +42,7 @@ clean:
 	$(RM) infnoise *.o *.a *.gch *.so libinfnoise-example
 
 install-lib: libinfnoise.so
+	PREFIX := /usr/
 	install -d $(PREFIX)/include
 	install -m 0644 libinfnoise.h $(PREFIX)/include
 	install -d $(PREFIX)/lib

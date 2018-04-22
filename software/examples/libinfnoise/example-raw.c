@@ -2,9 +2,6 @@
 This is a very simple example to use libinfnoise in raw output mode.
 */
 
-// Required to include clock_gettime
-#define _POSIX_C_SOURCE 200809L
-
 #include <stdio.h>
 #include <ftdi.h>
 #include <libinfnoise.h>
