@@ -73,7 +73,7 @@ cp libinfnoise.so build/usr/lib/
 cp libinfnoise.h build/usr/include
 
 mkdir -p build/DEBIAN
-cp ../build-scripts/control.debian.lib build/DEBIAN/control
+cp build-scripts/control.debian.lib build/DEBIAN/control
 echo "Version: $VERSION" >> build/DEBIAN/control
 echo "Architecture: $ARCH" >> build/DEBIAN/control
 
