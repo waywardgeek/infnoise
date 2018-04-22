@@ -59,3 +59,24 @@ echo "Architecture: $ARCH" >> build/DEBIAN/control
 dpkg -b build/ infnoise-tools_${VERSION}_${ARCH}.deb
 
 rm -rf build
+
+### build libinfnoise ###
+rm -rf build
+
+cd tools
+mkdir -p build/usr/lib
+mkdir -p build/usr/local
+
+make libinfnoise.so
+
+cp libinfnoise.so build/usr/lib/
+cp libinfnoise.h build/usr/local
+
+mkdir -p build/DEBIAN
+cp ../build-scripts/control.debian.lib build/DEBIAN/control
+echo "Version: $VERSION" >> build/DEBIAN/control
+echo "Architecture: $ARCH" >> build/DEBIAN/control
+
+dpkg -b build/ libinfnoise-tools_${VERSION}_${ARCH}.deb
+
+rm -rf build

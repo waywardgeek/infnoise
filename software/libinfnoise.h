@@ -10,10 +10,8 @@
 
 bool listUSBDevices(struct ftdi_context *ftdic, char **message);
 
-bool initInfnoise(struct ftdi_context *ftdic, char *serial, char **message, bool debug);
+bool initInfnoise(struct ftdi_context *ftdic, char *serial, char **message, bool keccak, bool debug);
 
-bool initKeccak(struct ftdi_context *ftdic, char *serial);
+uint32_t readRawData(struct ftdi_context *ftdic, uint8_t *result, char **message, bool *errorFlag);
 
-uint64_t readRawData(struct ftdi_context *ftdic, uint8_t *result, char **message);
-
-uint64_t readData(struct ftdi_context *ftdic, uint8_t *keccakState, uint8_t *result, char **message, uint32_t outputMultiplier);
+uint32_t readData(struct ftdi_context *ftdic, uint8_t *result, char **message, bool *errorFlag, uint32_t outputMultiplier);

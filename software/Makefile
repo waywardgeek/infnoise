@@ -2,7 +2,7 @@ GIT_VERSION := $(shell git --no-pager describe --tags --always)
 GIT_COMMIT  := $(shell git rev-parse --verify HEAD)
 GIT_DATE    := $(firstword $(shell git --no-pager show --date=iso-strict --format="%ad" --name-only))
 
-PREFIX = $(DESTDIR)/usr/local ODIR=obj
+PREFIX = $(DESTDIR)/usr/
 
 CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I /usr/include/libftdi1 \
  -DGIT_VERSION=\"$(GIT_VERSION)\"\
@@ -43,8 +43,10 @@ clean:
 	$(RM) infnoise *.o *.a *.gch *.so libinfnoise-example
 
 install-lib: libinfnoise.so
+	install -d $(PREFIX)/include
+	install -m 0644 libinfnoise.h $(PREFIX)/include
 	install -d $(PREFIX)/lib
-	install -m 0755 libinfnoise.so $(PREFIX)/lib
+	install -m 0644 libinfnoise.so $(PREFIX)/lib
 
 install: infnoise
 	install -d $(PREFIX)/sbin

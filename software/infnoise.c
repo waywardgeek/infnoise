@@ -168,7 +168,7 @@ int main(int argc, char **argv)
     startDaemon(&opts);
 
     // initialize USB device, health check and Keccak state (see libinfnoise)
-    if (initInfnoise(&ftdic, opts.serial, &message, !opts.raw, opts.debug) != true) {
+    if (!initInfnoise(&ftdic, opts.serial, &message, !opts.raw, opts.debug)) {
         fputs(message, stderr);
         return 1; // ERROR
     }
@@ -180,7 +180,7 @@ int main(int argc, char **argv)
         totalBytesWritten += readData_private(&ftdic, NULL, &message, &errorFlag, opts.noOutput, opts.raw, opts.outputMultiplier, opts.devRandom); // calling libinfnoise's private readData method
 
         if (errorFlag) {
-            fprintf(stderr, "%s\n", message);
+            fprintf(stderr, "Error: %s\n", message);
             return 1;
         }
 
