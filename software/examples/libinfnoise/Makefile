@@ -10,17 +10,16 @@ CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I /usr/include/libf
  -DGIT_DATE=\"$(GIT_DATE)\"\
 
 LDFLAGS= -shared
-ODIR=obj
 
 FTDI := $(shell libftdi-config --libs)
 
 all: libinfnoise-example libinfnoise-example-raw
 
 libinfnoise-example: example.c
-	$(CC) $(CFLAGS) -o libinfnoise-example example.c $(FTDI) -lm -lrt -L.. -linfnoise
+	$(CC) $(CFLAGS) -o libinfnoise-example example.c $(FTDI) -lm -lrt -linfnoise
 
 libinfnoise-example-raw: example.c
-	$(CC) $(CFLAGS) -o libinfnoise-example-raw example-raw.c $(FTDI) -lm -lrt -L.. -linfnoise
+	$(CC) $(CFLAGS) -o libinfnoise-example-raw example-raw.c $(FTDI) -lm -lrt -linfnoise
 
 clean:
 	$(RM) libinfnoise-example* *.o

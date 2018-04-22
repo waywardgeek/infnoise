@@ -11,7 +11,12 @@ CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I /usr/include/libf
 
 LDFLAGS= -shared
 
-FTDI := $(shell libftdi-config --libs)
+FOUND = $(shell /sbin/ldconfig -p | grep --silent libftdi.so && echo found)
+ifeq ($(FOUND), found)
+	FTDI=	-lftdi
+else
+ 	FTDI=	-lftdi1
+endif
 
 all: libinfnoise.a libinfnoise.so infnoise
 
@@ -42,11 +47,11 @@ clean:
 	$(RM) infnoise *.o *.a *.gch *.so libinfnoise-example
 
 install-lib: libinfnoise.so
-	PREFIX := /usr/
 	install -d $(PREFIX)/include
 	install -m 0644 libinfnoise.h $(PREFIX)/include
 	install -d $(PREFIX)/lib
 	install -m 0644 libinfnoise.so $(PREFIX)/lib
+	ldconfig $(PREFIX)/lib
 
 install: infnoise
 	install -d $(PREFIX)/sbin
