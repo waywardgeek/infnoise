@@ -2,10 +2,10 @@
 pkgname=infnoise
 pkgdesc='Infinite Noise TRNG'
 license=('open')
-url='https://github.com/manuel-domke/infnoise'
+url='https://github.com/13-37-org/infnoise'
 depends=('libftdi-compat')
 makedepends=()
-source=('git+https://github.com/manuel-domke/infnoise.git')
+source=('git+https://github.com/13-37-org/infnoise.git')
 md5sums=('SKIP')
 install='INSTALL'
 build() {
