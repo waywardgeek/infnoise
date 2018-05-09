@@ -9,13 +9,11 @@ CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I /usr/include/libf
  -DGIT_COMMIT=\"$(GIT_COMMIT)\"\
  -DGIT_DATE=\"$(GIT_DATE)\"\
 
-LDFLAGS= -shared
-
 FOUND = $(shell /sbin/ldconfig -p | grep --silent libftdi.so && echo found)
 ifeq ($(FOUND), found)
-	FTDI=	-lftdi
+        FTDI=   -lftdi
 else
- 	FTDI=	-lftdi1
+        FTDI=   -lftdi1
 endif
 
 all: libinfnoise.a libinfnoise.so infnoise

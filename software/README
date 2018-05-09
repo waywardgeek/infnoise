@@ -35,10 +35,9 @@ Repositories for Ubuntu, Debian and Raspbian are also available. To add them fol
     
     $ sudo apt-key add 13-37.org-code.gpg
     
-Available for Ubuntu ("xenial", "zesty", "artful" and "bionic") and Debian ("wheezy", "jessie" and "stretch").
-Replace <DISTRO> with the specific distro you're using. 
+Available for Ubuntu and Debian (x86, x64 and armhf):
 
-    $ echo "deb http://repo.13-37.org/ <DISTRO> main" | sudo tee /etc/apt/sources.list.d/infnoise.list
+    $ echo "deb http://repo.13-37.org/ stable main" | sudo tee /etc/apt/sources.list.d/infnoise.list
     $ sudo apt-get update
     $ sudo apt-get install infnoise
 
