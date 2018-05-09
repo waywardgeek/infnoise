@@ -35,10 +35,10 @@ int main(int argc, char **argv) {
   uint32_t i;
   printf("password:");
   for (i = 0u; i < keys; i++) {
-    uint32_t randVal = rollDie(26u, file);
+    uint32_t randVal = rollDie(32u, file);
     putchar('a' + randVal);
   }
-  printf("\nThis password has %.2f bits of entropy\n", log(pow(26.0, keys))/log(2));
+  printf("\nThis password has %.2f bits of entropy\n", log(pow(32.0, keys))/log(2));
   fclose(file);
   return 0;
 }

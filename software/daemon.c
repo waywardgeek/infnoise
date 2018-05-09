@@ -48,6 +48,3 @@ void startDaemon(struct opt_struct* opts) {
 	// Child
 }
 
-bool isSuperUser(void) {
-	return (geteuid() == 0);
-}
