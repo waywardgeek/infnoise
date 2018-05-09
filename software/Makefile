@@ -10,7 +10,12 @@ CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -I Keccak -I /usr/include/libftdi1 \
  -DGIT_DATE=\"$(GIT_DATE)\"\
  -DBUILD_DATE=\"$(BUILD_DATE)\"
 
-FTDI := $(shell libftdi-config --libs)
+FOUND = $(shell /sbin/ldconfig -p | grep --silent libftdi.so && echo found)
+ifeq ($(FOUND), found)
+        FTDI=   -lftdi
+else
+        FTDI=   -lftdi1
+endif
 
 all: infnoise
 
