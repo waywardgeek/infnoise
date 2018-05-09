@@ -10,7 +10,7 @@ CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -I Keccak -I /usr/include/libftdi1 \
  -DGIT_DATE=\"$(GIT_DATE)\"\
  -DBUILD_DATE=\"$(BUILD_DATE)\"
 
-FTDI := $(shell libftdi-config --libs)
+FTDI := $(shell libftdi1-config --libs)
 
 all: infnoise
 
