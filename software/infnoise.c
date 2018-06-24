@@ -76,7 +76,7 @@ static uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entr
         return BUFLEN/8u;
     }
     // Note that BUFLEN has to be less than 1600 by enough to make the sponge secure,
-    // since outputing all 1600 bits would tell an attacker the Keccak state, allowing
+    // since outputting all 1600 bits would tell an attacker the Keccak state, allowing
     // him to predict any further output, when outputMultiplier > 1, until the next call
     // to processBytes.  All 512 bits are absorbed before sqeezing data out to insure that
     // we instantly recover (reseed) from a state compromise, which is when an attacker
@@ -114,7 +114,7 @@ static uint32_t processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entr
         }
     }
     if(bytesWritten != opts->outputMultiplier*(256u/8u)) {
-        fprintf(stderr, "Internal error outputing bytes\n");
+        fprintf(stderr, "Internal error outputting bytes\n");
         exit(1);
     }
     return bytesWritten;
@@ -383,7 +383,7 @@ int main(int argc, char **argv)
     }
 
     if(!inmHealthCheckStart(PREDICTION_BITS, DESIGN_K, &opts)) {
-        fputs("Can't intialize health checker\n", stderr);
+        fputs("Can't initialize health checker\n", stderr);
         return 1;
     }
     KeccakInitialize();
