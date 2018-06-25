@@ -33,7 +33,7 @@ Repositories for Ubuntu, Debian and Raspbian are also available. To add them fol
     # GPG2:
     $ gpg2 --import-options import-show --dry-run --import < 13-37.org-code.asc
     
-    $ sudo apt-key add 13-37.org-code.gpg
+    $ sudo apt-key add 13-37.org-code.asc
     
 Available for Ubuntu and Debian (x86, x64 and armhf):
 
