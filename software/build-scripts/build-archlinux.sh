@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VERSION=`git --no-pager describe --tags --always | cut -d'-' -f4`
-PKGREL=`git --no-pager describe --tags --always | cut -d'-' -f5`
+VERSION=`git --no-pager describe --tags --always | cut -d'-' -f1`
+PKGREL=`git --no-pager describe --tags --always | cut -d'-' -f2`
 
 GITREPO=`git config --get remote.origin.url`
 
