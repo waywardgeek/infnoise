@@ -4,11 +4,10 @@ GIT_DATE    := $(firstword $(shell git --no-pager show --date=iso-strict --forma
 
 PREFIX = $(DESTDIR)/usr/local
 
-CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -I Keccak -I /usr/include/libftdi1 \
+CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I /usr/include/libftdi1 \
  -DGIT_VERSION=\"$(GIT_VERSION)\"\
  -DGIT_COMMIT=\"$(GIT_COMMIT)\"\
  -DGIT_DATE=\"$(GIT_DATE)\"\
- -DBUILD_DATE=\"$(BUILD_DATE)\"
 
 FOUND = $(shell /sbin/ldconfig -p | grep --silent libftdi.so && echo found)
 ifeq ($(FOUND), found)
@@ -17,15 +16,42 @@ else
         FTDI=   -lftdi1
 endif
 
-all: infnoise
+all: libinfnoise.a libinfnoise.so infnoise
 
-infnoise: infnoise.c infnoise.h healthcheck.c writeentropy.c daemon.c Keccak/KeccakF-1600-reference.c Keccak/brg_endian.h
-	$(CC) $(CFLAGS) -o infnoise infnoise.c healthcheck.c writeentropy.c daemon.c Keccak/KeccakF-1600-reference.c $(FTDI) -lm -lrt
+infnoise: libinfnoise.a infnoise.o daemon.o
+	$(CC) $(CFLAGS) -o infnoise infnoise.o daemon.o libinfnoise.a $(FTDI) -lm -lrt -L. -linfnoise
+
+%.o: %.c infnoise.h libinfnoise.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+KeccakF-1600-reference.o: Keccak/KeccakF-1600-reference.c Keccak/KeccakF-1600-interface.h Keccak/brg_endian.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+# static lib compiled into infnoise binary
+libinfnoise.o: libinfnoise.c libinfnoise.h libinfnoise_private.h healthcheck.c
+	$(CC) $(CFLAGS) -c libinfnoise.c
+
+libinfnoise.a: libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o
+	ar rcs libinfnoise.a libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o
+	ranlib libinfnoise.a
+
+# shared lib
+libinfnoise.so: libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o
+	$(CC) $(CFLAGS) -fvisibility=hidden -o libinfnoise.so libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o -Wl,--version-script=libinfnoise.version $(FTDI) -lm -shared 
+
+libs: libinfnoise.a
 
 clean:
-	$(RM) infnoise
+	$(RM) infnoise *.o *.a *.gch *.so libinfnoise-example
 
-install:
+install-lib: libinfnoise.so
+	install -d $(PREFIX)/include
+	install -m 0644 libinfnoise.h $(PREFIX)/include
+	install -d $(PREFIX)/lib
+	install -m 0644 libinfnoise.so $(PREFIX)/lib
+	ldconfig $(PREFIX)/lib
+
+install: infnoise
 	install -d $(PREFIX)/sbin
 	install -m 0755 infnoise $(PREFIX)/sbin/
 	install -d $(PREFIX)/lib/udev/rules.d/

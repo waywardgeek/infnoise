@@ -7,7 +7,7 @@ and can create packages of the following types:
 - RPM (CentOS, Fedora)
 - ArchLinux 
 
-The packages get signed afterwards and made available as Github releases 
+The packages are signed and made available as Github releases 
 and via the apt repository described in software/README.
 
 During the build the GitHub release and version information are compiled into the binary.
