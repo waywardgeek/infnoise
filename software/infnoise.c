@@ -13,7 +13,9 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
-#include <ftdi.h>
+#include <sys/types.h>
+
+#include <ftdi.h> // requires <sys/types.h>
 #include "infnoise.h"
 #include "KeccakF-1600-interface.h"
 
