@@ -1,0 +1,8 @@
+Package: libinfnoise
+Essential: no
+Section: security 
+Depends: libftdi1
+Priority: optional
+Maintainer: Manuel Domke
+Installed-Size: 12K
+Description: Infinite Noise TRNG library
