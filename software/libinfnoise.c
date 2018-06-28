@@ -13,8 +13,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
-#include <sys/types.h> // required by ftdi.h
-#include <linux/limits.h> // required by ftdi.h
+#include <sys/types.h>
 #include <ftdi.h>
 #include "libinfnoise_private.h"
 #include "libinfnoise.h"
