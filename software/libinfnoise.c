@@ -291,7 +291,12 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
                 if(!isSuperUser()) {
                     *message = "Can't open Infinite Noise Multiplier. Try running as super user?";
                 } else {
-                    *message = "Can't open Infinite Noise Multiplier";
+#ifdef LINUX
+                    *message = "Can't open Infinite Noise Multiplier.";
+#endif
+#ifdef MACOS
+                    *message = "Can't open Infinite Noise Multiplier. sudo kextunload -b com.FTDI.driver.FTDIUSBSerialDriver ?";
+#endif
                 }
                 return false;
             }
