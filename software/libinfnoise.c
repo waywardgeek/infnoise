@@ -89,7 +89,7 @@ uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, char **message, bool *erro
             // This is a good place to feed the bit from the INM to the health checker.
             if(!inmHealthCheckAddBit(evenBit, oddBit, even)) {
                 *message = "Health check of Infinite Noise Multiplier failed!";
-		*errorFlag = true;
+                *errorFlag = true;
                 return 0;
             }
         }
@@ -113,8 +113,15 @@ bool outputBytes(uint8_t *bytes,  uint32_t length, uint32_t entropy, bool writeD
             return false;
         }
     } else {
+#ifdef MACOS
+        *message = "macOS doesn't support writes to entropy pool";
+        entropy = 0; // suppress warning
+        return false;
+#endif
+#ifdef LINUX
         inmWaitForPoolToHaveRoom();
         inmWriteEntropyToPool(bytes, length, entropy);
+#endif
     }
     return true;
 }
@@ -141,14 +148,14 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
         // In raw mode, we just output raw data from the INM.
         if (!noOutput) {
             if (!outputBytes(bytes, BUFLEN/8u, entropy, writeDevRandom, message)) {
-		*errorFlag = true;
+                *errorFlag = true;
                 return 0; // write failed
             }
         } else {
-	    if (result != NULL) {
+            if (result != NULL) {
                 memcpy(result, bytes, BUFLEN/8u * sizeof(uint8_t));
             }
-	}
+        }
         return BUFLEN/8u;
     }
 
@@ -164,16 +171,16 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
     if(outputMultiplier == 0u) {
         // Output all the bytes of entropy we have
         KeccakExtract(keccakState, dataOut, (entropy + 63u)/64u);
-	if (!noOutput) {
-	    if (!outputBytes(dataOut, entropy/8u, entropy & 0x7u, writeDevRandom, message)) {
+        if (!noOutput) {
+            if (!outputBytes(dataOut, entropy/8u, entropy & 0x7u, writeDevRandom, message)) {
                 *errorFlag = true;
                 return 0;
             }
-	} else {
-	    if (result != NULL) {
+        } else {
+            if (result != NULL) {
                 memcpy(result, dataOut, entropy/8u * sizeof(uint8_t));
             }
-	}
+        }
         return entropy/8u;
     }
 
@@ -192,20 +199,20 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
         if(entropyThisTime > 8u*bytesToWrite) {
             entropyThisTime = 8u*bytesToWrite;
         }
-	if (!noOutput) {
+        if (!noOutput) {
             if (!outputBytes(dataOut, bytesToWrite, entropyThisTime, writeDevRandom, message)) {
                 *errorFlag = true;
                 return 0;
             }
-	} else {
+        } else {
             //memcpy(result + bytesWritten, dataOut, bytesToWrite * sizeof(uint8_t)); //doesn't work?
             // alternative: loop through dataOut and append array elements to result..
-	    if (result != NULL) {
+            if (result != NULL) {
                 for (uint32_t i =0; i < bytesToWrite; i++ ) {
                     result[bytesWritten + i] = dataOut[i];
                 }
             }
-	}
+        }
         bytesWritten += bytesToWrite;
         numBits -= bytesToWrite*8u;
         entropy -= entropyThisTime;
@@ -215,7 +222,7 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
     }
     if(bytesWritten != outputMultiplier*(256u/8u)) {
         *message = "Internal error outputing bytes";
-	*errorFlag = true;
+        *errorFlag = true;
         return 0;
     }
     return bytesWritten;
@@ -247,15 +254,15 @@ bool listUSBDevices(struct ftdi_context *ftdic, char** message) {
         if (rc < 0) {
             if (!isSuperUser()) {
                 *message = "Can't find Infinite Noise Multiplier.  Try running as super user?";
-		return false;
+                return false;
             }
             //*message = "ftdi_usb_get_strings failed: %d (%s)\n", rc, ftdi_get_error_string(ftdic));
-	    return false;
-       	}
+            return false;
+        }
 
-	// print to stdout
+        // print to stdout
         printf("Manufacturer: %s, Description: %s, Serial: %s", manufacturer, description, serial);
-       	curdev = curdev->next;
+        curdev = curdev->next;
     }
 
     return true;
@@ -275,10 +282,10 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
 
     // only one found, or no serial given
     if (rc >= 0) {
-	if (serial == NULL) {
+        if (serial == NULL) {
             // more than one found AND no serial given
             if (rc >= 2) {
-		*message = "Multiple Infnoise TRNGs found and serial not specified, using the first one!";
+                *message = "Multiple Infnoise TRNGs found and serial not specified, using the first one!";
             }
             if (ftdi_usb_open(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID) < 0) {
                 if(!isSuperUser()) {
@@ -287,7 +294,7 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
                     *message = "Can't open Infinite Noise Multiplier";
                 }
                 return false;
-	    }
+            }
         } else {
             // serial specified
             rc = ftdi_usb_open_desc(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID, NULL, serial);
@@ -298,7 +305,7 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
                     *message = "Can't find Infinite Noise Multiplier with given serial";
                 }
                 return false;
-	    }
+            }
         }
     }
 
@@ -369,10 +376,10 @@ uint32_t readData_private(struct ftdi_context *ftdic, uint8_t *result, char **me
         uint8_t bytes[BUFLEN/8u];
         uint32_t entropy = extractBytes(bytes, inBuf, message, errorFlag);
 
-	// call health check and process bytes if OK
+        // call health check and process bytes if OK
         if (inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
             uint32_t byteswritten = processBytes(bytes, result, entropy, raw, devRandom, outputMultiplier, noOutput, message, errorFlag);
-	    return byteswritten;
+            return byteswritten;
         }
     }
     return 0;
@@ -408,10 +415,10 @@ int main() {
         uint64_t bytesWritten = 0u;
         bytesWritten = readData(&ftdic, keccakState, result, multiplier);
 
-	// check for -1, indicating an error
+        // check for -1, indicating an error
         totalBytesWritten += bytesWritten;
 
-	// make sure to only read as many bytes as readData returned. Only those have passed the health check in this round (usually all)
+        // make sure to only read as many bytes as readData returned. Only those have passed the health check in this round (usually all)
         fwrite(result, 1, bytesWritten, stdout);
     }
 }
