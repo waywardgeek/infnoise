@@ -10,8 +10,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
-
-#include <ftdi.h>
+#include <sys/types.h>
+#include <ftdi.h> // requires <sys/types.h>
 #include "infnoise.h"
 #include "libinfnoise.h"
 #include "libinfnoise_private.h"

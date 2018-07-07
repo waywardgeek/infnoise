@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/types.h>
+#include <linux/limits.h>
 #include <ftdi.h>
 
 // Structure for parsed command line options
