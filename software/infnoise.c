@@ -14,6 +14,7 @@
 #include <string.h>
 #include <time.h>
 #include <ftdi.h>
+#include <getopt.h>
 #include "infnoise.h"
 #include "KeccakF-1600-interface.h"
 
@@ -253,84 +254,109 @@ static double diffTime(struct timespec *start, struct timespec *end) {
     return seconds*1.0e6 + nanoseconds/1000.0;
 }
 
-int main(int argc, char **argv)
-{
+// getopt_long(3) options descriptor
+
+static struct option longopts[] = {{"raw", no_argument, NULL, 'r'},
+                                   {"debug", no_argument, NULL, 'D'},
+                                   {"dev-random", no_argument, NULL, 'R'},
+                                   {"no-output", no_argument, NULL, 'n'},
+                                   {"multiplier", required_argument, NULL, 'm'},
+                                   {"pidfile", required_argument, NULL, 'p'},
+                                   {"serial", required_argument, NULL, 's'},
+                                   {"daemon", no_argument, NULL, 'd'},
+                                   {"list-devices", no_argument, NULL, 'l'},
+                                   {"version", no_argument, NULL, 'v'},
+                                   {"help", no_argument, NULL, 'h'},
+                                   {NULL, 0, NULL, 0}};
+
+int main(int argc, char **argv) {
     struct ftdi_context ftdic;
     struct opt_struct opts;
-    int xArg;
+    int ch;
     bool multiplierAssigned = false;
 
     initOpts(&opts);
 
     // Process arguments
-    for(xArg = 1; xArg < argc; xArg++) {
-        if(!strcmp(argv[xArg], "--raw")) {
+    while ((ch = getopt_long(argc, argv, "rDRnm:p:s:dlvh", longopts, NULL)) !=
+           -1) {
+        switch (ch) {
+        case 'r':
             opts.raw = true;
-        } else if(!strcmp(argv[xArg], "--debug")) {
+            break;
+        case 'D':
             opts.debug = true;
-        } else if(!strcmp(argv[xArg], "--dev-random")) {
+            break;
+        case 'R':
             opts.devRandom = true;
-        } else if(!strcmp(argv[xArg], "--no-output")) {
+            break;
+        case 'n':
             opts.noOutput = true;
-        } else if(!strcmp(argv[xArg], "--multiplier") && xArg+1 < argc) {
-            xArg++;
+            break;
+        case 'm':
             multiplierAssigned = true;
-            int tmpOutputMult = atoi(argv[xArg]);
-            if(tmpOutputMult < 0) {
+            int tmpOutputMult = atoi(optarg);
+            if (tmpOutputMult < 0) {
                 fputs("Multiplier must be >= 0\n", stderr);
                 return 1;
             }
             opts.outputMultiplier = tmpOutputMult;
-        } else if(!strcmp(argv[xArg], "--pidfile")) {
-            xArg++;
-            opts.pidFileName = argv[xArg];
-            if(opts.pidFileName == NULL || !strcmp("", opts.pidFileName)) {
+            break;
+        case 'p':
+            opts.pidFileName = optarg;
+            if (opts.pidFileName == NULL || !strcmp("", opts.pidFileName)) {
                 fputs("--pidfile without file name\n", stderr);
                 return 1;
             }
-        } else if(!strcmp(argv[xArg], "--serial")) {
-            xArg++;
-            opts.serial = argv[xArg];
-            if(opts.serial == NULL || !strcmp("",opts.serial)) {
+            break;
+        case 's':
+            opts.serial = optarg;
+            if (opts.serial == NULL || !strcmp("", opts.serial)) {
                 fputs("--serial without value\n", stderr);
                 return 1;
             }
-        } else if(!strcmp(argv[xArg], "--daemon")) {
+            break;
+        case 'd':
             opts.daemon = true;
-        } else if(!strcmp(argv[xArg], "--list-devices")) {
+            break;
+        case 'l':
             opts.listDevices = true;
-        } else if(!strcmp(argv[xArg], "--version") || !strcmp(argv[xArg], "-v")) {
+            break;
+        case 'v':
             opts.version = true;
-        } else if(!strcmp(argv[xArg], "--help") || !strcmp(argv[xArg], "-h")) {
+            break;
+        case 'h':
             opts.help = true;
-        } else {
+            break;
+		default:
             opts.help = true;
-	    opts.none = true;
+            opts.none = true;
         }
     }
 
     if (opts.help) {
-            fputs("Usage: infnoise [options]\n"
-                            "Options are:\n"
-                            "    --debug - turn on some debug output\n"
-                            "    --dev-random - write entropy to /dev/random instead of stdout\n"
-                            "    --raw - do not whiten the output\n"
-                            "    --multiplier <value> - write 256 bits * value for each 512 bits written to\n"
-                            "      the Keccak sponge.  Default of 0 means write all the entropy.\n"
-                            "    --no-output - do not write random output data\n"
-                            "    --pidfile <file> - write process ID to file\n"
-                            "    --daemon - run in the background\n"
-                            "    --serial <serial> - use specified device\n"
-                            "    --list-devices - list available devices\n"
-                            "    --version - show version information\n"
-                            "    --help - this help output\n", stdout);
-	if (opts.none) {
+        fputs("Usage: infnoise [options]\n"
+              "Options are:\n"
+              "    -D, --debug - turn on some debug output\n"
+              "    -R, --dev-random - write entropy to /dev/random instead of "
+              "stdout\n"
+              "    -r, --raw - do not whiten the output\n"
+              "    -m, --multiplier <value> - write 256 bits * value for each 512 bits written to\n"
+              "      the Keccak sponge.  Default of 0 means write all the entropy.\n"
+              "    -n, --no-output - do not write random output data\n"
+              "    -p, --pidfile <file> - write process ID to file\n"
+              "    -d, --daemon - run in the background\n"
+              "    -s, --serial <serial> - use specified device\n"
+              "    -l, --list-devices - list available devices\n"
+              "    -v, --version - show version information\n"
+              "    -h, --help - this help output\n",
+              stdout);
+        if (opts.none) {
             return 1;
         } else {
             return 0;
         }
     }
-
 
     // read environment variables, not overriding command line options
     if (opts.serial == NULL) {
