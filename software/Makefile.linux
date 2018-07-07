@@ -8,6 +8,7 @@ CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I /usr/include/libf
  -DGIT_VERSION=\"$(GIT_VERSION)\"\
  -DGIT_COMMIT=\"$(GIT_COMMIT)\"\
  -DGIT_DATE=\"$(GIT_DATE)\"\
+ -DLINUX
 
 FOUND = $(shell /sbin/ldconfig -p | grep --silent libftdi.so && echo found)
 ifeq ($(FOUND), found)

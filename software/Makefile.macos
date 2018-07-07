@@ -1,0 +1,65 @@
+GIT_VERSION := $(shell git --no-pager describe --tags --always)
+GIT_COMMIT  := $(shell git rev-parse --verify HEAD)
+GIT_DATE    := $(firstword $(shell git --no-pager show --date=iso-strict --format="%ad" --name-only))
+
+PREFIX = $(DESTDIR)/usr/local
+FTDILOC = /usr/local/Cellar/libftdi/1.4/include/libftdi1/
+
+CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I $(FTDILOC) \
+ -DGIT_VERSION=\"$(GIT_VERSION)\"\
+ -DGIT_COMMIT=\"$(GIT_COMMIT)\"\
+ -DGIT_DATE=\"$(GIT_DATE)\"\
+ -DMACOS
+
+FTDI=   -lftdi1
+
+all: libinfnoise.a libinfnoise.so infnoise
+
+clean:
+	rm -f *.o *.a infnoise
+
+infnoise: libinfnoise.a infnoise.o daemon.o
+	$(CC) $(CFLAGS) -o infnoise infnoise.o daemon.o libinfnoise.a $(FTDI) -lm -L. -linfnoise
+
+%.o: %.c infnoise.h libinfnoise.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+KeccakF-1600-reference.o: Keccak/KeccakF-1600-reference.c Keccak/KeccakF-1600-interface.h Keccak/brg_endian.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+# static lib compiled into infnoise binary
+libinfnoise.o: libinfnoise.c libinfnoise.h libinfnoise_private.h healthcheck.c
+	$(CC) $(CFLAGS) -c libinfnoise.c
+
+libinfnoise.a: libinfnoise.o healthcheck.o KeccakF-1600-reference.o
+
+	ar rcs libinfnoise.a libinfnoise.o healthcheck.o KeccakF-1600-reference.o
+	ranlib libinfnoise.a
+
+# shared lib
+libinfnoise.so: libinfnoise.o healthcheck.o KeccakF-1600-reference.o
+	$(CC) $(CFLAGS) -fvisibility=hidden -o libinfnoise.so libinfnoise.o healthcheck.o KeccakF-1600-reference.o -Wl $(FTDI) -lm -shared 
+
+libs: libinfnoise.a
+
+clean:
+	$(RM) infnoise *.o *.a *.gch *.so libinfnoise-example
+
+install-lib: libinfnoise.so
+	install -d $(PREFIX)/include
+	install -m 0644 libinfnoise.h $(PREFIX)/include
+	install -d $(PREFIX)/lib
+	install -m 0644 libinfnoise.so $(PREFIX)/lib
+	ldconfig $(PREFIX)/lib
+
+install: infnoise
+	install -d $(PREFIX)/sbin
+	install -m 0755 infnoise $(PREFIX)/sbin/
+	install -d $(PREFIX)/lib/udev/rules.d/
+	install -m 0644 init_scripts/75-infnoise.rules $(PREFIX)/lib/udev/rules.d/
+	install -d $(PREFIX)/lib/systemd/system
+	install -m 0644 init_scripts/infnoise.service $(PREFIX)/lib/systemd/system
+
+postinstall:
+	systemctl restart systemd-udevd
+	systemctl enable infnoise

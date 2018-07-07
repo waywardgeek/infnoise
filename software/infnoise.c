@@ -18,18 +18,18 @@
 #include "KeccakF-1600-interface.h"
 
 static void initOpts(struct opt_struct *opts) {
-	opts->outputMultiplier = 0u;
-	opts->daemon = false;
-	opts->debug = false;
-	opts->devRandom = false;
-	opts->noOutput = false;
-	opts->listDevices = false;
-	opts->raw = false;
-	opts->version = false;
-	opts->help = false;
-	opts->none = false;
-	opts->pidFileName =
-	opts->serial = NULL;
+        opts->outputMultiplier = 0u;
+        opts->daemon = false;
+        opts->debug = false;
+        opts->devRandom = false;
+        opts->noOutput = false;
+        opts->listDevices = false;
+        opts->raw = false;
+        opts->version = false;
+        opts->help = false;
+        opts->none = false;
+        opts->pidFileName =
+        opts->serial = NULL;
 }
 
 int main(int argc, char **argv)
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
             opts.help = true;
         } else {
             opts.help = true;
-	    opts.none = true;
+            opts.none = true;
         }
     }
 
@@ -103,7 +103,7 @@ int main(int argc, char **argv)
                             "    --list-devices - list available devices\n"
                             "    --version - show version information\n"
                             "    --help - this help output\n", stdout);
-	if (opts.none) {
+        if (opts.none) {
             return 1;
         } else {
             return 0;
@@ -142,10 +142,10 @@ int main(int argc, char **argv)
     }
 
     if (opts.version) {
-	printf("GIT VERSION - %s\n", GIT_VERSION);
-	printf("GIT COMMIT  - %s\n", GIT_COMMIT);
-	printf("GIT DATE    - %s\n", GIT_DATE);
-	return 0;
+        printf("GIT VERSION - %s\n", GIT_VERSION);
+        printf("GIT COMMIT  - %s\n", GIT_COMMIT);
+        printf("GIT DATE    - %s\n", GIT_DATE);
+        return 0;
     }
 
     char *message = "no data?";
@@ -156,12 +156,18 @@ int main(int argc, char **argv)
             return 1;
         }
         //fputs(message, stdout); // todo: put list of devices to &message and print here, not in libinfnoise
-	return 0;
+        return 0;
     }
 
     if (opts.devRandom) {
+#ifdef LINUX
         inmWriteEntropyStart(BUFLEN/8u, opts.debug); // todo: create method in libinfnoise.h for this?
-	// also todo: check superUser in this mode (it will fail silently if not :-/)
+        // also todo: check superUser in this mode (it will fail silently if not :-/)
+#endif
+#ifdef MACOS
+        message = "dev/random not supported on macOS";
+        return 0;
+#endif
     }
 
     // Optionally run in the background and optionally write a PID-file
