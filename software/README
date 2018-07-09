@@ -25,16 +25,16 @@ fingerprints at 13-37.org/pgp-keys and in the Crowd Supply campaign.
 Repositories for Ubuntu, Debian and Raspbian are also available. To add them follow this procedure:
 
     $ wget -O 13-37.org-code.asc https://13-37.org/files/pubkey.gpg 
-    
+
     Verify the keys fingerprint:
-    
+
     # GPG1
     $ gpg --with-fingerprints 13-37.org-code.asc
     # GPG2:
     $ gpg2 --import-options import-show --dry-run --import < 13-37.org-code.asc
-    
+
     $ sudo apt-key add 13-37.org-code.gpg
-    
+
 Available for Ubuntu and Debian (x86, x64 and armhf):
 
     $ echo "deb http://repo.13-37.org/ stable main" | sudo tee /etc/apt/sources.list.d/infnoise.list
@@ -58,7 +58,7 @@ this command:
 These include an open source drivers for the FT240X USB chip used on the Infinite Noise
 TRNG.  Once this is done, to compile the infnoise program, simply make it:
 
-    $ make
+    $ make -f Makefile.linux
 
 To run the infnoise application, make sure the Infinite Noise USB stick is
 plugged in, and from a shell, type:
@@ -72,6 +72,38 @@ The Infinite Noise USB driver uses the open source FTDI driver documented at:
 Note that there is a newer alpha version of the next release of the libftdi library.  I
 found it runs much slower than the current libftdi1 library in Ubuntu, so I am sticking
 with the stable release for now.
+
+Compiling the driver for macOS
+------------------------------
+
+First install the dependencies, most easily done with homebrew:
+
+    $ brew install libftdi-dev libusb-dev
+
+Adjust the Makefile, if necessary, to point at your ftdi directory:
+
+    $ mdfind -name ftdi.h
+    /usr/local/Cellar/libftdi/1.4/include/libftdi1/ftdi.h
+
+then, in your Makefile.macos:
+```
+FTDILOC = /usr/local/Cellar/libftdi/1.4/include/libftdi1/
+```
+
+Next build the executable:
+
+    $ make -f Makefile.macos
+
+If running it fails, you may have to run as root:
+
+    $ sudo ./infnoise
+
+Or you may have to unload the FTDI serial port driver:
+
+    $ sudo kextunload -b com.FTDI.driver.FTDIUSBSerialDriver
+
+Alternatively, FTDI have released the [D2XXhelper](http://www.ftdichip.com/Drivers/D2XX.htm), which may prevent the
+serial driver from grabbing the Infinitenoise device.
 
 Usage
 -----
