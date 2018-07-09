@@ -1,7 +1,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/types.h>
+#ifdef LINUX
 #include <linux/limits.h>
+#endif
 #include <ftdi.h>
 #include <time.h>
 
