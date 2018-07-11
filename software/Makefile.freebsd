@@ -4,11 +4,11 @@ GIT_DATE    := $(firstword $(shell git --no-pager show --date=iso-strict --forma
 
 PREFIX = $(DESTDIR)/usr/local
 
-# Against 'libftdi0' from MacOS X ports or brew
+# Against: libftdi1  from ports/pkg
 #
-FTDILOCI = /opt/local/include
-FTDILOCL = /opt/local/lib
-FTDI=   -lftdi
+FTDILOCI = /usr/local/include/libftdi1
+FTDILOCL = /usr/local/lib
+FTDI=   -lftdi1
 
 CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I $(FTDILOCI) \
  -DGIT_VERSION=\"$(GIT_VERSION)\"\
@@ -20,7 +20,7 @@ RM=rm
 all: libinfnoise.a libinfnoise.so infnoise
 
 infnoise: libinfnoise.a infnoise.o daemon.o
-	$(CC) $(CFLAGS) -o infnoise infnoise.o daemon.o libinfnoise.a $(FTDI) -lm -L. -L $(FTDILOCL) -linfnoise
+	$(CC) $(CFLAGS) -o infnoise infnoise.o daemon.o libinfnoise.a $(FTDI) -lm -L. -L $(FTDILOCL) 
 
 %.o: %.c infnoise.h libinfnoise.h
 	$(CC) -c -o $@ $< $(CFLAGS)
@@ -33,7 +33,6 @@ libinfnoise.o: libinfnoise.c libinfnoise.h libinfnoise_private.h healthcheck.c
 	$(CC) $(CFLAGS) -c libinfnoise.c
 
 libinfnoise.a: libinfnoise.o healthcheck.o KeccakF-1600-reference.o
-
 	ar rcs libinfnoise.a libinfnoise.o healthcheck.o KeccakF-1600-reference.o
 	ranlib libinfnoise.a
 

@@ -8,6 +8,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#if defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__FreeBSD__)
+#include <fcntl.h>
+#endif
 #include <string.h>
 #include <time.h>
 #include <sys/types.h>
@@ -191,7 +194,15 @@ int main(int argc, char **argv) {
         inmWriteEntropyStart(BUFLEN/8u, opts.debug); // todo: create method in libinfnoise.h for this?
         // also todo: check superUser in this mode (it will fail silently if not :-/)
 #endif
-#ifdef MACOS
+#if defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__FreeBSD__)
+    int devRandomFD = open("/dev/random", O_WRONLY);
+    if(devRandomFD < 0) {
+        fprintf(stderr, "Unable to open /dev/random\n");
+        exit(1);
+    }
+    close(devRandomFD);
+#endif
+#if defined(__APPLE__)
         message = "dev/random not supported on macOS";
         return 0;
 #endif
@@ -202,7 +213,7 @@ int main(int argc, char **argv) {
 
     // initialize USB device, health check and Keccak state (see libinfnoise)
     if (!initInfnoise(&ftdic, opts.serial, &message, !opts.raw, opts.debug)) {
-        fputs(message, stderr);
+        fprintf(stderr, "Error: %s\n", message);
         return 1; // ERROR
     }
 

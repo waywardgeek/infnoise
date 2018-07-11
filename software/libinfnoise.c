@@ -19,6 +19,10 @@
 #include "libinfnoise.h"
 #include "KeccakF-1600-interface.h"
 
+#if defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__FreeBSD__)
+#include <fcntl.h>
+#endif
+
 uint8_t keccakState[KeccakPermutationSizeInBytes];
 bool initInfnoise(struct ftdi_context *ftdic,char *serial, char **message, bool keccak, bool debug) {
     prepareOutputBuffer();
@@ -108,13 +112,34 @@ double diffTime(struct timespec *start, struct timespec *end) {
 
 // Write the bytes to either stdout, or /dev/random.
 bool outputBytes(uint8_t *bytes,  uint32_t length, uint32_t entropy, bool writeDevRandom, char **message) {
-    if(!writeDevRandom) {
+    if(!writeDevRandom) 
+    {
         if(fwrite(bytes, 1, length, stdout) != length) {
             *message = "Unable to write output from Infinite Noise Multiplier";
             return false;
         }
     } else {
-#ifdef MACOS
+#if defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__FreeBSD__)
+    // quell compiler warning about unused variable.
+    static int devRandomFD = -1;
+    (void)entropy; 
+
+    if (devRandomFD < 0)
+             devRandomFD = open("/dev/random",O_WRONLY);
+    if (devRandomFD < 0) {
+             *message = "Unable to open random(4)";
+             return false;
+    };
+    // we are not trapping EINT and EAGAIN; as the random(4) driver seems
+    // to not treat partial writes as not an error. So we think that comparing
+    // to length is fine.
+    //
+    if (write(devRandomFD, bytes, length) != length) {
+             *message = "Unable to write output from Infinite Noise Multiplier to random(4)";
+             return false;
+    }
+#endif
+#if defined(__APPLE__)
         *message = "macOS doesn't support writes to entropy pool";
         entropy = 0; // suppress warning
         return false;
@@ -295,8 +320,9 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
 #ifdef LINUX
                     *message = "Can't open Infinite Noise Multiplier.";
 #endif
-#ifdef MACOS
-                    *message = "Can't open Infinite Noise Multiplier. sudo kextunload -b com.FTDI.driver.FTDIUSBSerialDriver ?";
+#if defined(__APPLE__)
+
+                    *message = "Can't open Infinite Noise Multiplier. sudo kextunload -b com.FTDI.driver.FTDIUSBSerialDriver ? sudo kextunload -b  com.apple.driver.AppleUSBFTDI ?";
 #endif
                 }
                 return false;
