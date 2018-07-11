@@ -287,7 +287,7 @@ bool listUSBDevices(struct ftdi_context *ftdic, char** message) {
         }
 
         // print to stdout
-        printf("Manufacturer: %s, Description: %s, Serial: %s", manufacturer, description, serial);
+        printf("Manufacturer: %s, Description: %s, Serial: %s\n", manufacturer, description, serial);
         curdev = curdev->next;
     }
 
