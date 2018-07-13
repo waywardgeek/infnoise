@@ -10,7 +10,7 @@ md5sums=('SKIP')
 install='INSTALL'
 build() {
   cd "${srcdir}/infnoise/software/"
-  make
+  make -f Makefile.linux
 }
 
 package() {

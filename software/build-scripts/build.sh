@@ -5,8 +5,8 @@ VERSION=`git --no-pager describe --tags --always`
 
 PATH=$PATH:/sbin/
 
-make clean
-make
+make -f Makefile.linux clean
+make -f Makefile.linux
 
 rm -rf build
 mkdir -p build/DEBIAN
@@ -40,7 +40,7 @@ rm -rf build
 cd tools
 mkdir -p build/usr/bin/
 
-make
+make -f Makefile.linux
 
 cp passgen build/usr/bin/infnoise-passgen
 cp dice build/usr/bin/infnoise-dice
@@ -67,7 +67,7 @@ rm -rf build
 mkdir -p build/usr/lib
 mkdir -p build/usr/include
 
-make libinfnoise.so
+make -f Makefile.linux libinfnoise.so
 
 cp libinfnoise.so build/usr/lib/
 cp libinfnoise.h build/usr/include
