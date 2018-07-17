@@ -52,9 +52,10 @@ bool initInfnoise(struct ftdi_context *ftdic,char *serial, char **message, bool 
     uint32_t warmupRounds = 0;
     bool errorFlag = false;
     while(!inmHealthCheckOkToUseData()) {
-        readData_private(ftdic, NULL, message, &errorFlag, false, true, 0, false);
+        readRawData(ftdic, NULL, message, &errorFlag);
         warmupRounds++;
     }
+
     if (warmupRounds > maxWarmupRounds) {
         *message = "Unable to collect enough entropy to initialize health checker.";
         return false;
@@ -103,67 +104,10 @@ uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, char **message, bool *erro
     return inmGetEntropyLevel();
 }
 
-// Return the difference in the times as a double in microseconds.
-double diffTime(struct timespec *start, struct timespec *end) {
-    uint32_t seconds = end->tv_sec - start->tv_sec;
-    int32_t nanoseconds = end->tv_nsec - start->tv_nsec;
-    return seconds*1.0e6 + nanoseconds/1000.0;
-}
 
-// Write the bytes to either stdout, or /dev/random.
-bool outputBytes(uint8_t *bytes,  uint32_t length, uint32_t entropy, bool writeDevRandom, char **message) {
-    if(!writeDevRandom) 
-    {
-        if(fwrite(bytes, 1, length, stdout) != length) {
-            *message = "Unable to write output from Infinite Noise Multiplier";
-            return false;
-        }
-    } else {
-#if defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__FreeBSD__)
-    // quell compiler warning about unused variable.
-    static int devRandomFD = -1;
-    (void)entropy; 
 
-    if (devRandomFD < 0)
-             devRandomFD = open("/dev/random",O_WRONLY);
-    if (devRandomFD < 0) {
-             *message = "Unable to open random(4)";
-             return false;
-    };
-    // we are not trapping EINT and EAGAIN; as the random(4) driver seems
-    // to not treat partial writes as not an error. So we think that comparing
-    // to length is fine.
-    //
-    if (write(devRandomFD, bytes, length) != length) {
-             *message = "Unable to write output from Infinite Noise Multiplier to random(4)";
-             return false;
-    }
-#endif
-#if defined(__APPLE__)
-        *message = "macOS doesn't support writes to entropy pool";
-        entropy = 0; // suppress warning
-        return false;
-#endif
-#ifdef LINUX
-        inmWaitForPoolToHaveRoom();
-        inmWriteEntropyToPool(bytes, length, entropy);
-#endif
-    }
-    return true;
-}
-
-bool isSuperUser(void) {
-        return (geteuid() == 0);
-}
-
-// Whiten the output, if requested, with a Keccak sponge. Output bytes only if the health
-// checker says it's OK.  Using outputMultiplier > 1 is a nice way to generate a lot more
-// cryptographically secure pseudo-random data than the INM generates.  If
-// outputMultiplier is 0, we output only as many bits as we measure in entropy.
-// This allows a user to generate hundreds of MiB per second if needed, for use
-// as cryptographic keys.
 uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
-        bool raw, bool writeDevRandom, uint32_t outputMultiplier, bool noOutput,
+        bool raw, uint32_t outputMultiplier,
         char **message, bool *errorFlag) {
     //Use the lower of the measured entropy and the provable lower bound on
     //average entropy.
@@ -172,16 +116,9 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
     }
     if(raw) {
         // In raw mode, we just output raw data from the INM.
-        if (!noOutput) {
-            if (!outputBytes(bytes, BUFLEN/8u, entropy, writeDevRandom, message)) {
-                *errorFlag = true;
-                return 0; // write failed
-            }
-        } else {
             if (result != NULL) {
                 memcpy(result, bytes, BUFLEN/8u * sizeof(uint8_t));
             }
-        }
         return BUFLEN/8u;
     }
 
@@ -197,16 +134,10 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
     if(outputMultiplier == 0u) {
         // Output all the bytes of entropy we have
         KeccakExtract(keccakState, dataOut, (entropy + 63u)/64u);
-        if (!noOutput) {
-            if (!outputBytes(dataOut, entropy/8u, entropy & 0x7u, writeDevRandom, message)) {
-                *errorFlag = true;
-                return 0;
-            }
-        } else {
+
             if (result != NULL) {
                 memcpy(result, dataOut, entropy/8u * sizeof(uint8_t));
             }
-        }
         return entropy/8u;
     }
 
@@ -225,12 +156,7 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
         if(entropyThisTime > 8u*bytesToWrite) {
             entropyThisTime = 8u*bytesToWrite;
         }
-        if (!noOutput) {
-            if (!outputBytes(dataOut, bytesToWrite, entropyThisTime, writeDevRandom, message)) {
-                *errorFlag = true;
-                return 0;
-            }
-        } else {
+
             //memcpy(result + bytesWritten, dataOut, bytesToWrite * sizeof(uint8_t)); //doesn't work?
             // alternative: loop through dataOut and append array elements to result..
             if (result != NULL) {
@@ -238,7 +164,6 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
                     result[bytesWritten + i] = dataOut[i];
                 }
             }
-        }
         bytesWritten += bytesToWrite;
         numBits -= bytesToWrite*8u;
         entropy -= entropyThisTime;
@@ -253,6 +178,26 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
     }
     return bytesWritten;
 }
+
+
+// Return the difference in the times as a double in microseconds.
+double diffTime(struct timespec *start, struct timespec *end) {
+    uint32_t seconds = end->tv_sec - start->tv_sec;
+    int32_t nanoseconds = end->tv_nsec - start->tv_nsec;
+    return seconds*1.0e6 + nanoseconds/1000.0;
+}
+
+bool isSuperUser(void) {
+        return (geteuid() == 0);
+}
+
+// Whiten the output, if requested, with a Keccak sponge. Output bytes only if the health
+// checker says it's OK.  Using outputMultiplier > 1 is a nice way to generate a lot more
+// cryptographically secure pseudo-random data than the INM generates.  If
+// outputMultiplier is 0, we output only as many bits as we measure in entropy.
+// This allows a user to generate hundreds of MiB per second if needed, for use
+// as cryptographic keys.
+
 
 // Return a list of all infinite noise multipliers found.
 bool listUSBDevices(struct ftdi_context *ftdic, char** message) {
@@ -375,16 +320,41 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
     return true;
 }
 
+
 uint32_t readRawData(struct ftdi_context *ftdic, uint8_t *result, char **message, bool *errorFlag) {
-    return readData_private(ftdic, result, message, errorFlag, false, true, 0, false);
+        uint8_t inBuf[BUFLEN];
+    struct timespec start;
+    clock_gettime(CLOCK_REALTIME, &start);
+
+    // write clock signal
+    if(ftdi_write_data(ftdic, outBuf, BUFLEN) != BUFLEN) {
+        *message = "USB write failed";
+        *errorFlag = true;
+    }
+
+    // and read 512 byte from the internal buffer (in synchronous bitbang mode)
+    if(ftdi_read_data(ftdic, inBuf, BUFLEN) != BUFLEN) {
+        *message = "USB read failed";
+        *errorFlag = true;
+    }
+
+    struct timespec end;
+    clock_gettime(CLOCK_REALTIME, &end);
+    uint32_t us = diffTime(&start, &end);
+    if(us <= MAX_MICROSEC_FOR_SAMPLES) {
+        uint8_t bytes[BUFLEN/8u];
+        uint32_t entropy = extractBytes(bytes, inBuf, message, errorFlag);
+
+        // call health check and process bytes if OK
+        if (inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
+            uint32_t byteswritten = processBytes(bytes, result, entropy, true, 0, message, errorFlag);
+            return byteswritten;
+        }
+    }
+    return 0;
 }
 
 uint32_t readData(struct ftdi_context *ftdic, uint8_t *result, char **message, bool *errorFlag, uint32_t outputMultiplier) {
-    return readData_private(ftdic, result, message, errorFlag, false, false, outputMultiplier, false);
-}
-
-uint32_t readData_private(struct ftdi_context *ftdic, uint8_t *result, char **message, bool *errorFlag,
-                        bool noOutput, bool raw, uint32_t outputMultiplier, bool devRandom) {
     uint8_t inBuf[BUFLEN];
     struct timespec start;
     clock_gettime(CLOCK_REALTIME, &start);
@@ -410,12 +380,13 @@ uint32_t readData_private(struct ftdi_context *ftdic, uint8_t *result, char **me
 
         // call health check and process bytes if OK
         if (inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
-            uint32_t byteswritten = processBytes(bytes, result, entropy, raw, devRandom, outputMultiplier, noOutput, message, errorFlag);
+            uint32_t byteswritten = processBytes(bytes, result, entropy, false, outputMultiplier, message, errorFlag);
             return byteswritten;
         }
     }
     return 0;
-}
+    }
+//
 
 #ifdef LIB_EXAMPLE_PROGRAM
 // example use of libinfnoise - with keccak
