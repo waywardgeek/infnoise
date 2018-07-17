@@ -24,4 +24,8 @@ struct opt_struct {
 	char *serial;		// Name of selected device
 };
 
+void inmWriteEntropyStart(uint32_t bufLen, bool debug);
+void inmWriteEntropyToPool(uint8_t *bytes, uint32_t length, uint32_t entropy);
+void inmWaitForPoolToHaveRoom(void);
+
 void startDaemon(struct opt_struct *opts);

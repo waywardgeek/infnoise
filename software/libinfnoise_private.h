@@ -48,9 +48,7 @@ double inmHealthCheckEstimateEntropyPerBit(void);
 uint32_t inmGetEntropyLevel(void);
 void inmClearEntropyLevel(void);
 bool inmEntropyOnTarget(uint32_t entropy, uint32_t bits);
-void inmWriteEntropyStart(uint32_t bufLen, bool debug);
-void inmWriteEntropyToPool(uint8_t *bytes, uint32_t length, uint32_t entropy);
-void inmWaitForPoolToHaveRoom(void);
+
 void inmDumpStats(void);
 
 extern double inmK, inmExpectedEntropyPerBit;
