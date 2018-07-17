@@ -281,16 +281,13 @@ int main(int argc, char **argv) {
             totalBytesWritten += readData(&ftdic, result, &message, &errorFlag, opts.outputMultiplier);
         }
         
-        //totalBytesWritten += readData_private(&ftdic, NULL, &message, &errorFlag, opts.noOutput, opts.raw, opts.outputMultiplier, opts.devRandom); // calling libinfnoise's private readData method
-
         if (errorFlag) {
             fprintf(stderr, "Error: %s\n", message);
             return 1;
         }
         
-        if (!opts.noOutput) {                                          // TODO: pass entropy, so we know how much to write to /dev/random - 
-            outputBytes(result, totalBytesWritten - prevTotalBytesWritten, 512, opts.devRandom, &message);
-                    // bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom, char **message) {
+        if (!opts.noOutput) {               // TODO: pass entropy, so we know how much to write to /dev/random. For testing, use 64 instead of 0.
+            outputBytes(result, totalBytesWritten - prevTotalBytesWritten, 0, opts.devRandom, &message);
         }
 
         if (opts.debug && (1u << 20u)*(totalBytesWritten / (1u << 20u)) > (1u << 20u)*(prevTotalBytesWritten / (1u << 20u))) {
