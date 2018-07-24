@@ -225,18 +225,22 @@ int main(int argc, char **argv) {
     char *message = "no data?";
     bool errorFlag = false;
     if (opts.listDevices) {
-        if (!listUSBDevices(&message)) {
-            fputs(message, stderr);
-            return 1;
+        devlist_node *devlist = listUSBDevices(&message);
+        devlist_node *curdev;
+        uint8_t i=0;
+        for (curdev = devlist; curdev != NULL;i++) {
+                printf("Manufacturer: %s, Description: %s, Serial: %s\n", curdev->manufacturer, curdev.description,
+                curdev.serial);
+                curdev = curdev->next;
         }
-        //fputs(message, stdout); // todo: put list of devices to &message and print here, not in libinfnoise
+        //fputs(message, stdout); // TODO: iterate through infnoise_devlist and print stuff
         return 0;
     }
 
     if (opts.devRandom) {
 #ifdef LINUX
-        inmWriteEntropyStart(BUFLEN / 8u, opts.debug); // todo: create method in libinfnoise.h for this?
-        // also todo: check superUser in this mode (it will fail silently if not :-/)
+        inmWriteEntropyStart(BUFLEN / 8u, opts.debug); // TODO: create method in libinfnoise.h for this?
+        // also TODO: check superUser in this mode (it will fail silently if not :-/)
 #endif
 #if defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__FreeBSD__)
         int devRandomFD = open("/dev/random", O_WRONLY);
@@ -288,9 +292,8 @@ int main(int argc, char **argv) {
             return 1;
         }
         
-        if (!opts.noOutput) {               // TODO: pass entropy, so we know how much to write to /dev/random. For testing, use 64 instead of 0.
-                                            //(next step: use entropyBytes from context struct)
-                    outputBytes(result, totalBytesWritten - prevTotalBytesWritten, 0, opts.devRandom, &message);
+        if (!opts.noOutput) {
+                    outputBytes(result, totalBytesWritten - prevTotalBytesWritten, context.entropyThisTime, opts.devRandom, &message);
         }
 
         if (opts.debug && (1u << 20u)*(totalBytesWritten / (1u << 20u)) > (1u << 20u)*(prevTotalBytesWritten / (1u << 20u))) {

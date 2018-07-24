@@ -15,13 +15,23 @@
 
 struct infnoise_context {
         struct ftdi_context ftdic;
-        uint32_t entropyBytes;
+        uint32_t entropyThisTime;
         char *message;
         bool errorFlag;
         //uint8_t keccakState[KeccakPermutationSizeInBytes];
-} ;
+};
 
-bool listUSBDevices(char** message);
+struct infnoise_devlist_node {
+	uint8_t id;
+	char *manufacturer;
+	char *description;
+	char *serial;
+	struct infnoise_devlist_node *next;
+};
+
+typedef struct infnoise_devlist_node* devlist_node;
+
+devlist_node* listUSBDevices(char** message);
 
 bool initInfnoise(struct infnoise_context *context, char *serial, bool keccak, bool debug);
 

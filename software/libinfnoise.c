@@ -200,9 +200,8 @@ bool isSuperUser(void) {
 
 // Return a list of all infinite noise multipliers found.
 
-bool listUSBDevices(char** message) {
+devlist_node* listUSBDevices(char **message) {
     struct ftdi_context ftdic;
-
     ftdi_init(&ftdic);
 
     struct ftdi_device_list *devlist;
@@ -210,7 +209,7 @@ bool listUSBDevices(char** message) {
     char manufacturer[128], description[128], serial[128];
     int i = 0;
 
-    // search devices
+	// search devices
     int rc = ftdi_usb_find_all(&ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID);
 
     if (rc < 0) {
@@ -221,24 +220,42 @@ bool listUSBDevices(char** message) {
         }
     }
 
+    devlist_node *return_list =NULL;
+    devlist_node *current_entry =NULL;
+
     for (curdev = devlist; curdev != NULL; i++) {
-        //printf("Device: %d, ", i);
+        if (return_list == NULL) {
+            *return_list = (devlist_node) malloc(sizeof(struct infnoise_devlist_node));
+            (*return_list)->id = i;
+            (*return_list)->serial = serial;
+            (*return_list)->manufacturer = manufacturer;
+            (*return_list)->description = description;
+            current_entry = return_list;
+        } else {
+            (*current_entry)->next = (devlist_node) malloc(sizeof(struct infnoise_devlist_node));
+            current_entry = (*current_entry)->next;
+            (*current_entry)->id = i;
+            (*current_entry)->serial = serial;
+            (*current_entry)->manufacturer = manufacturer;
+            (*current_entry)->description = description;
+        }
+
         rc = ftdi_usb_get_strings(&ftdic, curdev->dev, manufacturer, 128, description, 128, serial, 128);
         if (rc < 0) {
             if (!isSuperUser()) {
-                *message = "Can't find Infinite Noise Multiplier.  Try running as super user?";
-                return false;
+                *message = "Can't find Infinite Noise Multiplier. Try running as super user?";
+                return return_list;
             }
             //*message = "ftdi_usb_get_strings failed: %d (%s)\n", rc, ftdi_get_error_string(ftdic));
-            return false;
+            return return_list;
         }
 
         // print to stdout
-        printf("Manufacturer: %s, Description: %s, Serial: %s\n", manufacturer, description, serial);
+        //printf("Manufacturer: %s, Description: %s, Serial: %s\n", manufacturer, description, serial);
         curdev = curdev->next;
+        //current_node = current_node->next;  // ???
     }
-
-    return true;
+    return return_list;
 }
 
 // Initialize the Infinite Noise Multiplier USB interface.
@@ -345,12 +362,11 @@ uint32_t readRawData(struct infnoise_context *context, uint8_t *result) {
     uint32_t us = diffTime(&start, &end);
     if (us <= MAX_MICROSEC_FOR_SAMPLES) {
         uint8_t bytes[BUFLEN / 8u];
-        uint32_t entropy = extractBytes(bytes, inBuf, &context->message, &context->errorFlag);
+        context->entropyThisTime = extractBytes(bytes, inBuf, &context->message, &context->errorFlag);
 
         // call health check and process bytes if OK
-        if (inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
-            uint32_t byteswritten = processBytes(bytes, result, entropy, true, 0, &context->message, &context->errorFlag);
-            return byteswritten;
+        if (inmHealthCheckOkToUseData() && inmEntropyOnTarget(context->entropyThisTime, BUFLEN)) {
+            return processBytes(bytes, result, context->entropyThisTime, true, 0, &context->message, &context->errorFlag);
         }
     }
     return 0;
@@ -378,12 +394,11 @@ uint32_t readData(struct infnoise_context *context, uint8_t *result, uint32_t ou
     uint32_t us = diffTime(&start, &end);
     if (us <= MAX_MICROSEC_FOR_SAMPLES) {
         uint8_t bytes[BUFLEN / 8u];
-        uint32_t entropy = extractBytes(bytes, inBuf, &context->message, &context->errorFlag);
+        context->entropyThisTime = extractBytes(bytes, inBuf, &context->message, &context->errorFlag);
 
         // call health check and process bytes if OK
-        if (inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
-            uint32_t byteswritten = processBytes(bytes, result, entropy, false, outputMultiplier, &context->message, &context->errorFlag);
-            return byteswritten;
+        if (inmHealthCheckOkToUseData() && inmEntropyOnTarget(context->entropyThisTime, BUFLEN)) {
+            return processBytes(bytes, result, context->entropyThisTime, false, outputMultiplier, &context->message, &context->errorFlag);
         }
     }
     return 0;
@@ -392,6 +407,7 @@ uint32_t readData(struct infnoise_context *context, uint8_t *result, uint32_t ou
 
 #ifdef LIB_EXAMPLE_PROGRAM
 // example use of libinfnoise - with keccak
+// TODO: rewrite!
 
 int main() {
     char *serial = NULL; // use any device, can be set to a specific serial
