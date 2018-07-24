@@ -95,7 +95,8 @@ bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDe
 }
 
 int main(int argc, char **argv) {
-    struct ftdi_context ftdic;
+    //struct ftdi_context ftdic;
+    struct infnoise_context context;
     struct opt_struct opts;
     int ch;
     bool multiplierAssigned = false;
@@ -224,7 +225,7 @@ int main(int argc, char **argv) {
     char *message = "no data?";
     bool errorFlag = false;
     if (opts.listDevices) {
-        if (!listUSBDevices(&ftdic, &message)) {
+        if (!listUSBDevices(&message)) {
             fputs(message, stderr);
             return 1;
         }
@@ -254,9 +255,10 @@ int main(int argc, char **argv) {
     // Optionally run in the background and optionally write a PID-file
     startDaemon(&opts);
 
+
     // initialize USB device, health check and Keccak state (see libinfnoise)
-    if (!initInfnoise(&ftdic, opts.serial, &message, !opts.raw, opts.debug)) {
-        fprintf(stderr, "Error: %s\n", message);
+    if (!initInfnoise(&context, opts.serial, !opts.raw, opts.debug)) {
+        fprintf(stderr, "Error: %s\n", context.message);
         return 1; // ERROR
     }
 
@@ -276,9 +278,9 @@ int main(int argc, char **argv) {
         uint64_t prevTotalBytesWritten = totalBytesWritten;
 
         if (opts.raw) {
-            totalBytesWritten += readRawData(&ftdic, result, &message, &errorFlag);
+            totalBytesWritten += readRawData(&context, result);
         } else {
-            totalBytesWritten += readData(&ftdic, result, &message, &errorFlag, opts.outputMultiplier);
+            totalBytesWritten += readData(&context, result, opts.outputMultiplier);
         }
         
         if (errorFlag) {
@@ -287,7 +289,8 @@ int main(int argc, char **argv) {
         }
         
         if (!opts.noOutput) {               // TODO: pass entropy, so we know how much to write to /dev/random. For testing, use 64 instead of 0.
-            outputBytes(result, totalBytesWritten - prevTotalBytesWritten, 0, opts.devRandom, &message);
+                                            //(next step: use entropyBytes from context struct)
+                    outputBytes(result, totalBytesWritten - prevTotalBytesWritten, 0, opts.devRandom, &message);
         }
 
         if (opts.debug && (1u << 20u)*(totalBytesWritten / (1u << 20u)) > (1u << 20u)*(prevTotalBytesWritten / (1u << 20u))) {

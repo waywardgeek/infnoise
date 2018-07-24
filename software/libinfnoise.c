@@ -16,7 +16,6 @@
 #include <sys/types.h>
 #include <ftdi.h>
 #include "libinfnoise_private.h"
-#include "libinfnoise.h"
 #include "KeccakF-1600-interface.h"
 
 #if defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__FreeBSD__)
@@ -25,19 +24,19 @@
 
 uint8_t keccakState[KeccakPermutationSizeInBytes];
 
-bool initInfnoise(struct ftdi_context *ftdic, char *serial, char **message, bool keccak, bool debug) {
+bool initInfnoise(struct infnoise_context *context, char *serial, bool keccak, bool debug) {
     prepareOutputBuffer();
 
     // initialize health check
     if (!inmHealthCheckStart(PREDICTION_BITS, DESIGN_K, debug)) {
-        *message = "Can't initialize health checker";
+        context->message = "Can't initialize health checker";
         return false;
     }
 
     // initialize USB
-    if (!initializeUSB(ftdic, message, serial)) {
+    if (!initializeUSB(&context->ftdic, &context->message, serial)) {
         // Sometimes have to do it twice - not sure why
-        if (!initializeUSB(ftdic, message, serial)) {
+        if (!initializeUSB(&context->ftdic, &context->message, serial)) {
             return false;
         }
     }
@@ -51,14 +50,14 @@ bool initInfnoise(struct ftdi_context *ftdic, char *serial, char **message, bool
     // let healthcheck collect some data
     uint32_t maxWarmupRounds = 500;
     uint32_t warmupRounds = 0;
-    bool errorFlag = false;
+    //bool errorFlag = false;
     while (!inmHealthCheckOkToUseData()) {
-        readRawData(ftdic, NULL, message, &errorFlag);
+        readRawData(context, NULL);
         warmupRounds++;
     }
 
     if (warmupRounds > maxWarmupRounds) {
-        *message = "Unable to collect enough entropy to initialize health checker.";
+        context->message = "Unable to collect enough entropy to initialize health checker.";
         return false;
     }
     return true;
@@ -201,8 +200,10 @@ bool isSuperUser(void) {
 
 // Return a list of all infinite noise multipliers found.
 
-bool listUSBDevices(struct ftdi_context *ftdic, char** message) {
-    ftdi_init(ftdic);
+bool listUSBDevices(char** message) {
+    struct ftdi_context ftdic;
+
+    ftdi_init(&ftdic);
 
     struct ftdi_device_list *devlist;
     struct ftdi_device_list *curdev;
@@ -210,7 +211,7 @@ bool listUSBDevices(struct ftdi_context *ftdic, char** message) {
     int i = 0;
 
     // search devices
-    int rc = ftdi_usb_find_all(ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID);
+    int rc = ftdi_usb_find_all(&ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID);
 
     if (rc < 0) {
         if (!isSuperUser()) {
@@ -222,7 +223,7 @@ bool listUSBDevices(struct ftdi_context *ftdic, char** message) {
 
     for (curdev = devlist; curdev != NULL; i++) {
         //printf("Device: %d, ", i);
-        rc = ftdi_usb_get_strings(ftdic, curdev->dev, manufacturer, 128, description, 128, serial, 128);
+        rc = ftdi_usb_get_strings(&ftdic, curdev->dev, manufacturer, 128, description, 128, serial, 128);
         if (rc < 0) {
             if (!isSuperUser()) {
                 *message = "Can't find Infinite Noise Multiplier.  Try running as super user?";
@@ -242,7 +243,7 @@ bool listUSBDevices(struct ftdi_context *ftdic, char** message) {
 
 // Initialize the Infinite Noise Multiplier USB interface.
 
-bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
+bool initializeUSB(struct ftdi_context *ftdic, char **message,char *serial) {
     ftdi_init(ftdic);
     struct ftdi_device_list *devlist;
 
@@ -322,21 +323,21 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
     return true;
 }
 
-uint32_t readRawData(struct ftdi_context *ftdic, uint8_t *result, char **message, bool *errorFlag) {
+uint32_t readRawData(struct infnoise_context *context, uint8_t *result) {
     uint8_t inBuf[BUFLEN];
     struct timespec start;
     clock_gettime(CLOCK_REALTIME, &start);
 
     // write clock signal
-    if (ftdi_write_data(ftdic, outBuf, BUFLEN) != BUFLEN) {
-        *message = "USB write failed";
-        *errorFlag = true;
+    if (ftdi_write_data(&context->ftdic, outBuf, BUFLEN) != BUFLEN) {
+        context->message = "USB write failed";
+        context->errorFlag = true;
     }
 
     // and read 512 byte from the internal buffer (in synchronous bitbang mode)
-    if (ftdi_read_data(ftdic, inBuf, BUFLEN) != BUFLEN) {
-        *message = "USB read failed";
-        *errorFlag = true;
+    if (ftdi_read_data(&context->ftdic, inBuf, BUFLEN) != BUFLEN) {
+        context->message = "USB read failed";
+        context->errorFlag = true;
     }
 
     struct timespec end;
@@ -344,32 +345,32 @@ uint32_t readRawData(struct ftdi_context *ftdic, uint8_t *result, char **message
     uint32_t us = diffTime(&start, &end);
     if (us <= MAX_MICROSEC_FOR_SAMPLES) {
         uint8_t bytes[BUFLEN / 8u];
-        uint32_t entropy = extractBytes(bytes, inBuf, message, errorFlag);
+        uint32_t entropy = extractBytes(bytes, inBuf, &context->message, &context->errorFlag);
 
         // call health check and process bytes if OK
         if (inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
-            uint32_t byteswritten = processBytes(bytes, result, entropy, true, 0, message, errorFlag);
+            uint32_t byteswritten = processBytes(bytes, result, entropy, true, 0, &context->message, &context->errorFlag);
             return byteswritten;
         }
     }
     return 0;
 }
 
-uint32_t readData(struct ftdi_context *ftdic, uint8_t *result, char **message, bool *errorFlag, uint32_t outputMultiplier) {
+uint32_t readData(struct infnoise_context *context, uint8_t *result, uint32_t outputMultiplier) {
     uint8_t inBuf[BUFLEN];
     struct timespec start;
     clock_gettime(CLOCK_REALTIME, &start);
 
     // write clock signal
-    if (ftdi_write_data(ftdic, outBuf, BUFLEN) != BUFLEN) {
-        *message = "USB write failed";
-        *errorFlag = true;
+    if (ftdi_write_data(&context->ftdic, outBuf, BUFLEN) != BUFLEN) {
+        context->message = "USB write failed";
+        context->errorFlag = true;
     }
 
     // and read 512 byte from the internal buffer (in synchronous bitbang mode)
-    if (ftdi_read_data(ftdic, inBuf, BUFLEN) != BUFLEN) {
-        *message = "USB read failed";
-        *errorFlag = true;
+    if (ftdi_read_data(&context->ftdic, inBuf, BUFLEN) != BUFLEN) {
+        context->message = "USB read failed";
+        context->errorFlag = true;
     }
 
     struct timespec end;
@@ -377,11 +378,11 @@ uint32_t readData(struct ftdi_context *ftdic, uint8_t *result, char **message, b
     uint32_t us = diffTime(&start, &end);
     if (us <= MAX_MICROSEC_FOR_SAMPLES) {
         uint8_t bytes[BUFLEN / 8u];
-        uint32_t entropy = extractBytes(bytes, inBuf, message, errorFlag);
+        uint32_t entropy = extractBytes(bytes, inBuf, &context->message, &context->errorFlag);
 
         // call health check and process bytes if OK
         if (inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
-            uint32_t byteswritten = processBytes(bytes, result, entropy, false, outputMultiplier, message, errorFlag);
+            uint32_t byteswritten = processBytes(bytes, result, entropy, false, outputMultiplier, &context->message, &context->errorFlag);
             return byteswritten;
         }
     }
