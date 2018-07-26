@@ -211,50 +211,37 @@ devlist_node listUSBDevices(char **message) {
 
 	// search devices
     int rc = ftdi_usb_find_all(&ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID);
-
     if (rc < 0) {
         if (!isSuperUser()) {
             *message = "Can't find Infinite Noise Multiplier.  Try running as super user?";
         } else {
-            *message = "Can't find Infinite Noise Multiplier";
+            *message = "Can't find Infinite Noise Multiplier.";
         }
     }
-
-    devlist_node return_list =NULL;
-    devlist_node *current_entry =NULL;
+    devlist_node return_list = malloc(sizeof(struct infnoise_devlist_node));
+    devlist_node current_entry = return_list;
 
     for (curdev = devlist; curdev != NULL; i++) {
-        if (return_list == NULL) {
-            return_list = (devlist_node) malloc(sizeof(struct infnoise_devlist_node));
-            return_list->id = i;
-            return_list->serial = serial;
-            return_list->manufacturer = manufacturer;
-            return_list->description = description;
-            *current_entry = return_list;
-        } else {
-            (*current_entry)->next = (devlist_node) malloc(sizeof(struct infnoise_devlist_node));
-            *current_entry = (*current_entry)->next;
-            (*current_entry)->id = i;
-            (*current_entry)->serial = serial;
-            (*current_entry)->manufacturer = manufacturer;
-            (*current_entry)->description = description;
-        }
-
         rc = ftdi_usb_get_strings(&ftdic, curdev->dev, manufacturer, 128, description, 128, serial, 128);
         if (rc < 0) {
             if (!isSuperUser()) {
                 *message = "Can't find Infinite Noise Multiplier. Try running as super user?";
-                return return_list;
+                return NULL;
             }
             //*message = "ftdi_usb_get_strings failed: %d (%s)\n", rc, ftdi_get_error_string(ftdic));
-            return return_list;
+            return NULL;
         }
+        current_entry->id = i;
+        strcpy(current_entry->serial, serial);
+        strcpy(current_entry->manufacturer, manufacturer);
+        strcpy(current_entry->description, description);
+        current_entry->next = malloc(sizeof(struct infnoise_devlist_node));
+        current_entry = current_entry->next;
 
-        // print to stdout
-        printf("debug: Manufacturer: %s, Description: %s, Serial: %s\n", manufacturer, description, serial);
+        //printf("debug: Manufacturer: %s, Description: %s, Serial: %s\n", manufacturer, description, serial);
         curdev = curdev->next;
-        //current_node = current_node->next;  // ???
     }
+    current_entry = NULL;
     return return_list;
 }
 

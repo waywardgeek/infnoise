@@ -225,15 +225,18 @@ int main(int argc, char **argv) {
     char *message = "no data?";
     bool errorFlag = false;
     if (opts.listDevices) {
+
         devlist_node devlist = listUSBDevices(&message);
-        devlist_node curdev;
+        if (devlist == NULL) {
+            fprintf(stderr, "Error: %s\n", message);
+            return 1;
+        }
+        devlist_node curdev = NULL;
         uint8_t i=0;
-        for (curdev = devlist; curdev != NULL;i++) {
-                printf("Manufacturer: %s, Description: %s, Serial: %s\n", curdev->manufacturer, curdev->description,
-                curdev->serial);
+        for (curdev = devlist; curdev != NULL; i++) {
+                printf("ID: %i, Manufacturer: %s, Description: %s, Serial: %s\n", curdev->id, curdev->manufacturer, curdev->description, curdev->serial);
                 curdev = curdev->next;
         }
-        //fputs(message, stdout); // TODO: iterate through infnoise_devlist and print stuff
         return 0;
     }
 
