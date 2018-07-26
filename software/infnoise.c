@@ -225,12 +225,12 @@ int main(int argc, char **argv) {
     char *message = "no data?";
     bool errorFlag = false;
     if (opts.listDevices) {
-        devlist_node *devlist = listUSBDevices(&message);
-        devlist_node *curdev;
+        devlist_node devlist = listUSBDevices(&message);
+        devlist_node curdev;
         uint8_t i=0;
         for (curdev = devlist; curdev != NULL;i++) {
-                printf("Manufacturer: %s, Description: %s, Serial: %s\n", curdev->manufacturer, curdev.description,
-                curdev.serial);
+                printf("Manufacturer: %s, Description: %s, Serial: %s\n", curdev->manufacturer, curdev->description,
+                curdev->serial);
                 curdev = curdev->next;
         }
         //fputs(message, stdout); // TODO: iterate through infnoise_devlist and print stuff
@@ -258,7 +258,6 @@ int main(int argc, char **argv) {
 
     // Optionally run in the background and optionally write a PID-file
     startDaemon(&opts);
-
 
     // initialize USB device, health check and Keccak state (see libinfnoise)
     if (!initInfnoise(&context, opts.serial, !opts.raw, opts.debug)) {

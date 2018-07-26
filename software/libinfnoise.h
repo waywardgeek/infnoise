@@ -31,7 +31,7 @@ struct infnoise_devlist_node {
 
 typedef struct infnoise_devlist_node* devlist_node;
 
-devlist_node* listUSBDevices(char** message);
+devlist_node listUSBDevices(char** message);
 
 bool initInfnoise(struct infnoise_context *context, char *serial, bool keccak, bool debug);
 

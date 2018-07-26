@@ -200,7 +200,7 @@ bool isSuperUser(void) {
 
 // Return a list of all infinite noise multipliers found.
 
-devlist_node* listUSBDevices(char **message) {
+devlist_node listUSBDevices(char **message) {
     struct ftdi_context ftdic;
     ftdi_init(&ftdic);
 
@@ -220,20 +220,20 @@ devlist_node* listUSBDevices(char **message) {
         }
     }
 
-    devlist_node *return_list =NULL;
+    devlist_node return_list =NULL;
     devlist_node *current_entry =NULL;
 
     for (curdev = devlist; curdev != NULL; i++) {
         if (return_list == NULL) {
-            *return_list = (devlist_node) malloc(sizeof(struct infnoise_devlist_node));
-            (*return_list)->id = i;
-            (*return_list)->serial = serial;
-            (*return_list)->manufacturer = manufacturer;
-            (*return_list)->description = description;
-            current_entry = return_list;
+            return_list = (devlist_node) malloc(sizeof(struct infnoise_devlist_node));
+            return_list->id = i;
+            return_list->serial = serial;
+            return_list->manufacturer = manufacturer;
+            return_list->description = description;
+            *current_entry = return_list;
         } else {
             (*current_entry)->next = (devlist_node) malloc(sizeof(struct infnoise_devlist_node));
-            current_entry = (*current_entry)->next;
+            *current_entry = (*current_entry)->next;
             (*current_entry)->id = i;
             (*current_entry)->serial = serial;
             (*current_entry)->manufacturer = manufacturer;
@@ -251,7 +251,7 @@ devlist_node* listUSBDevices(char **message) {
         }
 
         // print to stdout
-        //printf("Manufacturer: %s, Description: %s, Serial: %s\n", manufacturer, description, serial);
+        printf("debug: Manufacturer: %s, Description: %s, Serial: %s\n", manufacturer, description, serial);
         curdev = curdev->next;
         //current_node = current_node->next;  // ???
     }
