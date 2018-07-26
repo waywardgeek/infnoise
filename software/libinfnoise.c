@@ -52,7 +52,7 @@ bool initInfnoise(struct infnoise_context *context, char *serial, bool keccak, b
     uint32_t warmupRounds = 0;
     //bool errorFlag = false;
     while (!inmHealthCheckOkToUseData()) {
-        readRawData(context, NULL);
+        readData(context, NULL, true, 0);
         warmupRounds++;
     }
 
@@ -79,7 +79,6 @@ void prepareOutputBuffer() {
 // changes, not both, so alternate reading bits from them.  We get 1 INM bit of output
 // per byte read.  Feed bits from the INM to the health checker.  Return the expected
 // bits of entropy.
-
 uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, char **message, bool *errorFlag) {
     inmClearEntropyLevel();
     uint32_t i;
@@ -112,10 +111,8 @@ uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, char **message, bool *erro
 // outputMultiplier is 0, we output only as many bits as we measure in entropy.
 // This allows a user to generate hundreds of MiB per second if needed, for use
 // as cryptographic keys.
-
 uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
-        bool raw, uint32_t outputMultiplier,
-        char **message, bool *errorFlag) {
+                      bool raw, uint32_t outputMultiplier, char **message, bool *errorFlag) {
     //Use the lower of the measured entropy and the provable lower bound on
     //average entropy.
     if (entropy > inmExpectedEntropyPerBit * BUFLEN / INM_ACCURACY) {
@@ -124,7 +121,7 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
     if (raw) {
         // In raw mode, we just output raw data from the INM.
         if (result != NULL) {
-            memcpy(result, bytes, BUFLEN / 8u * sizeof (uint8_t));
+            memcpy(result, bytes, BUFLEN / 8u * sizeof(uint8_t));
         }
         return BUFLEN / 8u;
     }
@@ -137,13 +134,13 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
     // gets a snapshot of the keccak state.  BUFLEN must be a multiple of 64, since
     // Keccak-1600 uses 64-bit "lanes".
     KeccakAbsorb(keccakState, bytes, BUFLEN / 64u);
-    uint8_t dataOut[16u * 8u];
+    uint8_t dataOut[16u * 8u]; // ???
     if (outputMultiplier == 0u) {
         // Output all the bytes of entropy we have
         KeccakExtract(keccakState, dataOut, (entropy + 63u) / 64u);
 
         if (result != NULL) {
-            memcpy(result, dataOut, entropy / 8u * sizeof (uint8_t));
+            memcpy(result, dataOut, entropy / 8u * sizeof(uint8_t));
         }
         return entropy / 8u;
     }
@@ -163,13 +160,14 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
         if (entropyThisTime > 8u * bytesToWrite) {
             entropyThisTime = 8u * bytesToWrite;
         }
-        //memcpy(result + bytesWritten, dataOut, bytesToWrite * sizeof(uint8_t)); //doesn't work?
+        memcpy(result + bytesWritten, dataOut, bytesToWrite * sizeof(uint8_t)); // ?
         // alternative: loop through dataOut and append array elements to result..
-        if (result != NULL) {
-            for (uint32_t i = 0; i < bytesToWrite; i++) {
-                result[bytesWritten + i] = dataOut[i];
-            }
-        }
+//        if (result != NULL) {
+//            for (uint32_t i = 0; i < bytesToWrite; i++) {
+//                result[bytesWritten + i] = dataOut[i];
+//            }
+//        }
+
         bytesWritten += bytesToWrite;
         numBits -= bytesToWrite * 8u;
         entropy -= entropyThisTime;
@@ -187,7 +185,6 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
 
 
 // Return the difference in the times as a double in microseconds.
-
 double diffTime(struct timespec *start, struct timespec *end) {
     uint32_t seconds = end->tv_sec - start->tv_sec;
     int32_t nanoseconds = end->tv_nsec - start->tv_nsec;
@@ -199,7 +196,6 @@ bool isSuperUser(void) {
 }
 
 // Return a list of all infinite noise multipliers found.
-
 devlist_node listUSBDevices(char **message) {
     struct ftdi_context ftdic;
     ftdi_init(&ftdic);
@@ -209,7 +205,7 @@ devlist_node listUSBDevices(char **message) {
     char manufacturer[128], description[128], serial[128];
     int i = 0;
 
-	// search devices
+    // search devices
     int rc = ftdi_usb_find_all(&ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID);
     if (rc < 0) {
         if (!isSuperUser()) {
@@ -246,8 +242,7 @@ devlist_node listUSBDevices(char **message) {
 }
 
 // Initialize the Infinite Noise Multiplier USB interface.
-
-bool initializeUSB(struct ftdi_context *ftdic, char **message,char *serial) {
+bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
     ftdi_init(ftdic);
     struct ftdi_device_list *devlist;
 
@@ -327,7 +322,7 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message,char *serial) {
     return true;
 }
 
-uint32_t readRawData(struct infnoise_context *context, uint8_t *result) {
+uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, uint32_t outputMultiplier) {
     uint8_t inBuf[BUFLEN];
     struct timespec start;
     clock_gettime(CLOCK_REALTIME, &start);
@@ -351,49 +346,17 @@ uint32_t readRawData(struct infnoise_context *context, uint8_t *result) {
         uint8_t bytes[BUFLEN / 8u];
         context->entropyThisTime = extractBytes(bytes, inBuf, &context->message, &context->errorFlag);
 
-        // call health check and process bytes if OK
+        // call health check and return bytes if OK
         if (inmHealthCheckOkToUseData() && inmEntropyOnTarget(context->entropyThisTime, BUFLEN)) {
-            return processBytes(bytes, result, context->entropyThisTime, true, 0, &context->message, &context->errorFlag);
+            return processBytes(bytes, result, context->entropyThisTime, raw, outputMultiplier, &context->message,
+                                &context->errorFlag);
         }
     }
     return 0;
 }
 
-uint32_t readData(struct infnoise_context *context, uint8_t *result, uint32_t outputMultiplier) {
-    uint8_t inBuf[BUFLEN];
-    struct timespec start;
-    clock_gettime(CLOCK_REALTIME, &start);
-
-    // write clock signal
-    if (ftdi_write_data(&context->ftdic, outBuf, BUFLEN) != BUFLEN) {
-        context->message = "USB write failed";
-        context->errorFlag = true;
-    }
-
-    // and read 512 byte from the internal buffer (in synchronous bitbang mode)
-    if (ftdi_read_data(&context->ftdic, inBuf, BUFLEN) != BUFLEN) {
-        context->message = "USB read failed";
-        context->errorFlag = true;
-    }
-
-    struct timespec end;
-    clock_gettime(CLOCK_REALTIME, &end);
-    uint32_t us = diffTime(&start, &end);
-    if (us <= MAX_MICROSEC_FOR_SAMPLES) {
-        uint8_t bytes[BUFLEN / 8u];
-        context->entropyThisTime = extractBytes(bytes, inBuf, &context->message, &context->errorFlag);
-
-        // call health check and process bytes if OK
-        if (inmHealthCheckOkToUseData() && inmEntropyOnTarget(context->entropyThisTime, BUFLEN)) {
-            return processBytes(bytes, result, context->entropyThisTime, false, outputMultiplier, &context->message, &context->errorFlag);
-        }
-    }
-    return 0;
-}
-//
-
-#ifdef LIB_EXAMPLE_PROGRAM
-// example use of libinfnoise - with keccak
+#ifdef LIB_EXAMPLE_PROGRAM_RAW
+// example use of libinfnoise - raw
 // TODO: rewrite!
 
 int main() {
@@ -411,6 +374,48 @@ int main() {
     // when using the multiplier, we need a result array of 32*MULTIPLIER - otherwise 64(BUFLEN/8) bytes
     uint32_t resultSize;
     if (multiplier == 0 || rawOutput == true) {
+        resultSize = BUFLEN / 8u;
+    } else {
+        resultSize = multiplier * 32u;
+    }
+
+    uint64_t totalBytesWritten = 0u;
+
+    // read and print in a loop
+    while (totalBytesWritten < 100000) {
+        uint8_t result[resultSize];
+        uint64_t bytesWritten = 0u;
+        bytesWritten = readData(&ftdic, keccakState, result, multiplier);
+
+        // check for -1, indicating an error
+        totalBytesWritten += bytesWritten;
+
+        // make sure to only read as many bytes as readData returned. Only those have passed the health check in this round (usually all)
+        fwrite(result, 1, bytesWritten, stdout);
+    }
+}
+#endif
+
+
+#ifdef LIB_EXAMPLE_PROGRAM_WHITENED
+// example use of libinfnoise - with keccak
+// TODO: rewrite!
+
+int main() {
+    char *serial = NULL; // use any device, can be set to a specific serial
+
+    // initialize USB
+    struct ftdi_context ftdic;
+    initInfnoise(&ftdic, serial);
+
+    // parameters for readData(..):
+    bool rawOutput = true;
+    uint32_t multiplier = 10u;
+
+    // calculate output size based on the parameters:
+    // when using the multiplier, we need a result array of 32*MULTIPLIER - otherwise 64(BUFLEN/8) bytes
+    uint32_t resultSize;
+    if (multiplier == 0 || rawOutput) {
         resultSize = BUFLEN / 8u;
     } else {
         resultSize = multiplier * 32u;

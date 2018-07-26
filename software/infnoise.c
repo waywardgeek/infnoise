@@ -8,9 +8,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
 #if defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__FreeBSD__)
 #include <fcntl.h>
 #endif
+
 #include <string.h>
 #include <time.h>
 #include <sys/types.h>
@@ -32,28 +34,25 @@ static void initOpts(struct opt_struct *opts) {
     opts->help = false;
     opts->none = false;
     opts->pidFileName =
-            opts->serial = NULL;
+    opts->serial = NULL;
 }
 
 // getopt_long(3) options descriptor
-
 static struct option longopts[] = {
-    {"raw", no_argument, NULL, 'r'},
-    {"debug", no_argument, NULL, 'D'},
-    {"dev-random", no_argument, NULL, 'R'},
-    {"no-output", no_argument, NULL, 'n'},
-    {"multiplier", required_argument, NULL, 'm'},
-    {"pidfile", required_argument, NULL, 'p'},
-    {"serial", required_argument, NULL, 's'},
-    {"daemon", no_argument, NULL, 'd'},
-    {"list-devices", no_argument, NULL, 'l'},
-    {"version", no_argument, NULL, 'v'},
-    {"help", no_argument, NULL, 'h'},
-    {NULL, 0, NULL, 0}};
-
+        {"raw",          no_argument,       NULL, 'r'},
+        {"debug",        no_argument,       NULL, 'D'},
+        {"dev-random",   no_argument,       NULL, 'R'},
+        {"no-output",    no_argument,       NULL, 'n'},
+        {"multiplier",   required_argument, NULL, 'm'},
+        {"pidfile",      required_argument, NULL, 'p'},
+        {"serial",       required_argument, NULL, 's'},
+        {"daemon",       no_argument,       NULL, 'd'},
+        {"list-devices", no_argument,       NULL, 'l'},
+        {"version",      no_argument,       NULL, 'v'},
+        {"help",         no_argument,       NULL, 'h'},
+        {NULL,           0,                 NULL, 0}};
 
 // Write the bytes to either stdout, or /dev/random.
-
 bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom, char **message) {
     if (!writeDevRandom) {
         if (fwrite(bytes, 1, length, stdout) != length) {
@@ -95,7 +94,6 @@ bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDe
 }
 
 int main(int argc, char **argv) {
-    //struct ftdi_context ftdic;
     struct infnoise_context context;
     struct opt_struct opts;
     int ch;
@@ -105,7 +103,7 @@ int main(int argc, char **argv) {
 
     // Process arguments
     while ((ch = getopt_long(argc, argv, "rDRnm:p:s:dlvh", longopts, NULL)) !=
-            -1) {
+           -1) {
         switch (ch) {
             case 'r':
                 opts.raw = true;
@@ -162,21 +160,21 @@ int main(int argc, char **argv) {
 
     if (opts.help) {
         fputs("Usage: infnoise [options]\n"
-                "Options are:\n"
-                "    -D, --debug - turn on some debug output\n"
-                "    -R, --dev-random - write entropy to /dev/random instead of "
-                "stdout\n"
-                "    -r, --raw - do not whiten the output\n"
-                "    -m, --multiplier <value> - write 256 bits * value for each 512 bits written to\n"
-                "      the Keccak sponge.  Default of 0 means write all the entropy.\n"
-                "    -n, --no-output - do not write random output data\n"
-                "    -p, --pidfile <file> - write process ID to file\n"
-                "    -d, --daemon - run in the background\n"
-                "    -s, --serial <serial> - use specified device\n"
-                "    -l, --list-devices - list available devices\n"
-                "    -v, --version - show version information\n"
-                "    -h, --help - this help output\n",
-                stdout);
+              "Options are:\n"
+              "    -D, --debug - turn on some debug output\n"
+              "    -R, --dev-random - write entropy to /dev/random instead of "
+              "stdout\n"
+              "    -r, --raw - do not whiten the output\n"
+              "    -m, --multiplier <value> - write 256 bits * value for each 512 bits written to\n"
+              "      the Keccak sponge.  Default of 0 means write all the entropy.\n"
+              "    -n, --no-output - do not write random output data\n"
+              "    -p, --pidfile <file> - write process ID to file\n"
+              "    -d, --daemon - run in the background\n"
+              "    -s, --serial <serial> - use specified device\n"
+              "    -l, --list-devices - list available devices\n"
+              "    -v, --version - show version information\n"
+              "    -h, --help - this help output\n",
+              stdout);
         if (opts.none) {
             return 1;
         } else {
@@ -191,7 +189,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    if (opts.debug == false) {
+    if (!opts.debug) {
         if (getenv("INFNOISE_DEBUG") != NULL) {
             if (!strcmp("true", getenv("INFNOISE_DEBUG"))) {
                 opts.debug = true;
@@ -199,7 +197,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    if (multiplierAssigned == false) {
+    if (!multiplierAssigned) {
         if (getenv("INFNOISE_MULTIPLIER") != NULL) {
             int tmpOutputMult = atoi(getenv("INFNOISE_MULTIPLIER"));
             if (tmpOutputMult < 0) {
@@ -222,20 +220,18 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    char *message = "no data?";
-    bool errorFlag = false;
     if (opts.listDevices) {
-
-        devlist_node devlist = listUSBDevices(&message);
+        devlist_node devlist = listUSBDevices(&context.message);
         if (devlist == NULL) {
-            fprintf(stderr, "Error: %s\n", message);
+            fprintf(stderr, "Error: %s\n", context.message);
             return 1;
         }
         devlist_node curdev = NULL;
-        uint8_t i=0;
+        uint8_t i = 0;
         for (curdev = devlist; curdev != NULL; i++) {
-                printf("ID: %i, Manufacturer: %s, Description: %s, Serial: %s\n", curdev->id, curdev->manufacturer, curdev->description, curdev->serial);
-                curdev = curdev->next;
+            printf("ID: %i, Manufacturer: %s, Description: %s, Serial: %s\n", curdev->id, curdev->manufacturer,
+                   curdev->description, curdev->serial);
+            curdev = curdev->next;
         }
         return 0;
     }
@@ -255,7 +251,8 @@ int main(int argc, char **argv) {
 #endif
 #if defined(__APPLE__)
         message = "dev/random not supported on macOS";
-        return 0;
+        fprintf(stderr, "Error: %s\n", context.message);
+        return 1;
 #endif
     }
 
@@ -267,11 +264,12 @@ int main(int argc, char **argv) {
         fprintf(stderr, "Error: %s\n", context.message);
         return 1; // ERROR
     }
+    context.errorFlag = false;
 
     // calculate output size based on the parameters:
     // when using the multiplier, we need a result array of 32*MULTIPLIER - otherwise 64(BUFLEN/8) bytes
-    uint32_t resultSize;
-    if (opts.outputMultiplier == 0 || opts.raw == true) {
+    uint64_t resultSize;
+    if (opts.outputMultiplier == 0 || opts.raw) {
         resultSize = BUFLEN / 8u;
     } else {
         resultSize = opts.outputMultiplier * 32u;
@@ -283,24 +281,25 @@ int main(int argc, char **argv) {
         uint8_t result[resultSize];
         uint64_t prevTotalBytesWritten = totalBytesWritten;
 
-        if (opts.raw) {
-            totalBytesWritten += readRawData(&context, result);
-        } else {
-            totalBytesWritten += readData(&context, result, opts.outputMultiplier);
-        }
-        
-        if (errorFlag) {
-            fprintf(stderr, "Error: %s\n", message);
+        totalBytesWritten += readData(&context, result, opts.raw, opts.outputMultiplier);
+        //fprintf(stderr, "Stats: %d\n", context.entropyThisTime);
+
+        if (context.errorFlag) {
+            fprintf(stderr, "Error: %s\n", context.message);
             return 1;
         }
-        
+
         if (!opts.noOutput) {
-                    outputBytes(result, totalBytesWritten - prevTotalBytesWritten, context.entropyThisTime, opts.devRandom, &message);
+            if (!outputBytes(result, totalBytesWritten - prevTotalBytesWritten, context.entropyThisTime, opts.devRandom,
+                             &context.message)) {
+                fprintf(stderr, "Error: %s\n", context.message);
+                return 1;
+            };
         }
 
-        if (opts.debug && (1u << 20u)*(totalBytesWritten / (1u << 20u)) > (1u << 20u)*(prevTotalBytesWritten / (1u << 20u))) {
+        if (opts.debug &&
+            (1u << 20u) * (totalBytesWritten / (1u << 20u)) > (1u << 20u) * (prevTotalBytesWritten / (1u << 20u))) {
             fprintf(stderr, "Output %lu bytes\n", (unsigned long) totalBytesWritten);
         }
     }
-    return 0;
 }
