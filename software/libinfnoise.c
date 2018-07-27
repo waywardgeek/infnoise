@@ -231,13 +231,15 @@ devlist_node listUSBDevices(char **message) {
         strcpy(current_entry->serial, serial);
         strcpy(current_entry->manufacturer, manufacturer);
         strcpy(current_entry->description, description);
-        current_entry->next = malloc(sizeof(struct infnoise_devlist_node));
-        current_entry = current_entry->next;
-
+        if (curdev->next) {
+            current_entry->next = malloc(sizeof(struct infnoise_devlist_node));
+            current_entry = current_entry->next;
+        } else {
+            current_entry->next = NULL;
+        }
         //printf("debug: Manufacturer: %s, Description: %s, Serial: %s\n", manufacturer, description, serial);
         curdev = curdev->next;
     }
-    current_entry = NULL;
     return return_list;
 }
 
