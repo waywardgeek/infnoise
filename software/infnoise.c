@@ -86,11 +86,11 @@ bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDe
         return false;
 #endif
 #ifdef LINUX
-        fputs("room?", stderr);
+        //fputs("room?", stderr);
         inmWaitForPoolToHaveRoom();
-        fputs("room!", stderr);
-        printf("length: - %ul\n", length);
-        printf("entropy: - %ul\n", entropy);
+        //fputs("room!", stderr);
+        //printf("length: - %ul\n", length);
+        //printf("entropy: - %ul\n", entropy);
         inmWriteEntropyToPool(bytes, length, entropy);
 #endif
     }

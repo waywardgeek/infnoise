@@ -139,7 +139,7 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy,
     KeccakAbsorb(keccakState, bytes, BUFLEN / 64u);
 
     if (outputMultiplier == 0u) {
-        uint8_t dataOut[*entropy/8u]; // ???
+        uint8_t dataOut[16u*8u]; // ???
         // Output all the bytes of entropy we have
         KeccakExtract(keccakState, dataOut, (*entropy + 63u) / 64u);
 
@@ -153,6 +153,7 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy,
     uint32_t numBits = outputMultiplier * 256u;
     uint32_t bytesWritten = 0u;
     uint8_t dataOut[outputMultiplier * 32u]; // ???
+
     while (numBits > 0u) {
         // Write up to 1024 bits at a time.
         uint32_t bytesToWrite = 1024u / 8u;
