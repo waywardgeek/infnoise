@@ -25,6 +25,7 @@
 uint8_t keccakState[KeccakPermutationSizeInBytes];
 
 bool initInfnoise(struct infnoise_context *context, char *serial, bool keccak, bool debug) {
+    context->message="";
     prepareOutputBuffer();
 
     // initialize health check
@@ -45,6 +46,7 @@ bool initInfnoise(struct infnoise_context *context, char *serial, bool keccak, b
     if (keccak) {
         KeccakInitialize();
         KeccakInitializeState(keccakState);
+        //fprintf(stderr, "debug: keccak init: %s\n", context->message);
     }
 
     // let healthcheck collect some data
@@ -97,6 +99,7 @@ uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, char **message, bool *erro
             if (!inmHealthCheckAddBit(evenBit, oddBit, even)) {
                 *message = "Health check of Infinite Noise Multiplier failed!";
                 *errorFlag = true;
+                fprintf(stderr, "Error: %s\n", *message);
                 return 0;
             }
         }
@@ -111,12 +114,12 @@ uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, char **message, bool *erro
 // outputMultiplier is 0, we output only as many bits as we measure in entropy.
 // This allows a user to generate hundreds of MiB per second if needed, for use
 // as cryptographic keys.
-uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
+uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy,
                       bool raw, uint32_t outputMultiplier, char **message, bool *errorFlag) {
     //Use the lower of the measured entropy and the provable lower bound on
     //average entropy.
-    if (entropy > inmExpectedEntropyPerBit * BUFLEN / INM_ACCURACY) {
-        entropy = inmExpectedEntropyPerBit * BUFLEN / INM_ACCURACY;
+    if (*entropy > inmExpectedEntropyPerBit * BUFLEN / INM_ACCURACY) {
+        *entropy = inmExpectedEntropyPerBit * BUFLEN / INM_ACCURACY;
     }
     if (raw) {
         // In raw mode, we just output raw data from the INM.
@@ -134,21 +137,22 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
     // gets a snapshot of the keccak state.  BUFLEN must be a multiple of 64, since
     // Keccak-1600 uses 64-bit "lanes".
     KeccakAbsorb(keccakState, bytes, BUFLEN / 64u);
-    uint8_t dataOut[16u * 8u]; // ???
+
     if (outputMultiplier == 0u) {
+        uint8_t dataOut[*entropy/8u]; // ???
         // Output all the bytes of entropy we have
-        KeccakExtract(keccakState, dataOut, (entropy + 63u) / 64u);
+        KeccakExtract(keccakState, dataOut, (*entropy + 63u) / 64u);
 
         if (result != NULL) {
-            memcpy(result, dataOut, entropy / 8u * sizeof(uint8_t));
+            memcpy(result, dataOut, *entropy / 8u * sizeof(uint8_t));
         }
-        return entropy / 8u;
+        return *entropy / 8u;
     }
 
     // Output 256*outputMultipler bits.
     uint32_t numBits = outputMultiplier * 256u;
     uint32_t bytesWritten = 0u;
-
+    uint8_t dataOut[outputMultiplier * 32u]; // ???
     while (numBits > 0u) {
         // Write up to 1024 bits at a time.
         uint32_t bytesToWrite = 1024u / 8u;
@@ -156,30 +160,34 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
             bytesToWrite = numBits / 8u;
         }
         KeccakExtract(keccakState, dataOut, bytesToWrite / 8u);
-        uint32_t entropyThisTime = entropy;
+        uint32_t entropyThisTime = *entropy;
         if (entropyThisTime > 8u * bytesToWrite) {
             entropyThisTime = 8u * bytesToWrite;
         }
-        memcpy(result + bytesWritten, dataOut, bytesToWrite * sizeof(uint8_t)); // ?
+//        memcpy(result + bytesWritten, dataOut, bytesToWrite * sizeof(uint8_t)); // ?
         // alternative: loop through dataOut and append array elements to result..
-//        if (result != NULL) {
-//            for (uint32_t i = 0; i < bytesToWrite; i++) {
-//                result[bytesWritten + i] = dataOut[i];
-//            }
-//        }
+        if (result != NULL) {
+            for (uint32_t i = 0; i < bytesToWrite; i++) {
+                result[bytesWritten + i] = dataOut[i];
+            }
+        }
+        //fprintf(stderr, "bytesWritten: %ul\n", bytesWritten);
+        //fprintf(stderr, "entropy: %ul\n", *entropy);
 
         bytesWritten += bytesToWrite;
         numBits -= bytesToWrite * 8u;
-        entropy -= entropyThisTime;
+        *entropy -= entropyThisTime;
         if (numBits > 0u) {
             KeccakPermutation(keccakState);
         }
     }
     if (bytesWritten != outputMultiplier * (256u / 8u)) {
         *message = "Internal error outputting bytes";
+        //fprintf(stderr, "ERROR: %ul", bytesWritten);
         *errorFlag = true;
         return 0;
     }
+    //fprintf(stderr, "bytesWritten_end: %ul\n", bytesWritten);
     return bytesWritten;
 }
 
@@ -339,6 +347,7 @@ uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, u
     if (ftdi_read_data(&context->ftdic, inBuf, BUFLEN) != BUFLEN) {
         context->message = "USB read failed";
         context->errorFlag = true;
+        return 0;
     }
 
     struct timespec end;
@@ -347,10 +356,13 @@ uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, u
     if (us <= MAX_MICROSEC_FOR_SAMPLES) {
         uint8_t bytes[BUFLEN / 8u];
         context->entropyThisTime = extractBytes(bytes, inBuf, &context->message, &context->errorFlag);
-
+	if (context->errorFlag) {
+            //fprintf(stderr, "ERROR1: %ul\n", context->entropyThisTime);
+            return 0;
+        }
         // call health check and return bytes if OK
         if (inmHealthCheckOkToUseData() && inmEntropyOnTarget(context->entropyThisTime, BUFLEN)) {
-            return processBytes(bytes, result, context->entropyThisTime, raw, outputMultiplier, &context->message,
+            return processBytes(bytes, result, &context->entropyThisTime, raw, outputMultiplier, &context->message,
                                 &context->errorFlag);
         }
     }

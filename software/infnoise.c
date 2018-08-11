@@ -86,7 +86,11 @@ bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDe
         return false;
 #endif
 #ifdef LINUX
+        fputs("room?", stderr);
         inmWaitForPoolToHaveRoom();
+        fputs("room!", stderr);
+        printf("length: - %ul\n", length);
+        printf("entropy: - %ul\n", entropy);
         inmWriteEntropyToPool(bytes, length, entropy);
 #endif
     }
@@ -274,14 +278,14 @@ int main(int argc, char **argv) {
     } else {
         resultSize = opts.outputMultiplier * 32u;
     }
+    //fprintf(stderr, "resultsize: %lu\n", resultSize);
 
     // endless loop
     uint64_t totalBytesWritten = 0u;
     while (true) {
         uint8_t result[resultSize];
-        uint64_t prevTotalBytesWritten = totalBytesWritten;
-
-        totalBytesWritten += readData(&context, result, opts.raw, opts.outputMultiplier);
+        uint64_t bytesWritten = readData(&context, result, opts.raw, opts.outputMultiplier);
+	totalBytesWritten += bytesWritten;
         //fprintf(stderr, "Stats: %d\n", context.entropyThisTime);
 
         if (context.errorFlag) {
@@ -290,7 +294,7 @@ int main(int argc, char **argv) {
         }
 
         if (!opts.noOutput) {
-            if (!outputBytes(result, totalBytesWritten - prevTotalBytesWritten, context.entropyThisTime, opts.devRandom,
+            if (!outputBytes(result, bytesWritten, context.entropyThisTime, opts.devRandom,
                              &context.message)) {
                 fprintf(stderr, "Error: %s\n", context.message);
                 return 1;
@@ -298,7 +302,7 @@ int main(int argc, char **argv) {
         }
 
         if (opts.debug &&
-            (1u << 20u) * (totalBytesWritten / (1u << 20u)) > (1u << 20u) * (prevTotalBytesWritten / (1u << 20u))) {
+            (1u << 20u) * (totalBytesWritten / (1u << 20u)) > (1u << 20u) * (totalBytesWritten + bytesWritten / (1u << 20u))) {
             fprintf(stderr, "Output %lu bytes\n", (unsigned long) totalBytesWritten);
         }
     }
