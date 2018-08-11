@@ -145,7 +145,11 @@ bool outputBytes(uint8_t *bytes,  uint32_t length, uint32_t entropy, bool writeD
         return false;
 #endif
 #ifdef LINUX
+        //fputs("room?", stderr);
         inmWaitForPoolToHaveRoom();
+        //fputs("room!", stderr);
+        //printf("length: - %ul\n", length);
+        //printf("entropy: - %ul\n", entropy);
         inmWriteEntropyToPool(bytes, length, entropy);
 #endif
     }
@@ -193,8 +197,8 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
     // gets a snapshot of the keccak state.  BUFLEN must be a multiple of 64, since
     // Keccak-1600 uses 64-bit "lanes".
     KeccakAbsorb(keccakState, bytes, BUFLEN/64u);
-    uint8_t dataOut[16u*8u];
     if(outputMultiplier == 0u) {
+        uint8_t dataOut[16u*8u];
         // Output all the bytes of entropy we have
         KeccakExtract(keccakState, dataOut, (entropy + 63u)/64u);
         if (!noOutput) {
@@ -213,6 +217,7 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
     // Output 256*outputMultipler bits.
     uint32_t numBits = outputMultiplier*256u;
     uint32_t bytesWritten = 0u;
+    uint8_t dataOut[outputMultiplier * 32u]; // ???
 
     while(numBits > 0u) {
         // Write up to 1024 bits at a time.
@@ -239,6 +244,10 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
                 }
             }
         }
+
+        //fprintf(stderr, "bytesWritten: %ul\n", bytesWritten);
+        //fprintf(stderr, "entropy: %ul\n", entropy);
+
         bytesWritten += bytesToWrite;
         numBits -= bytesToWrite*8u;
         entropy -= entropyThisTime;
@@ -251,6 +260,7 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
         *errorFlag = true;
         return 0;
     }
+    //fprintf(stderr, "bytesWritten_end: %ul\n", bytesWritten);
     return bytesWritten;
 }
 
@@ -399,6 +409,7 @@ uint32_t readData_private(struct ftdi_context *ftdic, uint8_t *result, char **me
     if(ftdi_read_data(ftdic, inBuf, BUFLEN) != BUFLEN) {
         *message = "USB read failed";
         *errorFlag = true;
+        return 0;
     }
 
     struct timespec end;
@@ -407,6 +418,9 @@ uint32_t readData_private(struct ftdi_context *ftdic, uint8_t *result, char **me
     if(us <= MAX_MICROSEC_FOR_SAMPLES) {
         uint8_t bytes[BUFLEN/8u];
         uint32_t entropy = extractBytes(bytes, inBuf, message, errorFlag);
+
+        //fprintf(stderr, "ERROR1: %ul\n", entropy);
+
 
         // call health check and process bytes if OK
         if (inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
