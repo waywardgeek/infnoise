@@ -177,7 +177,7 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy,
 
         bytesWritten += bytesToWrite;
         numBits -= bytesToWrite * 8u;
-        *entropy -= entropyThisTime;
+        //*entropy -= entropyThisTime;
         if (numBits > 0u) {
             KeccakPermutation(keccakState);
         }
@@ -188,7 +188,7 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy,
         *errorFlag = true;
         return 0;
     }
-    //fprintf(stderr, "bytesWritten_end: %ul\n", bytesWritten);
+    fprintf(stderr, "bytesWritten_end: %ul\n", bytesWritten);
     return bytesWritten;
 }
 
