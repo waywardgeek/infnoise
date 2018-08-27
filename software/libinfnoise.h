@@ -21,6 +21,10 @@ struct infnoise_context {
     char *message;
     bool errorFlag;
     //uint8_t keccakState[KeccakPermutationSizeInBytes];
+
+    // used in multiplier mode to keep track of bytes to be put out
+    uint32_t numBits;
+    uint32_t bytesWritten;
 };
 
 struct infnoise_devlist_node {

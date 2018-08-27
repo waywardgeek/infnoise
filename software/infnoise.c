@@ -286,16 +286,18 @@ int main(int argc, char **argv) {
     while (true) {
         uint8_t result[resultSize];
         uint64_t bytesWritten = readData(&context, result, opts.raw, opts.outputMultiplier);
-	totalBytesWritten += bytesWritten;
-        fprintf(stderr, "Stats: %d\n", context.entropyThisTime);
+        totalBytesWritten += bytesWritten;
+//        fprintf(stderr, "Stats: %d\n", context.entropyThisTime);
 
         if (context.errorFlag) {
             fprintf(stderr, "Error: %s\n", context.message);
             return 1;
         }
+            //fprintf(stderr, "Error: %s\n", context.message);
 
         if (!opts.noOutput) {
-            fprintf(stderr, "E: %ul\n", context.entropyThisTime);
+            //fprintf(stderr, "B: %lu\n", bytesWritten);
+            //fprintf(stderr, "E: %ul\n", context.entropyThisTime);
             if (!outputBytes(result, bytesWritten, context.entropyThisTime, opts.devRandom,
                              &context.message)) {
                 fprintf(stderr, "Error: %s\n", context.message);
