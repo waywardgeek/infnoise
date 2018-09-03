@@ -223,7 +223,7 @@ int main(int argc, char **argv) {
 	uint8_t buffer[BUFLEN];
         uint64_t prevTotalBytesWritten = totalBytesWritten;
         totalBytesWritten += readData_private(&ftdic, opts.noOutput ? buffer : NULL, &message, &errorFlag,
-	    opts.noOutput, opts.raw, opts.outputMultiplier, opts.devRandom); // calling libinfnoise's private readData method
+	    opts.raw, opts.outputMultiplier, opts.devRandom); // calling libinfnoise's private readData method
 
         if (errorFlag) {
             fprintf(stderr, "Error: %s\n", message);
