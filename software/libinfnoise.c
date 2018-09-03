@@ -164,8 +164,7 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy,
         KeccakPermutation(keccakState);
         *bytesWritten = bytesToWrite;
         *numBits -= bytesToWrite * 8u;
-    }
-    
+    }    
     return *bytesWritten;
 }
 
@@ -353,7 +352,7 @@ uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, u
             uint8_t bytes[BUFLEN / 8u];
             context->entropyThisTime = extractBytes(bytes, inBuf, &context->message, &context->errorFlag);
             if (context->errorFlag) {
-		// todo: message?
+		            // todo: message?
                 return 0;
             }
             // call health check and return bytes if OK
