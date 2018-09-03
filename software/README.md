@@ -76,19 +76,19 @@ with the stable release for now.
 Usage
 -----
 
-Usage: infnoise [options]
-Options are:
-    --debug - turn on some debug output
-    --dev-random - write entropy to /dev/random instead of stdout
-    --raw - do not whiten the output
-    --multiplier <value> - write 256 bits * value for each 512 bits written to the Keccak sponge
-    --no-output - do not write random output data
-    --daemon - run in the background. Output should be redirected to a file or
-    the options should be used with --dev-random. To reduce CPU-usage addition
-    af entropy is only forced after a minute rather than a second.
-    --pidfile <filename> - write the process ID to a file. If --daemon is used, it is the ID of the background process.
-    --serial <serial> - use Infinite Noise TRNG/FT240 with the given serial number (see --list-devices)
-    --list-devices - list available devices
+    Usage: infnoise [options]
+    Options are:
+        --debug - turn on some debug output
+        --dev-random - write entropy to /dev/random instead of stdout
+        --raw - do not whiten the output
+        --multiplier <value> - write 256 bits * value for each 512 bits written to the Keccak sponge
+        --no-output - do not write random output data
+        --daemon - run in the background. Output should be redirected to a file or
+        the options should be used with --dev-random. To reduce CPU-usage addition
+        af entropy is only forced after a minute rather than a second.
+        --pidfile <filename> - write the process ID to a file. If --daemon is used, it is the ID of the background process.
+        --serial <serial> - use Infinite Noise TRNG/FT240 with the given serial number (see --list-devices)
+        --list-devices - list available devices
 
 Note: The options --daemon and --pidfile are only implemented in the Linux version.
 
