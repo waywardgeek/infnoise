@@ -208,7 +208,7 @@ devlist_node listUSBDevices(char **message) {
                 *message = "Can't find Infinite Noise Multiplier. Try running as super user?";
                 return NULL;
             } else {
-	        *message = "ftdi_usb_get_strings failed: %d (%s)\n", rc, ftdi_get_error_string(ftdic));
+	        //todo: *message = "ftdi_usb_get_strings failed: %d (%s)\n", rc, ftdi_get_error_string(&ftdic));
                 return NULL;
             }
         }
