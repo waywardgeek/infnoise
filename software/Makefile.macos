@@ -20,7 +20,7 @@ RM=rm
 all: libinfnoise.a libinfnoise.so infnoise
 
 infnoise: libinfnoise.a infnoise.o daemon.o
-	$(CC) $(CFLAGS) -o infnoise infnoise.o daemon.o libinfnoise.a $(FTDI) -lm -L. -L $(FTDILOCL) -linfnoise
+	$(CC) $(CFLAGS) -o infnoise infnoise.o daemon.o libinfnoise.a $(FTDI) -lm -L. -L $(FTDILOCL)
 
 %.o: %.c infnoise.h libinfnoise.h
 	$(CC) -c -o $@ $< $(CFLAGS)
