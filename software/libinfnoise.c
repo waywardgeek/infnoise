@@ -52,7 +52,8 @@ bool initInfnoise(struct ftdi_context *ftdic,char *serial, char **message, bool 
     uint32_t warmupRounds = 0;
     bool errorFlag = false;
     while(!inmHealthCheckOkToUseData()) {
-        readData_private(ftdic, NULL, message, &errorFlag, false, true, 0, false);
+	uint8_t buffer[BUFLEN];
+        readData_private(ftdic, buffer, message, &errorFlag, true, 0, false);
         warmupRounds++;
     }
     if (warmupRounds > maxWarmupRounds) {
@@ -167,7 +168,7 @@ bool isSuperUser(void) {
 // This allows a user to generate hundreds of MiB per second if needed, for use
 // as cryptographic keys.
 uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
-        bool raw, bool writeDevRandom, uint32_t outputMultiplier, bool noOutput,
+        bool raw, bool writeDevRandom, uint32_t outputMultiplier,
         char **message, bool *errorFlag) {
     //Use the lower of the measured entropy and the provable lower bound on
     //average entropy.
@@ -176,15 +177,13 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
     }
     if(raw) {
         // In raw mode, we just output raw data from the INM.
-        if (!noOutput) {
+        if (result == NULL) {
             if (!outputBytes(bytes, BUFLEN/8u, entropy, writeDevRandom, message)) {
                 *errorFlag = true;
                 return 0; // write failed
             }
         } else {
-            if (result != NULL) {
-                memcpy(result, bytes, BUFLEN/8u * sizeof(uint8_t));
-            }
+	    memcpy(result, bytes, BUFLEN/8u * sizeof(uint8_t));
         }
         return BUFLEN/8u;
     }
@@ -201,16 +200,14 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
         uint8_t dataOut[16u*8u];
         // Output all the bytes of entropy we have
         KeccakExtract(keccakState, dataOut, (entropy + 63u)/64u);
-        if (!noOutput) {
+        if (result == NULL) {
             if (!outputBytes(dataOut, entropy/8u, entropy & 0x7u, writeDevRandom, message)) {
                 *errorFlag = true;
                 return 0;
             }
         } else {
-            if (result != NULL) {
-                memcpy(result, dataOut, entropy/8u * sizeof(uint8_t));
-            }
-        }
+	    memcpy(result, dataOut, entropy/8u * sizeof(uint8_t));
+	}
         return entropy/8u;
     }
 
@@ -230,7 +227,7 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
         if(entropyThisTime > 8u*bytesToWrite) {
             entropyThisTime = 8u*bytesToWrite;
         }
-        if (!noOutput) {
+        if (result == NULL) {
             if (!outputBytes(dataOut, bytesToWrite, entropyThisTime, writeDevRandom, message)) {
                 *errorFlag = true;
                 return 0;
@@ -238,11 +235,9 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy,
         } else {
             //memcpy(result + bytesWritten, dataOut, bytesToWrite * sizeof(uint8_t)); //doesn't work?
             // alternative: loop through dataOut and append array elements to result..
-            if (result != NULL) {
-                for (uint32_t i =0; i < bytesToWrite; i++ ) {
-                    result[bytesWritten + i] = dataOut[i];
-                }
-            }
+	    for (uint32_t i =0; i < bytesToWrite; i++ ) {
+		result[bytesWritten + i] = dataOut[i];
+	    }
         }
 
         //fprintf(stderr, "bytesWritten: %ul\n", bytesWritten);
@@ -386,15 +381,15 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
 }
 
 uint32_t readRawData(struct ftdi_context *ftdic, uint8_t *result, char **message, bool *errorFlag) {
-    return readData_private(ftdic, result, message, errorFlag, false, true, 0, false);
+    return readData_private(ftdic, result, message, errorFlag, true, 0, false);
 }
 
 uint32_t readData(struct ftdi_context *ftdic, uint8_t *result, char **message, bool *errorFlag, uint32_t outputMultiplier) {
-    return readData_private(ftdic, result, message, errorFlag, false, false, outputMultiplier, false);
+    return readData_private(ftdic, result, message, errorFlag, false, outputMultiplier, false);
 }
 
 uint32_t readData_private(struct ftdi_context *ftdic, uint8_t *result, char **message, bool *errorFlag,
-                        bool noOutput, bool raw, uint32_t outputMultiplier, bool devRandom) {
+                        bool raw, uint32_t outputMultiplier, bool devRandom) {
     uint8_t inBuf[BUFLEN];
     struct timespec start;
     clock_gettime(CLOCK_REALTIME, &start);
@@ -424,7 +419,7 @@ uint32_t readData_private(struct ftdi_context *ftdic, uint8_t *result, char **me
 
         // call health check and process bytes if OK
         if (inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
-            uint32_t byteswritten = processBytes(bytes, result, entropy, raw, devRandom, outputMultiplier, noOutput, message, errorFlag);
+            uint32_t byteswritten = processBytes(bytes, result, entropy, raw, devRandom, outputMultiplier, message, errorFlag);
             return byteswritten;
         }
     }

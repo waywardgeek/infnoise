@@ -220,8 +220,10 @@ int main(int argc, char **argv) {
     // endless loop
     uint64_t totalBytesWritten = 0u;
     while(true) {
+	uint8_t buffer[BUFLEN];
         uint64_t prevTotalBytesWritten = totalBytesWritten;
-        totalBytesWritten += readData_private(&ftdic, NULL, &message, &errorFlag, opts.noOutput, opts.raw, opts.outputMultiplier, opts.devRandom); // calling libinfnoise's private readData method
+        totalBytesWritten += readData_private(&ftdic, opts.noOutput ? buffer : NULL, &message, &errorFlag,
+	    opts.noOutput, opts.raw, opts.outputMultiplier, opts.devRandom); // calling libinfnoise's private readData method
 
         if (errorFlag) {
             fprintf(stderr, "Error: %s\n", message);
