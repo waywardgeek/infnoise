@@ -20,7 +20,7 @@ endif
 all: libinfnoise.a libinfnoise.so infnoise
 
 infnoise: libinfnoise.a infnoise.o daemon.o
-	$(CC) $(CFLAGS) -o infnoise infnoise.o daemon.o libinfnoise.a $(FTDI) -lm -lrt -L. -linfnoise
+	$(CC) $(CFLAGS) -o infnoise infnoise.o daemon.o libinfnoise.a $(FTDI) -lm -lrt -L.
 
 %.o: %.c infnoise.h libinfnoise.h
 	$(CC) -c -o $@ $< $(CFLAGS)
