@@ -267,12 +267,13 @@ int main(int argc, char **argv) {
     context.errorFlag = false;
 
     // calculate output size based on the parameters:
-    // when using the multiplier, we need a result array of 32*MULTIPLIER - otherwise 64(BUFLEN/8) bytes
     uint64_t resultSize;
-    if (opts.outputMultiplier == 0 || opts.raw) {
-        resultSize = BUFLEN / 8u;
+    if (opts.outputMultiplier <= 1 || opts.raw) {
+        resultSize = 32u;
+    } else if (opts.outputMultiplier==2) {
+        resultSize=64;
     } else {
-        resultSize = opts.outputMultiplier * 32u;
+        resultSize = 128u;
     }
     //fprintf(stderr, "resultsize: %lu\n", resultSize);
 
