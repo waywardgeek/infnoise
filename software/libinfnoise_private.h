@@ -64,6 +64,6 @@ uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, char **message, bool *erro
 
 bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom, char **message);
 uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy, bool raw,
-                      bool writeDevRandom, uint32_t outputMultiplier, bool noOutput, char **message, bool *errorFlag);
+                      bool writeDevRandom, uint32_t outputMultiplier, char **message, bool *errorFlag);
 
-uint32_t readData_private(struct ftdi_context *ftdic, uint8_t *result, char **message, bool *errorFlag, bool noOutput, bool raw, uint32_t outputMultiplier, bool devRandom);
+uint32_t readData_private(struct ftdi_context *ftdic, uint8_t *result, char **message, bool *errorFlag, bool raw, uint32_t outputMultiplier, bool devRandom);

@@ -17,6 +17,8 @@ bool listUSBDevices(struct ftdi_context *ftdic, char **message);
 
 bool initInfnoise(struct ftdi_context *ftdic, char *serial, char **message, bool keccak, bool debug);
 
+// If |result| is NULL, then output is to stdout.
 uint32_t readRawData(struct ftdi_context *ftdic, uint8_t *result, char **message, bool *errorFlag);
 
+// If |result| is NULL, then output is to stdout.
 uint32_t readData(struct ftdi_context *ftdic, uint8_t *result, char **message, bool *errorFlag, uint32_t outputMultiplier);
