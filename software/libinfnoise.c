@@ -26,6 +26,11 @@ uint8_t keccakState[KeccakPermutationSizeInBytes];
 
 bool initInfnoise(struct infnoise_context *context, char *serial, bool keccak, bool debug) {
     context->message="";
+    context->entropyThisTime=0;
+    context->errorFlag=false;
+    context->numBits=0;
+    context->bytesWritten=0;
+
     prepareOutputBuffer();
 
     // initialize health check
@@ -51,9 +56,10 @@ bool initInfnoise(struct infnoise_context *context, char *serial, bool keccak, b
     // let healthcheck collect some data
     uint32_t maxWarmupRounds = 5000;
     uint32_t warmupRounds = 0;
+
     //bool errorFlag = false;
     while (!inmHealthCheckOkToUseData()) {
-        readData(context, NULL, true, 0);
+        readData(context, NULL, true, 1);
         warmupRounds++;
     }
 
@@ -309,7 +315,7 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
 }
 
 uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, uint32_t outputMultiplier) {
-    // check if data can be squeezed from the keccak spongr from previous state (or we need to collect some new entropy to get numBits >0)
+    // check if data can be squeezed from the keccak sponge from previous state (or we need to collect some new entropy to get numBits >0)
     if (context->numBits > 0u) {
         // squeeze the sponge!
 

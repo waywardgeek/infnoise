@@ -13,16 +13,13 @@ LDFLAGS= -shared
 
 FTDI := $(shell libftdi-config --libs)
 
-all: libinfnoise-example libinfnoise-example-raw libinfnoise-example-1
-
-libinfnoise-example: example.c
-	$(CC) $(CFLAGS) -o libinfnoise-example example.c $(FTDI) -lm -lrt -linfnoise
+all: libinfnoise-example-simple libinfnoise-example-complex
 
 libinfnoise-example-simple: example-simple.c
-	$(CC) $(CFLAGS) -o libinfnoise-example-1 example1.c $(FTDI) -lm -lrt -linfnoise
+	$(CC) $(CFLAGS) -o libinfnoise-example-simple example-simple.c $(FTDI) -lm -lrt -linfnoise
 
 libinfnoise-example-complex: example-complex.c
-	$(CC) $(CFLAGS) -o libinfnoise-example-raw example-raw.c $(FTDI) -lm -lrt -linfnoise
+	$(CC) $(CFLAGS) -o libinfnoise-example-complex example-complex.c $(FTDI) -lm -lrt -linfnoise
 
 clean:
 	$(RM) libinfnoise-example* *.o
