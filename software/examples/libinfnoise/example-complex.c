@@ -1,5 +1,5 @@
 /*
-This is a simple example to use libinfnoise with whitened and multiplied output.
+This is a more advanced example to use libinfnoise with raw, whitened and/or multiplied output.
 */
 
 #include <stdio.h>
@@ -10,27 +10,27 @@ int main()
 {
     // parameters
     char *serial=NULL; 		// can be set to a specific serial, NULL uses the first found device
-    bool initKeccak = false;	// initialize Keccak sponge (used for whitening)
-    uint32_t multiplier = 1u;	// multiplier for whitening
+    bool initKeccak = true;	// initialize Keccak sponge (used for whitening)
+    uint32_t multiplier = 2u;	// multiplier for whitening
     bool debug = true;		// debug mode (health monitor writes to stderr)
 
     // initialize hardware and health monitor
     struct infnoise_context context;
-    fprintf(stdout, "pre-initi: %s\n", "");
 
     if (!initInfnoise(&context, serial, initKeccak, debug)) {
-        fprintf(stdout, "erri: %s\n", "");
         fputs(context.message, stderr);
         return 1; // ERROR
     }
-    fprintf(stdout, "initi: %s\n", "");
 
     uint32_t resultSize;
-    if (multiplier == 0 || initKeccak == false) {
-        resultSize = 512u;
+    if (multiplier <= 1 || initKeccak == false) {
+        resultSize = 32u;
+    } else if (multiplier==2) {
+	resultSize=64;
     } else {
-        resultSize = 1024u;
+        resultSize = 128u;
     }
+    fprintf(stdout, "Error: %i\n", resultSize);
 
     // read and print in a loop (until 1M is read)
     uint64_t totalBytesWritten = 0u;
@@ -39,7 +39,6 @@ int main()
 
 	// readRawData returns the number of bytes written to result array
         uint64_t bytesWritten = readData(&context, result, !initKeccak, multiplier);
-        fprintf(stderr, "infnoise bytes read: %lu\n", bytesWritten);
 
 	// check for errors
 	// note: bytesWritten is also 0 in this case, but an errorFlag is needed as
