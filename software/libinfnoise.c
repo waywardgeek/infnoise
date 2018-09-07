@@ -141,8 +141,14 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy,
     // we instantly recover (reseed) from a state compromise, which is when an attacker
     // gets a snapshot of the keccak state.  BUFLEN must be a multiple of 64, since
     // Keccak-1600 uses 64-bit "lanes".
+    uint8_t resultSize;
+    if (outputMultiplier <= 2) {
+        resultSize = 64u;
+    } else {
+        resultSize = 128u;
+    }
 
-    uint8_t dataOut[128u];
+    uint8_t dataOut[resultSize];
     KeccakAbsorb(keccakState, bytes, BUFLEN / 64u);
 
     if (outputMultiplier == 0u) {
@@ -170,7 +176,7 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy,
         KeccakPermutation(keccakState);
         *bytesWritten = bytesToWrite;
         *numBits -= bytesToWrite * 8u;
-    }    
+    }
     return *bytesWritten;
 }
 
