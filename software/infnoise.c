@@ -268,10 +268,8 @@ int main(int argc, char **argv) {
 
     // calculate output size based on the parameters:
     uint64_t resultSize;
-    if (opts.outputMultiplier <= 1 || opts.raw) {
-        resultSize = 32u;
-    } else if (opts.outputMultiplier==2) {
-        resultSize=64;
+    if (opts.outputMultiplier <= 2 || opts.raw) {
+        resultSize = 64u;
     } else {
         resultSize = 128u;
     }
