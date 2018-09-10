@@ -1,12 +1,14 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/types.h>
-#ifdef LINUX
+#if defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__APPLE__) || defined(__FreeBSD__)
+#include <limits.h>
+#else
 #include <linux/limits.h>
 #endif
 #include <ftdi.h>
 #include <time.h>
-
+#include "libinfnoise.h"
 
 #define INFNOISE_VENDOR_ID 0x0403
 #define INFNOISE_PRODUCT_ID 0x6015
@@ -35,8 +37,6 @@
 // All data bus bits of the FT240X are outputs, except COMP1 and COMP2
 #define MASK (0xffu & ~(1u << COMP1) & ~(1u << COMP2))
 
-
-
 bool inmHealthCheckStart(uint8_t N, double K, bool debug);
 void inmHealthCheckStop(void);
 bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even);
@@ -46,14 +46,12 @@ double inmHealthCheckEstimateEntropyPerBit(void);
 uint32_t inmGetEntropyLevel(void);
 void inmClearEntropyLevel(void);
 bool inmEntropyOnTarget(uint32_t entropy, uint32_t bits);
-void inmWriteEntropyStart(uint32_t bufLen, bool debug);
-void inmWriteEntropyToPool(uint8_t *bytes, uint32_t length, uint32_t entropy);
-void inmWaitForPoolToHaveRoom(void);
+
 void inmDumpStats(void);
 
 extern double inmK, inmExpectedEntropyPerBit;
 
-bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial);
+bool initializeUSB(struct ftdi_context *ftdic, char **message,char *serial);
 void prepareOutputBuffer();
 
 struct timespec;
@@ -61,7 +59,6 @@ double diffTime(struct timespec *start, struct timespec *end);
 uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, char **message, bool *errorFlag);
 
 bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom, char **message);
-uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t entropy, bool raw,
-                      bool writeDevRandom, uint32_t outputMultiplier, bool noOutput, char **message, bool *errorFlag);
 
-uint32_t readData_private(struct ftdi_context *ftdic, uint8_t *result, char **message, bool *errorFlag, bool noOutput, bool raw, uint32_t outputMultiplier, bool devRandom);
+uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy, uint32_t *numBits, uint32_t *bytesWritten, bool raw,
+                      uint32_t outputMultiplier);

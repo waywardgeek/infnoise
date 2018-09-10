@@ -3,23 +3,24 @@ GIT_COMMIT  := $(shell git rev-parse --verify HEAD)
 GIT_DATE    := $(firstword $(shell git --no-pager show --date=iso-strict --format="%ad" --name-only))
 
 PREFIX = $(DESTDIR)/usr/local
-FTDILOC = /usr/local/Cellar/libftdi/1.4/include/libftdi1/
 
-CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I $(FTDILOC) \
+# Against 'libftdi0' from MacOS X ports or brew
+#
+FTDILOCI = /opt/local/include
+FTDILOCL = /opt/local/lib
+FTDI=   -lftdi
+
+CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I $(FTDILOCI) \
  -DGIT_VERSION=\"$(GIT_VERSION)\"\
  -DGIT_COMMIT=\"$(GIT_COMMIT)\"\
  -DGIT_DATE=\"$(GIT_DATE)\"\
- -DMACOS
 
-FTDI=   -lftdi1
+RM=rm
 
 all: libinfnoise.a libinfnoise.so infnoise
 
-clean:
-	rm -f *.o *.a infnoise
-
 infnoise: libinfnoise.a infnoise.o daemon.o
-	$(CC) $(CFLAGS) -o infnoise infnoise.o daemon.o libinfnoise.a $(FTDI) -lm -L. -linfnoise
+	$(CC) $(CFLAGS) -o infnoise infnoise.o daemon.o libinfnoise.a $(FTDI) -lm -L. -L $(FTDILOCL)
 
 %.o: %.c infnoise.h libinfnoise.h
 	$(CC) -c -o $@ $< $(CFLAGS)
@@ -38,12 +39,12 @@ libinfnoise.a: libinfnoise.o healthcheck.o KeccakF-1600-reference.o
 
 # shared lib
 libinfnoise.so: libinfnoise.o healthcheck.o KeccakF-1600-reference.o
-	$(CC) $(CFLAGS) -fvisibility=hidden -o libinfnoise.so libinfnoise.o healthcheck.o KeccakF-1600-reference.o -Wl $(FTDI) -lm -shared 
+	$(CC) $(CFLAGS) -fvisibility=hidden -o libinfnoise.so libinfnoise.o healthcheck.o KeccakF-1600-reference.o  -L $(FTDILOCL) -Wl $(FTDI) -lm -shared 
 
 libs: libinfnoise.a
 
 clean:
-	$(RM) infnoise *.o *.a *.gch *.so libinfnoise-example
+	$(RM) -f infnoise *.o *.a *.gch *.so libinfnoise-example
 
 install-lib: libinfnoise.so
 	install -d $(PREFIX)/include

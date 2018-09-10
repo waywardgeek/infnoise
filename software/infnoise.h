@@ -1,7 +1,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/types.h>
-#ifdef LINUX
+#if defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__APPLE__) || defined(__FreeBSD__)
+#include <limits.h>
+#else
 #include <linux/limits.h>
 #endif
 #include <ftdi.h>
@@ -21,5 +23,10 @@ struct opt_struct {
         char *pidFileName;      // Name of optional PID-file
         char *serial;           // Name of selected device
 };
+
+
+void inmWriteEntropyStart(uint32_t bufLen, bool debug);
+void inmWriteEntropyToPool(uint8_t *bytes, uint32_t length, uint32_t entropy);
+void inmWaitForPoolToHaveRoom(void);
 
 void startDaemon(struct opt_struct *opts);

@@ -25,16 +25,13 @@ fingerprints at 13-37.org/pgp-keys and in the Crowd Supply campaign.
 Repositories for Ubuntu, Debian and Raspbian are also available. To add them follow this procedure:
 
     $ wget -O 13-37.org-code.asc https://13-37.org/files/pubkey.gpg 
-
-    Verify the keys fingerprint:
-
+    # Verify the keys fingerprint:
     # GPG1
     $ gpg --with-fingerprints 13-37.org-code.asc
     # GPG2:
     $ gpg2 --import-options import-show --dry-run --import < 13-37.org-code.asc
-
-    $ sudo apt-key add 13-37.org-code.gpg
-
+    $ sudo apt-key add 13-37.org-code.asc
+    
 Available for Ubuntu and Debian (x86, x64 and armhf):
 
     $ echo "deb http://repo.13-37.org/ stable main" | sudo tee /etc/apt/sources.list.d/infnoise.list
@@ -121,6 +118,23 @@ Options are:
     --pidfile <filename> - write the process ID to a file. If --daemon is used, it is the ID of the background process.
     --serial <serial> - use Infinite Noise TRNG/FT240 with the given serial number (see --list-devices)
     --list-devices - list available devices
+=======
+Usage
+-----
+
+    Usage: infnoise [options]
+    Options are:
+        --debug - turn on some debug output
+        --dev-random - write entropy to /dev/random instead of stdout
+        --raw - do not whiten the output
+        --multiplier <value> - write 256 bits * value for each 512 bits written to the Keccak sponge
+        --no-output - do not write random output data
+        --daemon - run in the background. Output should be redirected to a file or
+        the options should be used with --dev-random. To reduce CPU-usage addition
+        af entropy is only forced after a minute rather than a second.
+        --pidfile <filename> - write the process ID to a file. If --daemon is used, it is the ID of the background process.
+        --serial <serial> - use Infinite Noise TRNG/FT240 with the given serial number (see --list-devices)
+        --list-devices - list available devices
 
 Note: The options --daemon and --pidfile are only implemented in the Linux version.
 

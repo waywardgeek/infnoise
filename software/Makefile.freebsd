@@ -4,23 +4,23 @@ GIT_DATE    := $(firstword $(shell git --no-pager show --date=iso-strict --forma
 
 PREFIX = $(DESTDIR)/usr/local
 
-CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I /usr/include/libftdi1 \
+# Against: libftdi1  from ports/pkg
+#
+FTDILOCI = /usr/local/include/libftdi1
+FTDILOCL = /usr/local/lib
+FTDI=   -lftdi1
+
+CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I $(FTDILOCI) \
  -DGIT_VERSION=\"$(GIT_VERSION)\"\
  -DGIT_COMMIT=\"$(GIT_COMMIT)\"\
  -DGIT_DATE=\"$(GIT_DATE)\"\
- -DLINUX
 
-FOUND = $(shell /sbin/ldconfig -p | grep --silent libftdi.so && echo found)
-ifeq ($(FOUND), found)
-        FTDI=   -lftdi
-else
-        FTDI=   -lftdi1
-endif
+RM=rm
 
 all: libinfnoise.a libinfnoise.so infnoise
 
 infnoise: libinfnoise.a infnoise.o daemon.o
-	$(CC) $(CFLAGS) -o infnoise infnoise.o daemon.o libinfnoise.a $(FTDI) -lm -lrt -L.
+	$(CC) $(CFLAGS) -o infnoise infnoise.o daemon.o libinfnoise.a $(FTDI) -lm -L. -L $(FTDILOCL)
 
 %.o: %.c infnoise.h libinfnoise.h
 	$(CC) -c -o $@ $< $(CFLAGS)
@@ -32,18 +32,18 @@ KeccakF-1600-reference.o: Keccak/KeccakF-1600-reference.c Keccak/KeccakF-1600-in
 libinfnoise.o: libinfnoise.c libinfnoise.h libinfnoise_private.h healthcheck.c
 	$(CC) $(CFLAGS) -c libinfnoise.c
 
-libinfnoise.a: libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o
-	ar rcs libinfnoise.a libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o
+libinfnoise.a: libinfnoise.o healthcheck.o KeccakF-1600-reference.o
+	ar rcs libinfnoise.a libinfnoise.o healthcheck.o KeccakF-1600-reference.o
 	ranlib libinfnoise.a
 
 # shared lib
-libinfnoise.so: libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o
-	$(CC) $(CFLAGS) -fvisibility=hidden -o libinfnoise.so libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o -Wl,--version-script=libinfnoise.version $(FTDI) -lm -shared
+libinfnoise.so: libinfnoise.o healthcheck.o KeccakF-1600-reference.o
+	$(CC) $(CFLAGS) -fvisibility=hidden -o libinfnoise.so libinfnoise.o healthcheck.o KeccakF-1600-reference.o  -L $(FTDILOCL) -Wl $(FTDI) -lm -shared 
 
 libs: libinfnoise.a
 
 clean:
-	$(RM) infnoise *.o *.a *.gch *.so libinfnoise-example
+	$(RM) -f infnoise *.o *.a *.gch *.so libinfnoise-example
 
 install-lib: libinfnoise.so
 	install -d $(PREFIX)/include
