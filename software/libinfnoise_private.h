@@ -62,5 +62,3 @@ bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDe
 
 uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy, uint32_t *numBits, uint32_t *bytesWritten, bool raw,
                       uint32_t outputMultiplier);
-
-//uint32_t readData_private(struct infnoise_context *context, uint8_t *result, char **message, bool *errorFlag, bool noOutput, bool raw, uint32_t outputMultiplier, bool devRandom);
