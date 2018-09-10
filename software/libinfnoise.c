@@ -141,8 +141,14 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy,
     // we instantly recover (reseed) from a state compromise, which is when an attacker
     // gets a snapshot of the keccak state.  BUFLEN must be a multiple of 64, since
     // Keccak-1600 uses 64-bit "lanes".
+    uint8_t resultSize;
+    if (outputMultiplier <= 2) {
+        resultSize = 64u;
+    } else {
+        resultSize = 128u;
+    }
 
-    uint8_t dataOut[1024u];
+    uint8_t dataOut[resultSize];
     KeccakAbsorb(keccakState, bytes, BUFLEN / 64u);
 
     if (outputMultiplier == 0u) {
@@ -170,7 +176,7 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy,
         KeccakPermutation(keccakState);
         *bytesWritten = bytesToWrite;
         *numBits -= bytesToWrite * 8u;
-    }    
+    }
     return *bytesWritten;
 }
 
@@ -203,6 +209,7 @@ devlist_node listUSBDevices(char **message) {
         } else {
             *message = "Can't find Infinite Noise Multiplier.";
         }
+        return NULL;
     }
     devlist_node return_list = malloc(sizeof(struct infnoise_devlist_node));
     devlist_node current_entry = return_list;
@@ -212,11 +219,10 @@ devlist_node listUSBDevices(char **message) {
         if (rc < 0) {
             if (!isSuperUser()) {
                 *message = "Can't find Infinite Noise Multiplier. Try running as super user?";
-                return NULL;
             } else {
-	        //todo: *message = "ftdi_usb_get_strings failed: %d (%s)\n", rc, ftdi_get_error_string(&ftdic));
-                return NULL;
+		sprintf(*message, "ftdi_usb_get_strings failed: %d (%s)", rc, ftdi_get_error_string(&ftdic));
             }
+            return NULL;
         }
         current_entry->id = i;
         strcpy(current_entry->serial, serial);

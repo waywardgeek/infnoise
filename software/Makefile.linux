@@ -38,7 +38,7 @@ libinfnoise.a: libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy
 
 # shared lib
 libinfnoise.so: libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o
-	$(CC) $(CFLAGS) -fvisibility=hidden -o libinfnoise.so libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o -Wl,--version-script=libinfnoise.version $(FTDI) -lm -shared 
+	$(CC) $(CFLAGS) -fvisibility=hidden -o libinfnoise.so libinfnoise.o healthcheck.o KeccakF-1600-reference.o writeentropy.o -Wl,--version-script=libinfnoise.version $(FTDI) -lm -shared
 
 libs: libinfnoise.a
 
