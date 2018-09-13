@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh -x
 
 ARCH=$1
 VERSION=`git --no-pager describe --tags --always`
@@ -40,7 +40,7 @@ rm -rf build
 cd tools
 mkdir -p build/usr/bin/
 
-make -f Makefile.linux
+make -f Makefile
 
 cp passgen build/usr/bin/infnoise-passgen
 cp dice build/usr/bin/infnoise-dice
@@ -67,7 +67,7 @@ rm -rf build
 mkdir -p build/usr/lib
 mkdir -p build/usr/include
 
-make -f Makefile.linux libinfnoise.so
+make -f Makefile.linux libinfnoise
 
 cp libinfnoise.so build/usr/lib/
 cp libinfnoise.h build/usr/include
