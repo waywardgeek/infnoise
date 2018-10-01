@@ -18,7 +18,7 @@ tar -xzf ../SOURCES/infnoise.tar.gz
 
 %build
 cd tools
-make -f Makefile.linux
+make
 
 %install
 #make DESTDIR=$RPM_BUILD_ROOT install
