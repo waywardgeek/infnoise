@@ -1,13 +1,22 @@
 # Maintainer: Manuel Domke <info@13-37.org>
-pkgname=infnoise
-pkgdesc='Infinite Noise TRNG'
-license=('open')
+
+_pkgname=infnoise
+
+pkgname=${_pkgname}
+pkgdesc='Infinite Noise TRNG - The world's easiest TRNG to get right'
+license=('custom:Unlicense')
 url='https://github.com/13-37-org/infnoise'
 depends=('libftdi-compat')
-makedepends=()
+makedepends=("git")
 source=('git+https://github.com/13-37-org/infnoise.git')
-md5sums=('SKIP')
+sha256sums=("SKIP")
 install='INSTALL'
+
+pkgver() {
+  cd "${_pkgname}"
+  git describe --long --tags | sed 's/-/.r/;s/-/./'
+}
+
 build() {
   cd "${srcdir}/infnoise/software/"
   make -f Makefile.linux
@@ -21,5 +30,3 @@ package() {
   install -Dvm644 "${srcdir}/infnoise/software/init_scripts/infnoise.conf.systemd" "${pkgdir}/etc/infnoise.conf"
   install -Dvm644 "${srcdir}/infnoise/software/init_scripts/infnoise.service.bin" "${pkgdir}/usr/lib/systemd/system/infnoise.service"
 }
-
-
