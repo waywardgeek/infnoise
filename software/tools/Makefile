@@ -1,4 +1,4 @@
-CFLAGS=-Wall -Wextra -Werror -std=c99 -O3
+CFLAGS=-Wall -Wextra -Werror -std=c99 -O3 -I /usr/include/libftdi1
 
 all: passgen healthcheck findlongest entcheck hex2bin bin2hex flipbits dice
 
