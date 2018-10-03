@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh -ex
 
 VERSION=`git --no-pager describe --tags --always | cut -d'-' -f1`
 RELEASE=`git --no-pager describe --tags --always | cut -d'-' -f2`

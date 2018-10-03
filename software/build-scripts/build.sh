@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh -ex
 
 ARCH=$1
 VERSION=`git --no-pager describe --tags --always`
