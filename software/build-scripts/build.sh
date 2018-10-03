@@ -67,7 +67,7 @@ rm -rf build
 mkdir -p build/usr/lib
 mkdir -p build/usr/include
 
-make -f Makefile.linux libinfnoise
+make -f Makefile.linux libinfnoise.so
 
 cp libinfnoise.so build/usr/lib/
 cp libinfnoise.h build/usr/include
