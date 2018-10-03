@@ -25,8 +25,8 @@ done
 mkdir -p x86_64
 cd x86_64
 
-cp ../PKGBUILD.arch PKGBUILD
-cp ../INSTALL.arch INSTALL
+cp ../build-scripts/PKGBUILD.arch PKGBUILD
+cp ../build-scripts/INSTALL.arch INSTALL
 
 sed -i "s|.*source.*=.*(.*).*|source=('git+$GITREPO')|g" PKGBUILD
 echo "pkgver=$VERSION.$PKGREL" >> PKGBUILD
