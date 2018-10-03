@@ -27,24 +27,27 @@ cd x86_64
 
 cp ../PKGBUILD.arch PKGBUILD
 cp ../INSTALL.arch INSTALL
+
 sed -i "s|.*source.*=.*(.*).*|source=('git+$GITREPO')|g" PKGBUILD
 echo "pkgver=$VERSION.$PKGREL" >> PKGBUILD
 echo "pkgrel=1" >> PKGBUILD
 echo "arch=('x86_64')" >> PKGBUILD
-ls -lah
-if [ "$SIGNPACKAGE" = true ]; then
+
+if [ "$SIGNPACKAGE" == true ]; then
   makepkg -f --sign --key 975DC25C4E730A3C
 else
   makepkg -f
 fi
+
 cd ..
 
 # x86
 mkdir -p x86
 cd x86
 
-cp ../PKGBUILD.arch PKGBUILD
-cp ../INSTALL.arch INSTALL
+cp ../build-scripts/PKGBUILD.arch PKGBUILD
+cp ../build-scripts/INSTALL.arch INSTALL
+
 echo "pkgver=$VERSION.$PKGREL" >> PKGBUILD
 echo "pkgrel=1" >> PKGBUILD
 echo "arch=('i686')" >> PKGBUILD
