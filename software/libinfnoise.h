@@ -1,13 +1,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/types.h>
-
 #if defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__APPLE__) || defined(__FreeBSD__)
 #include <limits.h>
 #else
 #include <linux/limits.h>
 #endif
-
 #include <ftdi.h>
 #include <time.h>
 

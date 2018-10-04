@@ -10,8 +10,7 @@ Repositories for Ubuntu, Debian and Raspbian are also available. To add them fol
 
     $ wget -O 13-37.org-code.asc https://13-37.org/files/pubkey.gpg 
 
-Verify the keys fingerprint:
-
+    # Verify the keys fingerprint:
     # GPG1
     $ gpg --with-fingerprints 13-37.org-code.asc
     # GPG2:
@@ -27,11 +26,10 @@ Connect the Infinite Noise TRNG (if not already) and the service will be started
 
     $ systemctl status infnoise
 
-
 Compiling the Driver 
 ------------------------------
 
-It's highly recommended to build from the already released versions, as these have been [tested and verified](https://github.com/13-37-org/infnoise/tree/master/tests/results) extensively. Note that the releases are maintained in the 13-37-org fork of this project.
+It's highly recommended to build from the tagged releases, as these have been [tested and verified](https://github.com/13-37-org/infnoise/tree/master/tests/results) extensively. Note that the releases are maintained in the 13-37-org fork of this project.
 
 To switch to a specific tag:
     
@@ -68,14 +66,38 @@ with the stable release for now.
 
 MacOS
 ------------------------------
-You'll need to install Xcode and Homebrew before. 
 
-    brew install libftdi
-    git clone https://github.com/13-37-org/infnoise
-    cd infnoise/software
-    make -f Makefile.macos
+First install the dependencies, most easily done with homebrew:
 
-The `--dev-random` mode is not implemented for MacOS (yet.)
+    $ brew install libftdi-dev libusb-dev
+
+Adjust the Makefile, if necessary, to point at your ftdi directory:
+
+    $ mdfind -name ftdi.h
+    /usr/local/Cellar/libftdi/1.4/include/libftdi1/ftdi.h
+
+then, in your Makefile.macos:
+```
+FTDILOC = /usr/local/Cellar/libftdi/1.4/include/libftdi1/
+```
+
+Next build the executable:
+
+    $ make -f Makefile.macos
+
+If running it fails, you may have to run as root:
+
+    $ sudo ./infnoise
+
+Or you may have to unload the FTDI serial port driver:
+
+    $ sudo kextunload -b com.FTDI.driver.FTDIUSBSerialDriver
+
+Alternatively, FTDI have released the [D2XXhelper](http://www.ftdichip.com/Drivers/D2XX.htm), which may prevent the
+serial driver from grabbing the Infinitenoise device.
+
+The `--dev-random` mode is not implemented for MacOS (yet.) 
+But you can try the the Infinite Noise [OpenSSL engine](https://github.com/tinskip/infnoise-openssl) based on libinfnoise.
 
 Windows
 -----
@@ -245,4 +267,3 @@ which worked on my particular Ubuntu 14.04 based laptop:
     SUBSYSTEM=="usb", ATTRS{idProduct}=="6015", ATTRS{idVendor}=="0403", GROUP="dialout", MODE="0664"
 
 Note that my username is in the dialout group.
-
