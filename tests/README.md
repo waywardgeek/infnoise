@@ -37,7 +37,7 @@ resulting in 100.000 FIPS blocks with 20.000 bit each - and took two weeks.
 
 Make sure you have the following tools installed:
 
-- rng-tools
+- rng-tools (make sure to stop rngd during the test and uninstall/disable afterwards)
 - ent
 - dieharder
 - pv
@@ -76,3 +76,5 @@ Directory structure created by a test run:
 	    - <testcase>-<multiplier>-<kbytes>K.log: 			log output of the infnoise utility
 	    - <testcase>-<multiplier>-<kbytes>K-pv.log: 		log output of pv
 	    - <testcase>-<multiplier>-<kbytes>K.out:			random data produced in the test run
+
+In the already existing results folder you'll find results for major driver [releases] (https://github.com/13-37-org/infnoise/releases).
