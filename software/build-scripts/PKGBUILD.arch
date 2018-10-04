@@ -3,12 +3,13 @@
 _pkgname=infnoise
 
 pkgname=${_pkgname}
-pkgdesc='Infinite Noise TRNG - The world's easiest TRNG to get right'
+pkgver=0.2.6.r86.g453234b
+pkgdesc="Infinite Noise TRNG - The world's easiest TRNG to get right"
 license=('custom:Unlicense')
 url='https://github.com/13-37-org/infnoise'
 depends=('libftdi-compat')
 makedepends=("git")
-source=('git+https://github.com/13-37-org/infnoise.git')
+source=('git+https://github.com/13-37-org/infnoise')
 sha256sums=("SKIP")
 install='INSTALL'
 
