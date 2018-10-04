@@ -30,9 +30,7 @@ if [ ! -e build/usr/sbin/infnoise ] ; then
 	exit 1;
 fi
 
-# debuild -b -uc -us
-dpkg -b build/ infnoise_${VERSION}_${ARCH}.deb
-#debbuild -uc -us
+dpkg --root-owner-group -b build/ infnoise_${VERSION}_${ARCH}.deb
 
 ### build infnoise-tools ###
 rm -rf build
@@ -56,7 +54,7 @@ cp ../build-scripts/control.debian.tools build/DEBIAN/control
 echo "Version: $VERSION" >> build/DEBIAN/control
 echo "Architecture: $ARCH" >> build/DEBIAN/control
 
-dpkg -b build/ infnoise-tools_${VERSION}_${ARCH}.deb
+dpkg --root-owner-group -b build/ infnoise-tools_${VERSION}_${ARCH}.deb
 
 rm -rf build
 cd ..
@@ -77,6 +75,6 @@ cp build-scripts/control.debian.lib build/DEBIAN/control
 echo "Version: $VERSION" >> build/DEBIAN/control
 echo "Architecture: $ARCH" >> build/DEBIAN/control
 
-dpkg -b build/ libinfnoise_${VERSION}_${ARCH}.deb
+dpkg --root-owner-group -b build/ libinfnoise_${VERSION}_${ARCH}.deb
 
 rm -rf build
