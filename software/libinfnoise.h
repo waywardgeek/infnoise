@@ -38,7 +38,7 @@ struct infnoise_devlist_node {
 typedef struct infnoise_devlist_node *devlist_node;
 
 /*
- * returns a struct of infnoise_devlist_node listing all connected FTDI FT240 devices by its USB descriptors,
+ * returns a struct of infnoise_devlist_node listing all connected FTDI FT240 devices by their USB descriptors
  *
  * parameters:
  *  - message: pointer for error message
@@ -47,9 +47,8 @@ typedef struct infnoise_devlist_node *devlist_node;
  */
 devlist_node listUSBDevices(char **message);
 
-
 /*
- * initialize the Infinite Noise TRNG - must be called once before readData() works.
+ * initialize the Infinite Noise TRNG - must be called once before readData() works
  *
  * parameters:
  *  - context: pointer to infnoise_context struct
@@ -62,11 +61,13 @@ bool initInfnoise(struct infnoise_context *context, char *serial, bool keccak, b
 
 /*
  * Reads some bytes from the TRNG and stores them in the "result" byte array.
- * The array has to be of sufficient size. Please refer to the example programs.
+ * The array has to be of sufficient size. Please refer to the example programs. 
+ * (64 byte for normal operation or 128byte for multiplier mode)
  *
- * After each read operation, the infnoise_context's errorFlag must be checked,
- * and the data from this call has to be discarded!
- * Detailed error messages can be found in context->message.
+ * After every read operation, the infnoise_context's errorFlag must be checked,
+ * and the data from this call has to be discarded when it returns true!
+ *
+ * Detailed error messages can then be found in context->message.
  *
  * parameters:
  *  - context: infnoise_context struct with device pointer and state variables
@@ -74,6 +75,6 @@ bool initInfnoise(struct infnoise_context *context, char *serial, bool keccak, b
  *  - raw: boolean flag for raw or whitened output
  *  - outputMultiplier: only used for whitened output
  *
- * returns: number of bytes written to the array
+ * returns: number of bytes written to the byte-array
 */
 uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, uint32_t outputMultiplier);
