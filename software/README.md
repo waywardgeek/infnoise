@@ -3,10 +3,10 @@ Releases
 
 Signed packages of release versions are availabe on [Github](https://github.com/13-37-org/infnoise/releases) and [13-37.org](https://13-37.org/files/).
 
-The packages are signed with the same PGP-Key (Key-ID: `0x4E730A3C`) used for the repositories below. 
+The packages are signed with the same PGP-Key (Key-ID: `0x4E730A3C`) used for the apt repositories below. 
 Full Fingerprint: `71AE 099B 262D C0B4 93E6 EE71 975D C25C 4E73 0A3C`. You can get the keys on [13-37.org/keys](https://13-37.org/keys) and in the [Crowd Supply campaign](https://crowdsupply.com/13-37/infinite-noise-trng).
 
-Repositories for Ubuntu, Debian and Raspbian are also available. To add them follow this procedure:
+Verify the keys and add the repo:
 
     $ wget -O 13-37.org-code.asc https://13-37.org/files/pubkey.gpg 
 
@@ -47,12 +47,17 @@ this command:
     $ sudo apt-get install libftdi-dev libusb-dev
 
 These include an open source drivers for the FT240X USB chip used on the Infinite Noise
-TRNG.  Once this is done, to compile the infnoise program, simply make it:
+TRNG.  Once this is done, to compile the infnoise program, simply make and install it:
 
     $ make -f Makefile.linux
 
-To run the infnoise application, make sure the Infinite Noise USB stick is
-plugged in, and from a shell, type:
+To install it, run:
+    
+    $ make -f Makefile.linux install
+
+This also installs a systemd service and the udev rules described below to start the driver automatically when the device is plugged in.
+
+To run the infnoise application manually, make sure the systemd service is stopped. Otherwise it will restart the daemon and disrupt you.
 
     $ sudo ./infnoise > randbytes
 
@@ -249,6 +254,7 @@ Udev rules
 This is thanks to user Abigail on github.  If you want to automatically feed
 random data into /dev/random when the TRNG is plugged in, you can ask Linux to
 do this by creating a file in etc/udev/rules.d. 
+
 It relies on the systemd service "infnoise.service" provided under init_scripts, as udev is not designed to start long-running processes. 
 
     SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", SYMLINK+="infnoise" 
