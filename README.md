@@ -2,7 +2,7 @@
 ### Infinite Noise TRNG (True Random Number Generator)
 
 For instructions for compiling the and using Infinite Noise TRNG driver, go to the software
-sub-directory, and read the [README](software/README) file there.  Both Linux and Windows
+sub-directory, and read the [README](software/README) file there.  GNU/Linux, \*BSD and Windows
 are supported.
 
 The Infinite Noise TRNG is a USB key hardware true random number generator.  It uses what
@@ -26,7 +26,7 @@ before use in cryptography.  This should be done by continually reseeding a
 cryptographically secure hash function such as SHA-512, Blake2b, Keccak-1600 (SHA3), or a
 stream cipher such as ChaCha.  This implementation uses Keccak-1600 with cryptographically
 secure reseeding of more than 400 bits of entropy at a time, overcoming a trickle in/out
-problem present in the Linux /dev/random system.  Users who need many megabytes per second
+problem present in the GNU/Linux /dev/random system.  Users who need many megabytes per second
 of data for use in cryptography can set the outputMultiplier as high as they like, which
 causes Keccak to generate outputMultiplier\*256 bits per reseeding by the Infinite Noise
 TRNG.
