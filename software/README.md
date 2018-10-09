@@ -7,7 +7,7 @@ The packages are signed with the same PGP-Key (Key-ID: `0x4E730A3C`) used for th
 Full Fingerprint: `71AE 099B 262D C0B4 93E6 EE71 975D C25C 4E73 0A3C`. You can get the keys on [13-37.org/keys](https://13-37.org/keys) and in the [Crowd Supply campaign](https://crowdsupply.com/13-37/infinite-noise-trng).
 
 Verify the keys and add the repo:
-l
+
     $ wget -O 13-37.org-code.asc https://13-37.org/files/pubkey.gpg 
 
     # Verify the keys fingerprint:
