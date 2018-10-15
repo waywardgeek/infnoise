@@ -13,21 +13,6 @@ PATH=$PATH:/sbin/
 
 mkdir -p SOURCES
 tar -czf SOURCES/infnoise-$VERSION.tar.gz . --exclude="SOURCES"
-
-SIGNPACKAGE=1
-
-while test $# -gt 0
-do
-    case "$1" in
-        --notsigned) SIGNPACKAGE=0
-            ;;
-    esac
-    shift
-done
-if [ $SIGNPACKAGE -eq 1 ] ; then
-	gpg --sign SOURCES/infnoise-$VERSION.tar.gz
-fi
-
 mkdir -p BUILD SPECS RPMS SRPMS
 
 cp build-scripts/infnoise.spec build-scripts/infnoise-tools.spec SPECS

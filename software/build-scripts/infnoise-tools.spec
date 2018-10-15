@@ -14,7 +14,7 @@ BuildRoot:      %{_tmppath}/%{name}-root
 %description
 
 %prep
-tar -xzf ../SOURCES/infnoise.tar.gz
+tar -xzf ../SOURCES/infnoise-%{version}.tar.gz
 
 %build
 cd tools
