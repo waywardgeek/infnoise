@@ -6,7 +6,7 @@ Group:          Applications/Security
 License:        CC0
 URL:            https://github.com/manuel-domke/infnoise
 Vendor:         13-37.org
-Source:		infnoise.tar.gz
+Source:		infnoise-%{version}.tar.gz
 Prefix:         %{_prefix}
 Packager: 	Manuel Domke
 BuildRoot:      %{_tmppath}/%{name}-root
