@@ -1,0 +1,19 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.TH HEX2BIN 1 "June 22 2018"
+.\" Please adjust this date whenever revising the manpage.
+.SH NAME
+hex2bin \- convert hexadecimal to the encoded values
+.SH SYNOPSIS
+.B hex2bin
+.SH DESCRIPTION
+.B hex2bin
+reads from its standard input, ignoring any byte which isn’t a valid
+hexadecimal digit, and combines any two successive hexadecimal digits
+into the corresponding byte, which it outputs to its standard output.
+Only complete bytes are output, so an odd number of hexadecimal digits
+as input will drop the last digit.
+.PP
+.SH OPTIONS
+This program has no options.
+.SH SEE ALSO
+.BR infnoise (8).

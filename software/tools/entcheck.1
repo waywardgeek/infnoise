@@ -1,0 +1,37 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.TH ENTCHECK 1 "June 22 2018"
+.\" Please adjust this date whenever revising the manpage.
+.SH NAME
+entcheck \- estimates the entropy of a stream
+.SH SYNOPSIS
+.B entcheck
+.RB [ \-N
+.RI < bits >]
+.RB [ \-s
+.RI < streams >]
+.SH DESCRIPTION
+.B entcheck
+estimates the entropy of its standard input.
+It uses the previous
+.I bits
+bits (16 by default) to predict the next bit, and estimates the
+entropy based on the level of surprise, that is to say the base-2
+logarithm of the probability of seeing the given string of bits.
+.PP
+In some scenarios, such as the output of an 8-bit DAC, some bits are
+special: entropy then needs to be predicted per bit over the width of
+the input data. The
+.B \-s
+option sets the width of the input data in this case.
+.PP
+.SH OPTIONS
+.TP
+.BR \-N " <\fIbits\fP>"
+specifies the number of
+.I bits
+to use to predict the next bit.
+.TP
+.BR \-s " <\fIstreams\fP>"
+specifies the number of streams to use.
+.SH SEE ALSO
+.BR infnoise (8).

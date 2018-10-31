@@ -1,0 +1,23 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.TH INFNOISE.SERVICE 1 "June 25 2018"
+.\" Please adjust this date whenever revising the manpage.
+.SH NAME
+infnoise.service \- systemd service for infnoise
+.SH SYNOPSIS
+.B systemctl
+.BR start | status | restart | stop
+.B infnoise
+.SH DESCRIPTION
+.B infnoise.service
+allows systemd to manage the
+.B infnoise
+daemon.
+.SH FILES
+.TP
+.B /etc/infnoise.conf
+service configuration file
+.TP
+.B /var/run/infnoise.pid
+service process identifier
+.SH SEE ALSO
+.BR infnoise (8).
