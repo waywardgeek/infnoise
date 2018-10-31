@@ -1,0 +1,25 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.TH FINDLONGEST 1 "June 25 2018"
+.\" Please adjust this date whenever revising the manpage.
+.SH NAME
+findlongest \- finds the longest repeating sequence
+.SH SYNOPSIS
+.B findlongest \-\-test
+.br
+.B findlongest
+.RI < file >
+.SH DESCRIPTION
+.B findlongest
+finds the longest repeating sequence of bits in the given
+.IR file ,
+up to 34
+bits in length.
+.PP
+.SH OPTIONS
+.TP
+.B \-\-test
+generates random data (using
+.BR rand (3))
+instead of reading data from a file.
+.SH SEE ALSO
+.BR infnoise (8).
