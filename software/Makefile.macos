@@ -19,7 +19,7 @@ CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I $(FTDILOCI) \
 
 RM=rm
 
-all: libinfnoise.a libinfnoise.so infnoise
+all: libinfnoise.a libinfnoise.so infnoise tools.stamp
 
 infnoise: libinfnoise.a infnoise.o daemon.o
 	$(CC) $(CFLAGS) -o infnoise infnoise.o daemon.o libinfnoise.a $(FTDI) -lm -L. -L $(FTDILOCL)
@@ -45,15 +45,19 @@ libinfnoise.so: libinfnoise.o healthcheck.o KeccakF-1600-reference.o
 
 libs: libinfnoise.a
 
+tools.stamp:
+	$(MAKE) -C tools all
+	touch  tools.stamp
+
 clean:
-	$(RM) -f infnoise *.o *.a *.gch *.so libinfnoise-example
+	$(RM) -f infnoise *.o *.a *.gch *.so libinfnoise-example tools.stamp
+	$(MAKE) -C tools clean
 
 install-lib: libinfnoise.so
 	install -d $(PREFIX)/include
 	install -m 0644 libinfnoise.h $(PREFIX)/include
 	install -d $(PREFIX)/lib
 	install -m 0644 libinfnoise.so $(PREFIX)/lib
-	ldconfig $(PREFIX)/lib
 
 install: infnoise
 	install -d $(PREFIX)/sbin
@@ -63,6 +67,6 @@ install: infnoise
 	install -d $(PREFIX)/lib/systemd/system
 	install -m 0644 init_scripts/infnoise.service $(PREFIX)/lib/systemd/system
 
-postinstall:
-	systemctl restart systemd-udevd
-	systemctl enable infnoise
+install-tools: install tools.stamp
+	install -d $(PREFIX)/bin
+	install -m 0755 tools/bin2hex tools/dice tools/entcheck tools/findlongest tools/flipbits tools/healthcheck tools/hex2bin tools/passgen $(PREFIX)/bin/
