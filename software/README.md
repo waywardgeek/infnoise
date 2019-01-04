@@ -74,7 +74,7 @@ MacOS
 
 First install the dependencies, most easily done with homebrew:
 
-    $ brew install libftdi-dev libusb-dev
+    $ brew install libftdi libusb
 
 Adjust the Makefile, if necessary, to point at your ftdi directory:
 
