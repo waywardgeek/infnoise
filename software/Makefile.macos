@@ -1,3 +1,5 @@
+SHELL = /bin/bash
+
 GIT_VERSION := $(shell git --no-pager describe --tags --always)
 GIT_COMMIT  := $(shell git rev-parse --verify HEAD)
 GIT_DATE    := $(firstword $(shell git --no-pager show --date=iso-strict --format="%ad" --name-only))
@@ -6,9 +8,9 @@ PREFIX = $(DESTDIR)/usr/local
 
 # Against 'libftdi0' from MacOS X ports or brew
 #
-FTDILOCI = /opt/local/include
-FTDILOCL = /opt/local/lib
-FTDI=   -lftdi
+FTDILOCI = $(shell brew --prefix libftdi || echo /opt/local)/include/libftdi1
+FTDILOCL = $(shell brew --prefix libftdi || echo /opt/local)/lib
+FTDI=   -lftdi1
 
 CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I $(FTDILOCI) \
  -DGIT_VERSION=\"$(GIT_VERSION)\"\
