@@ -1,48 +1,42 @@
-Compiling the Driver for Windows
---------------------------------
-
-I compiled infnoise-win.exe using VisualStudio 2013 using Windows 7.  I downloaded the
-FTD2xx drivers from FTDI.  Pipes seem almost entirely broken in Windows, so the Windows
-version requires out output file to be specified on the command line.  In a cmd window,
-you can type
-
-    infnoise-win foo
-
-and let it run for a while until you have as much random data in foo as you need.
-
-The VisualStudio project for infnoise is in the infnoise/software/VisualStudio directory.
-
-Using prebuilt packages for Linux
+Releases
 ---------------------------------
 
-Precompiled binaries can be downloaded from the releases section of the 13-37-org fork:
-https://github.com/13-37-org/infnoise/releases
+Signed packages of release versions are availabe on [Github](https://github.com/13-37-org/infnoise/releases) and [13-37.org](https://13-37.org/files/).
 
-All packages are signed with the same PGP-Key (Key-ID: 0x4E730A3C) used for the repositories below. 
-Full Fingerprint: 71AE 099B 262D C0B4 93E6 EE71 975D C25C 4E73 0A3C. You can also check the 
-fingerprints at 13-37.org/pgp-keys and in the Crowd Supply campaign.
+The packages are signed with the same PGP-Key (Key-ID: `0x4E730A3C`) used for the apt repositories below. 
+Full Fingerprint: `71AE 099B 262D C0B4 93E6 EE71 975D C25C 4E73 0A3C`. You can get the keys on [13-37.org/keys](https://13-37.org/keys) and in the [Crowd Supply campaign](https://crowdsupply.com/13-37/infinite-noise-trng).
 
-Repositories for Ubuntu, Debian and Raspbian are also available. To add them follow this procedure:
+Verify the keys and add the repo:
 
     $ wget -O 13-37.org-code.asc https://13-37.org/files/pubkey.gpg 
+
     # Verify the keys fingerprint:
     # GPG1
     $ gpg --with-fingerprints 13-37.org-code.asc
     # GPG2:
     $ gpg2 --import-options import-show --dry-run --import < 13-37.org-code.asc
+
     $ sudo apt-key add 13-37.org-code.asc
-    
-Available for Ubuntu and Debian (x86, x64 and armhf):
 
     $ echo "deb http://repo.13-37.org/ stable main" | sudo tee /etc/apt/sources.list.d/infnoise.list
     $ sudo apt-get update
     $ sudo apt-get install infnoise
 
-Connect the Infinite Noise TRNG (if not already) and the service will be started via a udev rule.
-Check status of driver:
+Connect the Infinite Noise TRNG (if not already) and the service will be started via a udev rule. Check status of driver: 
+
     $ systemctl status infnoise
 
-Compiling the Driver for Linux
+Compiling the Driver 
+------------------------------
+
+It's highly recommended to build from the tagged releases, as these have been [tested and verified](https://github.com/13-37-org/infnoise/tree/master/tests/results) extensively. Note that the releases are maintained in the 13-37-org fork of this project.
+
+To switch to a specific tag:
+    
+    git clone https://github.com/13-37-org/infnoise
+    git checkout tags/0.3.0
+
+GNU/Linux
 ------------------------------
 
 The infnoise application reads random data from the Infinite Noise USB key and writes
@@ -53,12 +47,17 @@ this command:
     $ sudo apt-get install libftdi-dev libusb-dev
 
 These include an open source drivers for the FT240X USB chip used on the Infinite Noise
-TRNG.  Once this is done, to compile the infnoise program, simply make it:
+TRNG.  Once this is done, to compile the infnoise program, simply make and install it:
 
     $ make -f Makefile.linux
 
-To run the infnoise application, make sure the Infinite Noise USB stick is
-plugged in, and from a shell, type:
+To install it, run:
+    
+    $ make -f Makefile.linux install
+
+This also installs a systemd service and the udev rules described below to start the driver automatically when the device is plugged in.
+
+To run the infnoise application manually, make sure the systemd service is stopped. Otherwise it will restart the daemon and disrupt you.
 
     $ sudo ./infnoise > randbytes
 
@@ -70,12 +69,12 @@ Note that there is a newer alpha version of the next release of the libftdi libr
 found it runs much slower than the current libftdi1 library in Ubuntu, so I am sticking
 with the stable release for now.
 
-Compiling the driver for macOS
+MacOS
 ------------------------------
 
 First install the dependencies, most easily done with homebrew:
 
-    $ brew install libftdi-dev libusb-dev
+    $ brew install libftdi libusb
 
 Adjust the Makefile, if necessary, to point at your ftdi directory:
 
@@ -102,41 +101,42 @@ Or you may have to unload the FTDI serial port driver:
 Alternatively, FTDI have released the [D2XXhelper](http://www.ftdichip.com/Drivers/D2XX.htm), which may prevent the
 serial driver from grabbing the Infinitenoise device.
 
-Usage
+The `--dev-random` mode is not implemented for MacOS (yet.) 
+But you can try the the Infinite Noise [OpenSSL engine](https://github.com/tinskip/infnoise-openssl) based on libinfnoise.
+
+Windows
 -----
 
-Usage: infnoise [options]
-Options are:
-    --debug - turn on some debug output
-    --dev-random - write entropy to /dev/random instead of stdout
-    --raw - do not whiten the output
-    --multiplier <value> - write 256 bits * value for each 512 bits written to the Keccak sponge
-    --no-output - do not write random output data
-    --daemon - run in the background. Output should be redirected to a file or
-    the options should be used with --dev-random. To reduce CPU-usage addition
-    af entropy is only forced after a minute rather than a second.
-    --pidfile <filename> - write the process ID to a file. If --daemon is used, it is the ID of the background process.
-    --serial <serial> - use Infinite Noise TRNG/FT240 with the given serial number (see --list-devices)
-    --list-devices - list available devices
-=======
+I compiled infnoise-win.exe using VisualStudio 2013 using Windows 7. I downloaded the FTD2xx drivers from FTDI. Pipes seem almost entirely broken in Windows, so the Windows version requires out output file to be specified on the command line. In a cmd window, you can type
+
+    infnoise-win foo
+
+and let it run for a while until you have as much random data in foo as you need.
+
+The VisualStudio project for infnoise is in the infnoise/software/VisualStudio directory.
+
+There is also a new fork https://github.com/jj1bdx/infnoise-windows compiled with VS2017.
+
 Usage
 -----
 
     Usage: infnoise [options]
     Options are:
-        --debug - turn on some debug output
-        --dev-random - write entropy to /dev/random instead of stdout
-        --raw - do not whiten the output
-        --multiplier <value> - write 256 bits * value for each 512 bits written to the Keccak sponge
-        --no-output - do not write random output data
-        --daemon - run in the background. Output should be redirected to a file or
-        the options should be used with --dev-random. To reduce CPU-usage addition
-        af entropy is only forced after a minute rather than a second.
-        --pidfile <filename> - write the process ID to a file. If --daemon is used, it is the ID of the background process.
-        --serial <serial> - use Infinite Noise TRNG/FT240 with the given serial number (see --list-devices)
-        --list-devices - list available devices
+        -D, --debug - turn on some debug output
+        -R, --dev-random - write entropy to /dev/random instead of stdout
+        -r, --raw - do not whiten the output
+        -m, --multiplier <value> - write 256 bits * value for each 512 bits written to
+            the Keccak sponge.  Default of 0 means write all the entropy.
+        -n, --no-output - do not write random output data
+        -p, --pidfile <file> - write process ID to file
+        -d, --daemon - run in the background
+        -s, --serial <serial> - use specified device
+        -l, --list-devices - list available devices
+        -v, --version - show version information
+        -h, --help - this help output
 
-Note: The options --daemon and --pidfile are only implemented in the Linux version.
+Note: The options --daemon, --dev-random and --pidfile are only implemented in the GNU/Linux version. 
+The windows version is also lacking --list-devices and --serial. 
 
 Examples
 --------
@@ -254,21 +254,22 @@ Udev rules
 This is thanks to user Abigail on github.  If you want to automatically feed
 random data into /dev/random when the TRNG is plugged in, you can ask Linux to
 do this by creating a file in etc/udev/rules.d. 
+
 It relies on the systemd service "infnoise.service" provided under init_scripts, as udev is not designed to start long-running processes. 
 
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", SYMLINK+="infnoise" 
-ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015" ,TAG+="systemd", ENV{SYSTEMD_WANTS}="infnoise.service"
+    SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", SYMLINK+="infnoise" 
+    ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015" ,TAG+="systemd", ENV{SYSTEMD_WANTS}="infnoise.service"
 
 This also adds a symlink so the device removal can also be reacted on.
 
 I personally run the infnoise tool by hand from a bash shell, typically to test devices like this:
 
-$ sudo ./infnoise --debug --no-output
+     $ sudo ./infnoise --debug --no-output
 
 To avoid having to type 'sudo' each time, I created the following udev rules,
 which worked on my particular Ubuntu 14.04 based laptop:
 
-$ cat 30-infnoise.rules
-SUBSYSTEM=="usb", ATTRS{idProduct}=="6015", ATTRS{idVendor}=="0403", GROUP="dialout", MODE="0664"
+    $ cat 30-infnoise.rules
+    SUBSYSTEM=="usb", ATTRS{idProduct}=="6015", ATTRS{idVendor}=="0403", GROUP="dialout", MODE="0664"
 
 Note that my username is in the dialout group.

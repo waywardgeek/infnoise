@@ -1,0 +1,17 @@
+rngtest 5
+Copyright (c) 2004 by Henrique de Moraes Holschuh
+This is free software; see the source for copying conditions.  There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+rngtest: starting FIPS tests...
+rngtest: entropy source drained
+rngtest: bits received from input: 200000000
+rngtest: FIPS 140-2 successes: 9993
+rngtest: FIPS 140-2 failures: 6
+rngtest: FIPS 140-2(2001-10-10) Monobit: 0
+rngtest: FIPS 140-2(2001-10-10) Poker: 1
+rngtest: FIPS 140-2(2001-10-10) Runs: 3
+rngtest: FIPS 140-2(2001-10-10) Long run: 2
+rngtest: FIPS 140-2(2001-10-10) Continuous run: 0
+rngtest: input channel speed: (min=1003.868; avg=16761.803; max=19073.486)Mibits/s
+rngtest: FIPS tests speed: (min=19.054; avg=72.169; max=86.698)Mibits/s
+rngtest: Program run time: 2655272 microseconds

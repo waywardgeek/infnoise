@@ -20,7 +20,6 @@
 #include <getopt.h>
 #include "infnoise.h"
 #include "libinfnoise.h"
-#include "KeccakF-1600-interface.h"
 
 static void initOpts(struct opt_struct *opts) {
     opts->outputMultiplier = 0u;
@@ -250,7 +249,7 @@ int main(int argc, char **argv) {
         close(devRandomFD);
 #endif
 #if defined(__APPLE__)
-        message = "dev/random not supported on macOS";
+        context.message = "dev/random not supported on macOS";
         fprintf(stderr, "Error: %s\n", context.message);
         return 1;
 #endif
