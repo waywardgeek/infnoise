@@ -18,19 +18,16 @@ int main()
     struct infnoise_context context;
 
     if (!initInfnoise(&context, serial, initKeccak, debug)) {
-        fputs(context.message, stderr);
+        fprintf(stdout, "Error: %s\n", context.message);
         return 1; // ERROR
     }
 
     uint32_t resultSize;
-    if (multiplier <= 1 || initKeccak == false) {
-        resultSize = 32u;
-    } else if (multiplier==2) {
-	resultSize=64;
+    if (multiplier <= 2 || initKeccak == false) {
+        resultSize = 64u;
     } else {
         resultSize = 128u;
     }
-    fprintf(stdout, "Error: %i\n", resultSize);
 
     // read and print in a loop (until 1M is read)
     uint64_t totalBytesWritten = 0u;
@@ -47,8 +44,8 @@ int main()
             fprintf(stderr, "Error: %s\n", context.message);
             return -1;
         }
-        fprintf(stderr, "infnoise bytes read: %lu\n", (unsigned long) bytesWritten);
 	totalBytesWritten += bytesWritten;
+        fprintf(stderr, "infnoise bytes read: %lu\n", (unsigned long) totalBytesWritten);
 
         // print as many bytes as readData told us
         fwrite(result, 1, bytesWritten, stdout);

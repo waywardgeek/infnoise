@@ -1,4 +1,10 @@
-CFLAGS=-Wall -Wextra -Werror -std=c99 -O3
+CFLAGS=-Wall -Wextra -Werror -std=c99 -O3 -I $(shell brew --prefix libftdi || echo /usr)/include/libftdi1
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+    LIBRT=
+else
+    LIBRT=-lrt
+endif
 
 all: passgen healthcheck findlongest entcheck hex2bin bin2hex flipbits dice
 
@@ -6,10 +12,10 @@ passgen: passgen.c
 	$(CC) $(CFLAGS) -o passgen passgen.c -lm
 
 healthcheck: ../healthcheck.c
-	$(CC) $(CFLAGS) -D TEST_HEALTHCHECK -o healthcheck ../healthcheck.c -lm -lrt
+	$(CC) $(CFLAGS) -D TEST_HEALTHCHECK -o healthcheck ../healthcheck.c -lm $(LIBRT)
 
 entcheck: entcheck.c
-	$(CC) $(CFLAGS) -o entcheck entcheck.c -lm -lrt
+	$(CC) $(CFLAGS) -o entcheck entcheck.c -lm $(LIBRT)
 
 findlongest: findlongest.c
 	$(CC) $(CFLAGS) -o findlongest findlongest.c

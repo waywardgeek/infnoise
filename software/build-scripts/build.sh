@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh -ex
 
 ARCH=$1
 VERSION=`git --no-pager describe --tags --always`
@@ -30,9 +30,7 @@ if [ ! -e build/usr/sbin/infnoise ] ; then
 	exit 1;
 fi
 
-# debuild -b -uc -us
-dpkg -b build/ infnoise_${VERSION}_${ARCH}.deb
-#debbuild -uc -us
+fakeroot dpkg -b build/ infnoise_${VERSION}_${ARCH}.deb
 
 ### build infnoise-tools ###
 rm -rf build
@@ -40,7 +38,7 @@ rm -rf build
 cd tools
 mkdir -p build/usr/bin/
 
-make -f Makefile.linux
+make -f Makefile
 
 cp passgen build/usr/bin/infnoise-passgen
 cp dice build/usr/bin/infnoise-dice
@@ -56,7 +54,7 @@ cp ../build-scripts/control.debian.tools build/DEBIAN/control
 echo "Version: $VERSION" >> build/DEBIAN/control
 echo "Architecture: $ARCH" >> build/DEBIAN/control
 
-dpkg -b build/ infnoise-tools_${VERSION}_${ARCH}.deb
+fakeroot dpkg -b build/ infnoise-tools_${VERSION}_${ARCH}.deb
 
 rm -rf build
 cd ..
@@ -77,6 +75,6 @@ cp build-scripts/control.debian.lib build/DEBIAN/control
 echo "Version: $VERSION" >> build/DEBIAN/control
 echo "Architecture: $ARCH" >> build/DEBIAN/control
 
-dpkg -b build/ libinfnoise_${VERSION}_${ARCH}.deb
+fakeroot dpkg -b build/ libinfnoise_${VERSION}_${ARCH}.deb
 
 rm -rf build

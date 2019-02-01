@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh -ex
 
 VERSION=`git --no-pager describe --tags --always | cut -d'-' -f1`
 RELEASE=`git --no-pager describe --tags --always | cut -d'-' -f2`
@@ -12,15 +12,20 @@ ARCH=$2
 PATH=$PATH:/sbin/
 
 mkdir -p SOURCES
-tar -czf SOURCES/infnoise.tar.gz . --exclude="SOURCES"
-
+tar -czf SOURCES/infnoise-$VERSION.tar.gz . --exclude="SOURCES"
 mkdir -p BUILD SPECS RPMS SRPMS
 
 cp build-scripts/infnoise.spec build-scripts/infnoise-tools.spec SPECS
 sed -i -- 's/__VERSION__/'$VERSION'/g' SPECS/infnoise.spec
 sed -i -- 's/__RELEASE__/'$RELEASE'/g' SPECS/infnoise.spec
+
 sed -i -- 's/__VERSION__/'$VERSION'/g' SPECS/infnoise-tools.spec
 sed -i -- 's/__RELEASE__/'$RELEASE'/g' SPECS/infnoise-tools.spec
 
+pwd
+
 rpmbuild --define "_topdir `pwd`" -ba SPECS/infnoise.spec
+
+pwd
+
 rpmbuild --define "_topdir `pwd`" -ba SPECS/infnoise-tools.spec

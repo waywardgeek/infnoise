@@ -1,0 +1,74 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.TH INFNOISE 8 "June 25 2018"
+.\" Please adjust this date whenever revising the manpage.
+.SH NAME
+infnoise \- Infinite Noise TRNG driver
+.SH SYNOPSIS
+.B infnoise \-\-help
+.br
+.B infnoise \-\-version
+.br
+.B infnoise \-\-list\-devices
+.br
+.B infnoise
+.RB [ \-\-debug ]
+.RB [ \-\-dev\-random ]
+.RB [ \-\-raw ]
+.RB [ \-\-multiplier
+.RI < value >]
+.RB [ \-\-no\-output ]
+.RB [ \-\-pidfile
+.RI < file >]
+.RB [ \-\-daemon ]
+.RB [ \-\-serial
+.RI < serial >]
+.SH DESCRIPTION
+.B infnoise
+provides access to the Infinite Noise True Random Number Generator and
+allows the data it generates to be fed into the system's random number
+generator.
+.PP
+.B infnoise \-\-help
+shows a short summary of the options.
+.PP
+.B infnoise \-\-version
+displays the program's version information.
+.PP
+.B infnoise \-\-list\-devices
+lists all the supported TRNG devices present on the system.
+.PP
+.B infnoise
+reads random data from a TRNG and outputs filtered random data to its
+standard output. The various options control the program's behaviour.
+.SH OPTIONS
+.TP
+.B \-\-debug
+measures the quality of the data obtained from the TRNG. It is
+typically used with \-\-no\-output as a sanity test.
+.TP
+.B \-\-dev\-random
+adds the filtered data to the system's entropy pool instead of sending
+it to its standard output.
+.TP
+.B \-\-raw
+disables output whitening.
+.TP
+.BR \-\-multiplier <\fIvalue\fP>
+writes 256 bits ×
+.I value
+for every 512 bits written to the Keccak sponge; the default of 0
+means to write all the available entropy, without multiplying it.
+.TP
+.B \-\-no\-output
+disables output of random data.
+.TP
+.BR \-\-pidfile <\fIfile\fP>
+stores the process' identifier in
+.IR file .
+.TP
+.B \-\-daemon
+starts the program as a daemon.
+.TP
+.BR \-\-serial <\fIserial\fP>
+uses the device matching the specified
+.IR serial .

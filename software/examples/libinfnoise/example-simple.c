@@ -17,15 +17,14 @@ int main()
     // initialize hardware and health monitor
     struct infnoise_context context;
     if (!initInfnoise(&context, serial, initKeccak, debug)) {
-        fprintf(stdout, "erri: %s\n", "");
-        fputs(context.message, stderr);
+        fprintf(stderr, "Error: %s\n", context.message);
         return 1; // ERROR
     }
 
-    // fixed result size of 512 bit (32byte)
-    uint8_t resultSize = 32u;
+    // fixed result size of 512 bit (64byte)
+    uint8_t resultSize = 64u;
 
-    // read and print in a loop (until 1M is read)
+    // read and print in a loop (until 1MB is read)
     uint64_t totalBytesWritten = 0u;
     while (totalBytesWritten < 1000000) {
         uint8_t result[resultSize];
@@ -42,13 +41,14 @@ int main()
             fprintf(stderr, "Error: %s\n", context.message);
             return -1;
         }
-        fprintf(stderr, "infnoise bytes read: %lu\n", (unsigned long) bytesWritten);
 
         // print as many bytes as readData told us
         fwrite(result, 1, bytesWritten, stdout);
 
 	// sum up
 	totalBytesWritten += bytesWritten;
+        fprintf(stderr, "bytes read: %lu\n", (unsigned long) totalBytesWritten);
+
     }
     return 0;
 }

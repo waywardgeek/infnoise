@@ -337,7 +337,7 @@ uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, u
 
         context->bytesWritten += bytesToWrite;
         context->numBits -= bytesToWrite * 8u;
-        return 1024/8u;
+        return bytesToWrite;
     } else { // collect new entropy
         uint8_t inBuf[BUFLEN];
         struct timespec start;
