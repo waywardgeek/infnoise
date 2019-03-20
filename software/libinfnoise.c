@@ -196,8 +196,8 @@ devlist_node listUSBDevices(char **message) {
     struct ftdi_context ftdic;
     ftdi_init(&ftdic);
 
-    struct ftdi_device_list *devlist;
-    struct ftdi_device_list *curdev;
+    struct ftdi_device_list *devlist = NULL;
+    struct ftdi_device_list *curdev = NULL;
     char manufacturer[128], description[128], serial[128];
     int i = 0;
 
@@ -215,7 +215,10 @@ devlist_node listUSBDevices(char **message) {
     devlist_node current_entry = return_list;
 
     for (curdev = devlist; curdev != NULL; i++) {
-        rc = ftdi_usb_get_strings(&ftdic, curdev->dev, manufacturer, 128, description, 128, serial, 128);
+        rc = ftdi_usb_get_strings(&ftdic, curdev->dev,
+                                  manufacturer, sizeof(manufacturer),
+                                  description, sizeof(description),
+                                  serial, sizeof(serial));
         if (rc < 0) {
             if (!isSuperUser()) {
                 *message = "Can't find Infinite Noise Multiplier. Try running as super user?";
@@ -245,7 +248,7 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
     struct ftdi_device_list *devlist;
 
     // search devices
-    int rc = 0;
+    int rc;
     if ((rc = ftdi_usb_find_all(ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID)) < 0) {
         *message = "Can't find Infinite Noise Multiplier";
         return false;
@@ -288,32 +291,36 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
 
     // Set high baud rate
     rc = ftdi_set_baudrate(ftdic, 30000);
-    if (rc == -1) {
+    switch (rc) {
+    case -1:
         *message = "Invalid baud rate";
         return false;
-    } else if (rc == -2) {
+    case -2:
         *message = "Setting baud rate failed";
         return false;
-    } else if (rc == -3) {
+    case -3:
         *message = "Infinite Noise Multiplier unavailable";
         return false;
+    default:
     }
     rc = ftdi_set_bitmode(ftdic, MASK, BITMODE_SYNCBB);
-    if (rc == -1) {
+    switch (rc) {
+    case -1:
         *message = "Can't enable bit-bang mode";
         return false;
-    } else if (rc == -2) {
+    case -2:
         *message = "Infinite Noise Multiplier unavailable\n";
         return false;
+    default:
     }
 
     // Just test to see that we can write and read.
     uint8_t buf[64u] = {0u,};
-    if (ftdi_write_data(ftdic, buf, 64) != 64) {
+    if (ftdi_write_data(ftdic, buf, sizeof(buf)) != sizeof(buf)) {
         *message = "USB write failed";
         return false;
     }
-    if (ftdi_read_data(ftdic, buf, 64) != 64) {
+    if (ftdi_read_data(ftdic, buf, sizeof(buf)) != sizeof(buf)) {
         *message = "USB read failed";
         return false;
     }
