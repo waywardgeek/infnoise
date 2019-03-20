@@ -286,12 +286,11 @@ int main(int argc, char **argv) {
             return 1;
         }
 
-        if (!opts.noOutput) {
-            if (!outputBytes(result, bytesWritten, context.entropyThisTime, opts.devRandom,
+        if (!opts.noOutput
+            && !outputBytes(result, bytesWritten, context.entropyThisTime, opts.devRandom,
                              &context.message)) {
-                fprintf(stderr, "Error: %s\n", context.message);
-                return 1;
-            };
+            fprintf(stderr, "Error: %s\n", context.message);
+            return 1;
         }
 
         if (opts.debug &&
