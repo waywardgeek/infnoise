@@ -198,7 +198,6 @@ devlist_node listUSBDevices(char **message) {
 
     struct ftdi_device_list *devlist = NULL;
     struct ftdi_device_list *curdev = NULL;
-    char manufacturer[128], description[128], serial[128];
     int i = 0;
 
     // search devices
@@ -214,30 +213,26 @@ devlist_node listUSBDevices(char **message) {
     devlist_node return_list = malloc(sizeof(struct infnoise_devlist_node));
     devlist_node current_entry = return_list;
 
-    for (curdev = devlist; curdev != NULL; i++) {
+    for (curdev = devlist; curdev != NULL; curdev = curdev->next, i++) {
         rc = ftdi_usb_get_strings(&ftdic, curdev->dev,
-                                  manufacturer, sizeof(manufacturer),
-                                  description, sizeof(description),
-                                  serial, sizeof(serial));
+                                  current_entry->manufacturer, sizeof(current_entry->manufacturer),
+                                  current_entry->description, sizeof(current_entry->description),
+                                  current_entry->serial, sizeof(current_entry->serial));
         if (rc < 0) {
             if (!isSuperUser()) {
                 *message = "Can't find Infinite Noise Multiplier. Try running as super user?";
             } else {
-		sprintf(*message, "ftdi_usb_get_strings failed: %d (%s)", rc, ftdi_get_error_string(&ftdic));
+                sprintf(*message, "ftdi_usb_get_strings failed: %d (%s)", rc, ftdi_get_error_string(&ftdic));
             }
             return NULL;
         }
         current_entry->id = i;
-        strcpy(current_entry->serial, serial);
-        strcpy(current_entry->manufacturer, manufacturer);
-        strcpy(current_entry->description, description);
         if (curdev->next) {
             current_entry->next = malloc(sizeof(struct infnoise_devlist_node));
             current_entry = current_entry->next;
         } else {
             current_entry->next = NULL;
         }
-        curdev = curdev->next;
     }
     return return_list;
 }
@@ -302,6 +297,7 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
         *message = "Infinite Noise Multiplier unavailable";
         return false;
     default:
+        break;
     }
     rc = ftdi_set_bitmode(ftdic, MASK, BITMODE_SYNCBB);
     switch (rc) {
@@ -312,6 +308,7 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
         *message = "Infinite Noise Multiplier unavailable\n";
         return false;
     default:
+        break;
     }
 
     // Just test to see that we can write and read.

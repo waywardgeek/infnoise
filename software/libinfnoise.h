@@ -28,7 +28,7 @@ struct infnoise_context {
 struct infnoise_devlist_node {
     uint8_t id;
     char manufacturer[128];
-    char description[129];
+    char description[128];
     char serial[128];
     struct infnoise_devlist_node *next;
 };
