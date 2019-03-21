@@ -354,17 +354,17 @@ static inline bool computeRandBit(double *A, double K, double noiseAmplitude) {
 }
 
 static void initOpts(struct opt_struct *opts) {
-        opts->outputMultiplier = 0u;
-        opts->daemon =
+    opts->outputMultiplier = 0u;
+    opts->daemon =
         opts->debug =
         opts->devRandom =
         opts->noOutput =
         opts->listDevices =
         opts->raw = false;
-        opts->version = false;
-        opts->help = false;
-        opts->none = false;
-        opts->pidFileName =
+    opts->version = false;
+    opts->help = false;
+    opts->none = false;
+    opts->pidFileName =
         opts->serial = NULL;
 }
 
