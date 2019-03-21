@@ -127,14 +127,14 @@ int main(int argc, char **argv) {
                 break;
             case 'p':
                 opts.pidFileName = optarg;
-                if (opts.pidFileName == NULL || !strcmp("", opts.pidFileName)) {
+                if (opts.pidFileName == NULL || opts.pidFileName[0] == '\0') {
                     fputs("--pidfile without file name\n", stderr);
                     return 1;
                 }
                 break;
             case 's':
                 opts.serial = optarg;
-                if (opts.serial == NULL || !strcmp("", opts.serial)) {
+                if (opts.serial == NULL || opts.serial[0] == '\0') {
                     fputs("--serial without value\n", stderr);
                     return 1;
                 }
@@ -174,31 +174,26 @@ int main(int argc, char **argv) {
               "    -v, --version - show version information\n"
               "    -h, --help - this help output\n",
               stdout);
-        if (opts.none) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return opts.none;
     }
 
     // read environment variables, not overriding command line options
     if (opts.serial == NULL) {
-        if (getenv("INFNOISE_SERIAL") != NULL) {
-            opts.serial = getenv("INFNOISE_SERIAL");
-        }
+        opts.serial = getenv("INFNOISE_SERIAL");
     }
 
     if (!opts.debug) {
-        if (getenv("INFNOISE_DEBUG") != NULL) {
-            if (!strcmp("true", getenv("INFNOISE_DEBUG"))) {
-                opts.debug = true;
-            }
+        char *envDbg = getenv("INFNOISE_DEBUG");
+        if (envDbg != NULL
+            && !strcmp("true", envDbg)) {
+            opts.debug = true;
         }
     }
 
     if (!multiplierAssigned) {
-        if (getenv("INFNOISE_MULTIPLIER") != NULL) {
-            int tmpOutputMult = atoi(getenv("INFNOISE_MULTIPLIER"));
+        char *envMultiplier = getenv("INFNOISE_MULTIPLIER");
+        if (envMultiplier != NULL) {
+            int tmpOutputMult = atoi(envMultiplier);
             if (tmpOutputMult < 0) {
                 fputs("Multiplier must be >= 0\n", stderr);
                 return 1;
@@ -225,12 +220,12 @@ int main(int argc, char **argv) {
             fprintf(stderr, "Error: %s\n", context.message);
             return 1;
         }
-        devlist_node curdev = NULL;
+        devlist_node curdev;
         uint8_t i = 0;
-        for (curdev = devlist; curdev != NULL; i++) {
-            printf("ID: %i, Manufacturer: %s, Description: %s, Serial: %s\n", curdev->id, curdev->manufacturer,
+        for (curdev = devlist; curdev != NULL; curdev = curdev->next, i++) {
+            printf("ID: %i, Manufacturer: %s, Description: %s, Serial: %s\n",
+                   curdev->id, curdev->manufacturer,
                    curdev->description, curdev->serial);
-            curdev = curdev->next;
         }
         return 0;
     }
@@ -298,4 +293,5 @@ int main(int argc, char **argv) {
             fprintf(stderr, "Output %lu bytes\n", (unsigned long) totalBytesWritten);
         }
     }
+    return 0;
 }
