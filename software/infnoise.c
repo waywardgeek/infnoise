@@ -177,6 +177,13 @@ int main(int argc, char **argv) {
         return opts.none;
     }
 
+    if (opts.version) {
+        printf("GIT VERSION - %s\n", GIT_VERSION);
+        printf("GIT COMMIT  - %s\n", GIT_COMMIT);
+        printf("GIT DATE    - %s\n", GIT_DATE);
+        return 0;
+    }
+
     // read environment variables, not overriding command line options
     if (opts.serial == NULL) {
         opts.serial = getenv("INFNOISE_SERIAL");
@@ -205,13 +212,6 @@ int main(int argc, char **argv) {
 
     if (!multiplierAssigned && opts.devRandom) {
         opts.outputMultiplier = 2u; // Don't throw away entropy when writing to /dev/random unless told to do so
-    }
-
-    if (opts.version) {
-        printf("GIT VERSION - %s\n", GIT_VERSION);
-        printf("GIT COMMIT  - %s\n", GIT_COMMIT);
-        printf("GIT DATE    - %s\n", GIT_DATE);
-        return 0;
     }
 
     if (opts.listDevices) {
