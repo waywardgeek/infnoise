@@ -8,22 +8,20 @@
 
 #include "infnoise.h"
 
-// Write af PID in a file
+// Write PID in a file
 static bool writePid(int32_t pid, char *fileName) {
-    FILE *pidFile;
-    int ret;
-    pidFile = fopen(fileName,"w");
+    FILE *pidFile = fopen(fileName, "w");
     if(pidFile == NULL) {
         return false;
     }
-    ret = fprintf(pidFile, "%d\n", pid);
+    int ret = fprintf(pidFile, "%d\n", pid);
     fclose(pidFile);
     return (ret >= 0);
 }
 
 void startDaemon(struct opt_struct* opts) {
     if(!opts->daemon) {
-        // No backgrounding, optionslly write current PID
+        // No backgrounding, optionally write current PID
         if(opts->pidFileName != NULL) {
             writePid(getpid(), opts->pidFileName);
         }
@@ -33,14 +31,11 @@ void startDaemon(struct opt_struct* opts) {
     if(pid < 0) {
         fputs("fork() failed\n", stderr);
         exit(1);
-    } else if(pid > 0) {
+    }
+    if(pid > 0) {
         // Parent
-        if(opts->pidFileName != NULL) {
-            if(!writePid(pid, opts->pidFileName)) {
-                exit(1);
-            }
-        }
-        exit(0);
+        exit(opts->pidFileName != NULL
+             && !writePid(pid, opts->pidFileName));
     }
     // Child
 }
