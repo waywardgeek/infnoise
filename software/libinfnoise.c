@@ -76,9 +76,10 @@ void prepareOutputBuffer() {
     uint32_t i;
 
     // Endless loop: set SW1EN and SW2EN alternately
-    for (i = 0u; i < BUFLEN; i++) {
+    for (i = 0u; i < BUFLEN; i+=2) {
         // Alternate Ph1 and Ph2
-        outBuf[i] = i & 1 ? (1 << SWEN2) : (1 << SWEN1);
+        outBuf[i] = (1 << SWEN1);
+        outBuf[i+1] = (1 << SWEN2);
     }
 }
 
