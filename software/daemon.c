@@ -14,14 +14,11 @@ static bool writePid(int32_t pid, char *fileName) {
     int ret;
     pidFile = fopen(fileName,"w");
     if(pidFile == NULL) {
-        return errno;
-    }
-    ret = fprintf(pidFile, "%d\n", pid);
-    if (ret < 0) {
         return false;
     }
+    ret = fprintf(pidFile, "%d\n", pid);
     fclose(pidFile);
-    return true;
+    return (ret >= 0);
 }
 
 void startDaemon(struct opt_struct* opts) {
