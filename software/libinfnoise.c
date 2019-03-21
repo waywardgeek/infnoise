@@ -243,44 +243,42 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
     struct ftdi_device_list *devlist;
 
     // search devices
-    int rc;
-    if ((rc = ftdi_usb_find_all(ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID)) < 0) {
+    int rc = ftdi_usb_find_all(ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID);
+    if (rc < 0) {
         *message = "Can't find Infinite Noise Multiplier";
         return false;
     }
 
     // only one found, or no serial given
-    if (rc >= 0) {
-        if (serial == NULL) {
-            // more than one found AND no serial given
-            if (rc >= 2) {
-                *message = "Multiple Infnoise TRNGs found and serial not specified, using the first one!";
-            }
-            if (ftdi_usb_open(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID) < 0) {
-                if (!isSuperUser()) {
-                    *message = "Can't open Infinite Noise Multiplier. Try running as super user?";
-                } else {
+    if (serial == NULL) {
+        // more than one found AND no serial given
+        if (rc >= 2) {
+            *message = "Multiple Infnoise TRNGs found and serial not specified, using the first one!";
+        }
+        if (ftdi_usb_open(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID) < 0) {
+            if (!isSuperUser()) {
+                *message = "Can't open Infinite Noise Multiplier. Try running as super user?";
+            } else {
 #ifdef LINUX
-                    *message = "Can't open Infinite Noise Multiplier.";
+                *message = "Can't open Infinite Noise Multiplier.";
 #endif
 #if defined(__APPLE__)
 
-                    *message = "Can't open Infinite Noise Multiplier. sudo kextunload -b com.FTDI.driver.FTDIUSBSerialDriver ? sudo kextunload -b  com.apple.driver.AppleUSBFTDI ?";
+                *message = "Can't open Infinite Noise Multiplier. sudo kextunload -b com.FTDI.driver.FTDIUSBSerialDriver ? sudo kextunload -b  com.apple.driver.AppleUSBFTDI ?";
 #endif
-                }
-                return false;
             }
-        } else {
-            // serial specified
-            rc = ftdi_usb_open_desc(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID, NULL, serial);
-            if (rc < 0) {
-                if (!isSuperUser()) {
-                    *message = "Can't find Infinite Noise Multiplier. Try running as super user?";
-                } else {
-                    *message = "Can't find Infinite Noise Multiplier with given serial";
-                }
-                return false;
+            return false;
+        }
+    } else {
+        // serial specified
+        rc = ftdi_usb_open_desc(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID, NULL, serial);
+        if (rc < 0) {
+            if (!isSuperUser()) {
+                *message = "Can't find Infinite Noise Multiplier. Try running as super user?";
+            } else {
+                *message = "Can't find Infinite Noise Multiplier with given serial";
             }
+            return false;
         }
     }
 
