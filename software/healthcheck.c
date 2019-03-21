@@ -305,12 +305,10 @@ static void checkLSBStatsForNBits(uint8_t N) {
     uint32_t totalGuesses = 0u;
     uint32_t totalRight = 0.0;
     for(i = 0u; i < (1u << N); i++) {
-        uint32_t total = 0u;
         uint32_t zeros = 0u;
         uint32_t ones = 0u;
         for(j = 0u; j < (1u << (inmN - N)); j++) {
             uint32_t pos = i + j*(1u << N);
-            total += inmZerosEven[pos] + inmOnesEven[pos];
             zeros += inmZerosEven[pos];
             ones += inmOnesEven[pos];
         }
@@ -319,7 +317,7 @@ static void checkLSBStatsForNBits(uint8_t N) {
         } else {
             totalRight += ones;
         }
-        totalGuesses += total;
+        totalGuesses += zeroes + ones;
     }
     printf("Probability of guessing correctly with %u bits: %f\n", N, (double)totalRight/totalGuesses);
 }
