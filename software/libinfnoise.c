@@ -197,8 +197,6 @@ devlist_node listUSBDevices(char **message) {
     ftdi_init(&ftdic);
 
     struct ftdi_device_list *devlist = NULL;
-    struct ftdi_device_list *curdev = NULL;
-    int i = 0;
 
     // search devices
     int rc = ftdi_usb_find_all(&ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID);
@@ -210,9 +208,11 @@ devlist_node listUSBDevices(char **message) {
         }
         return NULL;
     }
+
     devlist_node return_list = malloc(sizeof(struct infnoise_devlist_node));
     devlist_node current_entry = return_list;
-
+    int i = 0;
+    struct ftdi_device_list *curdev = NULL;
     for (curdev = devlist; curdev != NULL; curdev = curdev->next, i++) {
         rc = ftdi_usb_get_strings(&ftdic, curdev->dev,
                                   current_entry->manufacturer, sizeof(current_entry->manufacturer),
@@ -271,8 +271,7 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
         }
     } else {
         // serial specified
-        rc = ftdi_usb_open_desc(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID, NULL, serial);
-        if (rc < 0) {
+        if (ftdi_usb_open_desc(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID, NULL, serial) < 0) {
             if (!isSuperUser()) {
                 *message = "Can't find Infinite Noise Multiplier. Try running as super user?";
             } else {
@@ -283,8 +282,7 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
     }
 
     // Set high baud rate
-    rc = ftdi_set_baudrate(ftdic, 30000);
-    switch (rc) {
+    switch (ftdi_set_baudrate(ftdic, 30000)) {
     case -1:
         *message = "Invalid baud rate";
         return false;
@@ -297,8 +295,8 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
     default:
         break;
     }
-    rc = ftdi_set_bitmode(ftdic, MASK, BITMODE_SYNCBB);
-    switch (rc) {
+
+    switch (ftdi_set_bitmode(ftdic, MASK, BITMODE_SYNCBB)) {
     case -1:
         *message = "Can't enable bit-bang mode";
         return false;
