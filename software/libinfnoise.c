@@ -87,10 +87,10 @@ void prepareOutputBuffer() {
 // changes, not both, so alternate reading bits from them.  We get 1 INM bit of output
 // per byte read.  Feed bits from the INM to the health checker.  Return the expected
 // bits of entropy.
-uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, char **message, bool *errorFlag) {
+uint32_t extractBytes(uint8_t *bytes, uint32_t length, uint8_t *inBuf, char **message, bool *errorFlag) {
     inmClearEntropyLevel();
     uint32_t i;
-    for (i = 0u; i < BUFLEN / 8u; i++) {
+    for (i = 0u; i < length; i++) {
         uint32_t j;
         uint8_t byte = 0u;
         for (j = 0u; j < 8u; j++) {
@@ -363,7 +363,7 @@ uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, u
 
         if (us <= MAX_MICROSEC_FOR_SAMPLES) {
             uint8_t bytes[BUFLEN / 8u];
-            context->entropyThisTime = extractBytes(bytes, inBuf, &context->message, &context->errorFlag);
+            context->entropyThisTime = extractBytes(bytes, sizeof(bytes), inBuf, &context->message, &context->errorFlag);
             if (context->errorFlag) {
 		            // todo: message?
                 return 0;

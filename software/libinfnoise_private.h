@@ -56,7 +56,7 @@ void prepareOutputBuffer();
 
 struct timespec;
 double diffTime(struct timespec *start, struct timespec *end);
-uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, char **message, bool *errorFlag);
+uint32_t extractBytes(uint8_t *bytes, uint32_t length, uint8_t *inBuf, char **message, bool *errorFlag);
 
 bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom, char **message);
 
