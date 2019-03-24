@@ -345,13 +345,13 @@ uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, u
         clock_gettime(CLOCK_REALTIME, &start);
 
         // write clock signal
-        if (ftdi_write_data(&context->ftdic, outBuf, BUFLEN) != BUFLEN) {
+        if (ftdi_write_data(&context->ftdic, outBuf, sizeof(outBuf)) != sizeof(outBuf)) {
             context->message = "USB write failed";
             context->errorFlag = true;
         }
 
         // and read 512 byte from the internal buffer (in synchronous bitbang mode)
-        if (ftdi_read_data(&context->ftdic, inBuf, BUFLEN) != BUFLEN) {
+        if (ftdi_read_data(&context->ftdic, inBuf, sizeof(inBuf)) != sizeof(inBuf)) {
             context->message = "USB read failed";
             context->errorFlag = true;
             return 0;
