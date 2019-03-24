@@ -221,8 +221,7 @@ int main(int argc, char **argv) {
             return 1;
         }
         devlist_node curdev;
-        uint8_t i = 0;
-        for (curdev = devlist; curdev != NULL; curdev = curdev->next, i++) {
+        for (curdev = devlist; curdev != NULL; curdev = curdev->next) {
             printf("ID: %i, Manufacturer: %s, Description: %s, Serial: %s\n",
                    curdev->id, curdev->manufacturer,
                    curdev->description, curdev->serial);
