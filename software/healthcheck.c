@@ -171,8 +171,8 @@ bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even) {
         fprintf(stderr, "num1s:%f%%, even misfires:%f%%, odd misfires:%f%%\n",
             inmTotalOnes*100.0/(inmTotalZeros + inmTotalOnes),
             inmEvenMisfires*100.0/inmNumBitsSampled, inmOddMisfires*100.0/inmNumBitsSampled);
-		fflush(stderr);
-	}
+        fflush(stderr);
+    }
     inmPrevBits = (inmPrevBits << 1) & ((1 << inmN)-1);
     if(inmPrevBit) {
         inmPrevBits |= 1;
