@@ -191,10 +191,8 @@ int main(int argc, char **argv) {
 
     if (!opts.debug) {
         char *envDbg = getenv("INFNOISE_DEBUG");
-        if (envDbg != NULL
-            && !strcmp("true", envDbg)) {
-            opts.debug = true;
-        }
+        opts.debug = (envDbg != NULL
+                      && !strcmp("true", envDbg));
     }
 
     if (!multiplierAssigned) {
@@ -221,10 +219,15 @@ int main(int argc, char **argv) {
             return 1;
         }
         devlist_node curdev;
-        for (curdev = devlist; curdev != NULL; curdev = curdev->next) {
+        for (curdev = devlist; curdev != NULL; ) {
             printf("ID: %i, Manufacturer: %s, Description: %s, Serial: %s\n",
                    curdev->id, curdev->manufacturer,
                    curdev->description, curdev->serial);
+
+            // cleanup:
+            devlist_node olddev = curdev;
+            curdev = curdev->next;
+            free(olddev);
         }
         return 0;
     }
