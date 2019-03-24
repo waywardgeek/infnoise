@@ -311,7 +311,7 @@ static void checkLSBStatsForNBits(uint8_t N) {
         } else {
             totalRight += ones;
         }
-        totalGuesses += zeroes + ones;
+        totalGuesses += zeros + ones;
     }
     printf("Probability of guessing correctly with %u bits: %f\n", N, (double)totalRight/totalGuesses);
 }
