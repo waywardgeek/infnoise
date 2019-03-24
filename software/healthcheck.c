@@ -156,16 +156,10 @@ bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even) {
     bool bit;
     if(even) {
         bit = evenBit;
-        if(evenBit != inmPrevEven) {
-            inmEvenMisfires++;
-            //printf("even misfire\n");
-        }
+        inmEvenMisfires += (evenBit != inmPrevEven);
     } else {
         bit = oddBit;
-        if(oddBit != inmPrevOdd) {
-            inmOddMisfires++;
-            //printf("odd misfire\n");
-        }
+        inmOddMisfires += (oddBit != inmPrevOdd);
     }
     inmPrevEven = evenBit;
     inmPrevOdd = oddBit;
