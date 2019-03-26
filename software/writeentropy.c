@@ -61,6 +61,10 @@ void inmWriteEntropyStart(uint32_t bufLen, bool debug) {
     }
 }
 
+void inmWriteEntropyEnd() {
+    free( inmPoolInfo );
+}
+
 // Block until either the entropy pool has room, or 1 minute has passed.
 void inmWaitForPoolToHaveRoom() {
     int ent_count;

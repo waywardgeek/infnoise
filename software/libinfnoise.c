@@ -70,6 +70,12 @@ bool initInfnoise(struct infnoise_context *context, char *serial, bool keccak, b
     return true;
 }
 
+void deinitInfnoise(struct infnoise_context *context)
+{
+    inmHealthCheckStop();
+    ftdi_deinit(&context->ftdic);
+}
+
 uint8_t outBuf[BUFLEN];
 
 void prepareOutputBuffer() {
