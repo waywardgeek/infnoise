@@ -76,9 +76,10 @@ void prepareOutputBuffer() {
     uint32_t i;
 
     // Endless loop: set SW1EN and SW2EN alternately
-    for (i = 0u; i < BUFLEN; i++) {
+    for (i = 0u; i < BUFLEN; i+=2) {
         // Alternate Ph1 and Ph2
-        outBuf[i] = i & 1 ? (1 << SWEN2) : (1 << SWEN1);
+        outBuf[i] = (1 << SWEN1);
+        outBuf[i+1] = (1 << SWEN2);
     }
 }
 
@@ -86,10 +87,10 @@ void prepareOutputBuffer() {
 // changes, not both, so alternate reading bits from them.  We get 1 INM bit of output
 // per byte read.  Feed bits from the INM to the health checker.  Return the expected
 // bits of entropy.
-uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, char **message, bool *errorFlag) {
+uint32_t extractBytes(uint8_t *bytes, uint32_t length, uint8_t *inBuf, char **message, bool *errorFlag) {
     inmClearEntropyLevel();
     uint32_t i;
-    for (i = 0u; i < BUFLEN / 8u; i++) {
+    for (i = 0u; i < length; i++) {
         uint32_t j;
         uint8_t byte = 0u;
         for (j = 0u; j < 8u; j++) {
@@ -197,8 +198,6 @@ devlist_node listUSBDevices(char **message) {
     ftdi_init(&ftdic);
 
     struct ftdi_device_list *devlist = NULL;
-    struct ftdi_device_list *curdev = NULL;
-    int i = 0;
 
     // search devices
     int rc = ftdi_usb_find_all(&ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID);
@@ -210,9 +209,11 @@ devlist_node listUSBDevices(char **message) {
         }
         return NULL;
     }
+
     devlist_node return_list = malloc(sizeof(struct infnoise_devlist_node));
     devlist_node current_entry = return_list;
-
+    int i = 0;
+    struct ftdi_device_list *curdev = NULL;
     for (curdev = devlist; curdev != NULL; curdev = curdev->next, i++) {
         rc = ftdi_usb_get_strings(&ftdic, curdev->dev,
                                   current_entry->manufacturer, sizeof(current_entry->manufacturer),
@@ -243,50 +244,46 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
     struct ftdi_device_list *devlist;
 
     // search devices
-    int rc;
-    if ((rc = ftdi_usb_find_all(ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID)) < 0) {
+    int rc = ftdi_usb_find_all(ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID);
+    if (rc < 0) {
         *message = "Can't find Infinite Noise Multiplier";
         return false;
     }
 
     // only one found, or no serial given
-    if (rc >= 0) {
-        if (serial == NULL) {
-            // more than one found AND no serial given
-            if (rc >= 2) {
-                *message = "Multiple Infnoise TRNGs found and serial not specified, using the first one!";
-            }
-            if (ftdi_usb_open(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID) < 0) {
-                if (!isSuperUser()) {
-                    *message = "Can't open Infinite Noise Multiplier. Try running as super user?";
-                } else {
+    if (serial == NULL) {
+        // more than one found AND no serial given
+        if (rc >= 2) {
+            *message = "Multiple Infnoise TRNGs found and serial not specified, using the first one!";
+        }
+        if (ftdi_usb_open(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID) < 0) {
+            if (!isSuperUser()) {
+                *message = "Can't open Infinite Noise Multiplier. Try running as super user?";
+            } else {
 #ifdef LINUX
-                    *message = "Can't open Infinite Noise Multiplier.";
+                *message = "Can't open Infinite Noise Multiplier.";
 #endif
 #if defined(__APPLE__)
 
-                    *message = "Can't open Infinite Noise Multiplier. sudo kextunload -b com.FTDI.driver.FTDIUSBSerialDriver ? sudo kextunload -b  com.apple.driver.AppleUSBFTDI ?";
+                *message = "Can't open Infinite Noise Multiplier. sudo kextunload -b com.FTDI.driver.FTDIUSBSerialDriver ? sudo kextunload -b  com.apple.driver.AppleUSBFTDI ?";
 #endif
-                }
-                return false;
             }
-        } else {
-            // serial specified
-            rc = ftdi_usb_open_desc(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID, NULL, serial);
-            if (rc < 0) {
-                if (!isSuperUser()) {
-                    *message = "Can't find Infinite Noise Multiplier. Try running as super user?";
-                } else {
-                    *message = "Can't find Infinite Noise Multiplier with given serial";
-                }
-                return false;
+            return false;
+        }
+    } else {
+        // serial specified
+        if (ftdi_usb_open_desc(ftdic, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID, NULL, serial) < 0) {
+            if (!isSuperUser()) {
+                *message = "Can't find Infinite Noise Multiplier. Try running as super user?";
+            } else {
+                *message = "Can't find Infinite Noise Multiplier with given serial";
             }
+            return false;
         }
     }
 
     // Set high baud rate
-    rc = ftdi_set_baudrate(ftdic, 30000);
-    switch (rc) {
+    switch (ftdi_set_baudrate(ftdic, 30000)) {
     case -1:
         *message = "Invalid baud rate";
         return false;
@@ -299,8 +296,8 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
     default:
         break;
     }
-    rc = ftdi_set_bitmode(ftdic, MASK, BITMODE_SYNCBB);
-    switch (rc) {
+
+    switch (ftdi_set_bitmode(ftdic, MASK, BITMODE_SYNCBB)) {
     case -1:
         *message = "Can't enable bit-bang mode";
         return false;
@@ -348,13 +345,13 @@ uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, u
         clock_gettime(CLOCK_REALTIME, &start);
 
         // write clock signal
-        if (ftdi_write_data(&context->ftdic, outBuf, BUFLEN) != BUFLEN) {
+        if (ftdi_write_data(&context->ftdic, outBuf, sizeof(outBuf)) != sizeof(outBuf)) {
             context->message = "USB write failed";
             context->errorFlag = true;
         }
 
         // and read 512 byte from the internal buffer (in synchronous bitbang mode)
-        if (ftdi_read_data(&context->ftdic, inBuf, BUFLEN) != BUFLEN) {
+        if (ftdi_read_data(&context->ftdic, inBuf, sizeof(inBuf)) != sizeof(inBuf)) {
             context->message = "USB read failed";
             context->errorFlag = true;
             return 0;
@@ -366,7 +363,7 @@ uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, u
 
         if (us <= MAX_MICROSEC_FOR_SAMPLES) {
             uint8_t bytes[BUFLEN / 8u];
-            context->entropyThisTime = extractBytes(bytes, inBuf, &context->message, &context->errorFlag);
+            context->entropyThisTime = extractBytes(bytes, sizeof(bytes), inBuf, &context->message, &context->errorFlag);
             if (context->errorFlag) {
 		            // todo: message?
                 return 0;
