@@ -101,10 +101,10 @@ bool inmHealthCheckStart(uint8_t N, double K, bool debug) {
     inmK = K;
     inmN = N;
     inmPrevBits = 0u;
-    inmOnesEven = calloc(1u << N, sizeof(uint32_t));
-    inmZerosEven = calloc(1u << N, sizeof(uint32_t));
-    inmOnesOdd = calloc(1u << N, sizeof(uint32_t));
-    inmZerosOdd = calloc(1u << N, sizeof(uint32_t));
+    inmOnesEven = calloc(1u << N, sizeof(*inmOnesEven));
+    inmZerosEven = calloc(1u << N, sizeof(*inmZerosEven));
+    inmOnesOdd = calloc(1u << N, sizeof(*inmOnesOdd));
+    inmZerosOdd = calloc(1u << N, sizeof(*inmZerosOdd));
     inmExpectedEntropyPerBit = log(K)/log(2.0);
     inmTotalBits = 0u;
     inmPrevBit = false;
@@ -156,16 +156,10 @@ bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even) {
     bool bit;
     if(even) {
         bit = evenBit;
-        if(evenBit != inmPrevEven) {
-            inmEvenMisfires++;
-            //printf("even misfire\n");
-        }
+        inmEvenMisfires += (evenBit != inmPrevEven);
     } else {
         bit = oddBit;
-        if(oddBit != inmPrevOdd) {
-            inmOddMisfires++;
-            //printf("odd misfire\n");
-        }
+        inmOddMisfires += (oddBit != inmPrevOdd);
     }
     inmPrevEven = evenBit;
     inmPrevOdd = oddBit;
@@ -177,8 +171,8 @@ bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even) {
         fprintf(stderr, "num1s:%f%%, even misfires:%f%%, odd misfires:%f%%\n",
             inmTotalOnes*100.0/(inmTotalZeros + inmTotalOnes),
             inmEvenMisfires*100.0/inmNumBitsSampled, inmOddMisfires*100.0/inmNumBitsSampled);
-		fflush(stderr);
-	}
+        fflush(stderr);
+    }
     inmPrevBits = (inmPrevBits << 1) & ((1 << inmN)-1);
     if(inmPrevBit) {
         inmPrevBits |= 1;
@@ -305,12 +299,10 @@ static void checkLSBStatsForNBits(uint8_t N) {
     uint32_t totalGuesses = 0u;
     uint32_t totalRight = 0.0;
     for(i = 0u; i < (1u << N); i++) {
-        uint32_t total = 0u;
         uint32_t zeros = 0u;
         uint32_t ones = 0u;
         for(j = 0u; j < (1u << (inmN - N)); j++) {
             uint32_t pos = i + j*(1u << N);
-            total += inmZerosEven[pos] + inmOnesEven[pos];
             zeros += inmZerosEven[pos];
             ones += inmOnesEven[pos];
         }
@@ -319,7 +311,7 @@ static void checkLSBStatsForNBits(uint8_t N) {
         } else {
             totalRight += ones;
         }
-        totalGuesses += total;
+        totalGuesses += zeros + ones;
     }
     printf("Probability of guessing correctly with %u bits: %f\n", N, (double)totalRight/totalGuesses);
 }
@@ -356,17 +348,17 @@ static inline bool computeRandBit(double *A, double K, double noiseAmplitude) {
 }
 
 static void initOpts(struct opt_struct *opts) {
-        opts->outputMultiplier = 0u;
-        opts->daemon =
+    opts->outputMultiplier = 0u;
+    opts->daemon =
         opts->debug =
         opts->devRandom =
         opts->noOutput =
         opts->listDevices =
         opts->raw = false;
-        opts->version = false;
-        opts->help = false;
-        opts->none = false;
-        opts->pidFileName =
+    opts->version = false;
+    opts->help = false;
+    opts->none = false;
+    opts->pidFileName =
         opts->serial = NULL;
 }
 
