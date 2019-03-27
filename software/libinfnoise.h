@@ -57,6 +57,15 @@ devlist_node listUSBDevices(char **message);
 */
 bool initInfnoise(struct infnoise_context *context, char *serial, bool keccak, bool debug);
 
+
+/*
+ * deinitialize the Infinite Noise TRNG
+ *
+ * parameters:
+ *  - context: pointer to infnoise_context struct
+*/
+void deinitInfnoise(struct infnoise_context *context);
+
 /*
  * Reads some bytes from the TRNG and stores them in the "result" byte array.
  * The array has to be of sufficient size. Please refer to the example programs. 

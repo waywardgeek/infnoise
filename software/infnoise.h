@@ -26,6 +26,7 @@ struct opt_struct {
 
 
 void inmWriteEntropyStart(uint32_t bufLen, bool debug);
+void inmWriteEntropyEnd();
 void inmWriteEntropyToPool(uint8_t *bytes, uint32_t length, uint32_t entropy);
 void inmWaitForPoolToHaveRoom(void);
 

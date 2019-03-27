@@ -14,12 +14,22 @@
 #endif
 
 #include <string.h>
+#include <signal.h>
 #include <time.h>
 #include <sys/types.h>
 #include <ftdi.h> // requires <sys/types.h>
 #include <getopt.h>
 #include "infnoise.h"
 #include "libinfnoise.h"
+
+
+volatile sig_atomic_t running = 1;
+
+void term(int signum)
+{
+   (void) signum;
+   running = 0;
+}
 
 static void initOpts(struct opt_struct *opts) {
     opts->outputMultiplier = 0u;
@@ -271,9 +281,16 @@ int main(int argc, char **argv) {
     }
     //fprintf(stderr, "resultsize: %lu\n", resultSize);
 
+    // get proper shutdown
+    struct sigaction action;
+    memset(&action, 0, sizeof(action));
+    action.sa_handler = term;
+    sigaction(SIGTERM, &action, NULL);
+    sigaction(SIGINT, &action, NULL);
+
     // endless loop
     uint64_t totalBytesWritten = 0u;
-    while (true) {
+    while (running) {
         uint8_t result[resultSize];
         uint64_t bytesWritten = readData(&context, result, opts.raw, opts.outputMultiplier);
         totalBytesWritten += bytesWritten;
@@ -295,5 +312,7 @@ int main(int argc, char **argv) {
             fprintf(stderr, "Output %lu bytes\n", (unsigned long) totalBytesWritten);
         }
     }
+    deinitInfnoise(&context);
+    inmWriteEntropyEnd();
     return 0;
 }
