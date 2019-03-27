@@ -67,7 +67,7 @@ void inmWaitForPoolToHaveRoom() {
     if (ioctl(pfd.fd, RNDGETENTCNT, &ent_count) == 0 && (uint32_t)ent_count < inmFillWatermark) {
         return;
     }
-    poll(&pfd, 1, 1000u * 60u); // One minute
+    poll(&pfd, 1, -1); // waits until /dev/random is in usage
 }
 
 // Add the bytes to the entropy pool.  This can be unwhitenened, but the estimated bits of
