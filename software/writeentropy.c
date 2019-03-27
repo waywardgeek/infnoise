@@ -24,15 +24,13 @@ static uint32_t readNumberFromFile(char *fileName) {
         fprintf(stderr, "Unable to open %s\n", fileName);
         exit(1);
     }
-    char buf[42u];
-    uint32_t i = 0u;
-    int c = getc(file);
-    while(c != EOF) {
-        buf[i++] = c;
-        c = getc(file);
+    uint32_t value = 0u;
+    char c;
+    while( (c = getc(file)) != EOF
+           && '0' <= c && c <= '9' ) {
+        value *= 10;
+        value += c - '0';
     }
-    buf[i] = '\0';
-    uint32_t value = atoi(buf);
     fclose(file);
     return value;
 }
