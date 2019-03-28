@@ -241,6 +241,7 @@ devlist_node listUSBDevices(char **message) {
             current_entry->next = NULL;
         }
     }
+    ftdi_list_free2(devlist);
     return return_list;
 }
 
@@ -255,6 +256,7 @@ bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
         *message = "Can't find Infinite Noise Multiplier";
         return false;
     }
+    ftdi_list_free2(devlist);
 
     // only one found, or no serial given
     if (serial == NULL) {
