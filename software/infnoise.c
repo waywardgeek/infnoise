@@ -270,7 +270,6 @@ int main(int argc, char **argv) {
         fprintf(stderr, "Error: %s\n", context.message);
         return 1; // ERROR
     }
-    context.errorFlag = false;
 
     // calculate output size based on the parameters:
     uint64_t resultSize;
