@@ -198,51 +198,75 @@ bool isSuperUser(void) {
     return (geteuid() == 0);
 }
 
+
+// let's do it recursive, because if sth. fails we can easily wipe the malloc()
+infnoise_devlist_node_t* inf_get_devstrings(struct ftdi_context* ftdic,
+                                            struct ftdi_device_list* curdev,
+                                            char** message,
+                                            infnoise_devlist_node_t* bgn,
+                                            infnoise_devlist_node_t* end) {
+    if( curdev != NULL ) {
+        infnoise_devlist_node_t* cur;
+        cur = (infnoise_devlist_node_t*) malloc (sizeof(infnoise_devlist_node_t));
+        cur->next = NULL;
+        int rc = ftdi_usb_get_strings(ftdic, curdev->dev,
+                                      cur->manufacturer, sizeof(cur->manufacturer),
+                                      cur->description, sizeof(cur->description),
+                                      cur->serial, sizeof(cur->serial));
+        if (rc < 0) {
+            if (!isSuperUser()) {
+                *message = "Can't find Infinite Noise Multiplier. Try running as super user?";
+            } else {
+                sprintf(*message, "ftdi_usb_get_strings failed: %d (%s)", rc, ftdi_get_error_string(ftdic));
+            }
+            free( cur );
+            return NULL;
+        }
+        else {
+            // in case bgn is NULL, then implicitly end is NULL, also the other way around
+            if(bgn == NULL) {
+                bgn = cur;
+            }
+            else {
+                end->next = cur;
+            }
+            infnoise_devlist_node_t* ret;
+            ret = inf_get_devstrings(ftdic, curdev->next, message, bgn, cur);
+            // a next dev triggered issue? -> wipe current
+            if( ret == NULL ) {
+                free( cur );
+            }
+            return ret;
+        }
+    }
+    return bgn;
+}
+
+
 // Return a list of all infinite noise multipliers found.
-devlist_node listUSBDevices(char **message) {
+infnoise_devlist_node_t* listUSBDevices(char **message) {
     struct ftdi_context ftdic;
-    ftdi_init(&ftdic);
+    if(ftdi_init(&ftdic) < 0) {
+        *message = "Failed to init";
+        return NULL;
+    }
 
+    infnoise_devlist_node_t* retlist = NULL;
     struct ftdi_device_list *devlist = NULL;
-
-    // search devices
-    int rc = ftdi_usb_find_all(&ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID);
-    if (rc < 0) {
+    if (ftdi_usb_find_all(&ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID) < 0) {
         if (!isSuperUser()) {
             *message = "Can't find Infinite Noise Multiplier.  Try running as super user?";
         } else {
             *message = "Can't find Infinite Noise Multiplier.";
         }
-        return NULL;
+    }
+    else {
+        retlist = inf_get_devstrings(&ftdic, devlist, message, NULL, NULL);
+        ftdi_list_free2(devlist);
     }
 
-    devlist_node return_list = malloc(sizeof(struct infnoise_devlist_node));
-    devlist_node current_entry = return_list;
-    int i = 0;
-    struct ftdi_device_list *curdev = NULL;
-    for (curdev = devlist; curdev != NULL; curdev = curdev->next, i++) {
-        rc = ftdi_usb_get_strings(&ftdic, curdev->dev,
-                                  current_entry->manufacturer, sizeof(current_entry->manufacturer),
-                                  current_entry->description, sizeof(current_entry->description),
-                                  current_entry->serial, sizeof(current_entry->serial));
-        if (rc < 0) {
-            if (!isSuperUser()) {
-                *message = "Can't find Infinite Noise Multiplier. Try running as super user?";
-            } else {
-                sprintf(*message, "ftdi_usb_get_strings failed: %d (%s)", rc, ftdi_get_error_string(&ftdic));
-            }
-            return NULL;
-        }
-        current_entry->id = i;
-        if (curdev->next) {
-            current_entry->next = malloc(sizeof(struct infnoise_devlist_node));
-            current_entry = current_entry->next;
-        } else {
-            current_entry->next = NULL;
-        }
-    }
-    ftdi_list_free2(devlist);
-    return return_list;
+    ftdi_deinit(&ftdic);
+    return retlist;
 }
 
 // Initialize the Infinite Noise Multiplier USB interface.

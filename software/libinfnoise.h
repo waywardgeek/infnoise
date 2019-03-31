@@ -25,15 +25,13 @@ struct infnoise_context {
     uint32_t bytesWritten;
 };
 
-struct infnoise_devlist_node {
-    uint8_t id;
+typedef struct _infnoise_devlist_node_t infnoise_devlist_node_t;
+struct _infnoise_devlist_node_t {
     char manufacturer[128];
     char description[128];
     char serial[128];
-    struct infnoise_devlist_node *next;
+    infnoise_devlist_node_t *next;
 };
-
-typedef struct infnoise_devlist_node *devlist_node;
 
 /*
  * returns a struct of infnoise_devlist_node listing all connected FTDI FT240 devices by their USB descriptors
@@ -43,7 +41,7 @@ typedef struct infnoise_devlist_node *devlist_node;
  *
  *  returns: NULL when none found or infnoise_devlist_node
  */
-devlist_node listUSBDevices(char **message);
+infnoise_devlist_node_t* listUSBDevices(char **message);
 
 /*
  * initialize the Infinite Noise TRNG - must be called once before readData() works
