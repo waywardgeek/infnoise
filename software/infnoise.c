@@ -60,7 +60,7 @@ static struct option longopts[] = {
         {NULL,           0,                 NULL, 0}};
 
 // Write the bytes to either stdout, or /dev/random.
-bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom, char **message) {
+bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom, const char **message) {
     if (!writeDevRandom) {
         if (fwrite(bytes, 1, length, stdout) != length) {
             *message = "Unable to write output from Infinite Noise Multiplier";

@@ -16,7 +16,7 @@
 struct infnoise_context {
     struct ftdi_context ftdic;
     uint32_t entropyThisTime;
-    char *message;
+    const char *message;
     bool errorFlag;
     //uint8_t keccakState[KeccakPermutationSizeInBytes];
 
@@ -41,7 +41,7 @@ struct _infnoise_devlist_node_t {
  *
  *  returns: NULL when none found or infnoise_devlist_node
  */
-infnoise_devlist_node_t* listUSBDevices(char **message);
+infnoise_devlist_node_t* listUSBDevices(const char **message);
 
 /*
  * initialize the Infinite Noise TRNG - must be called once before readData() works

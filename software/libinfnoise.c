@@ -93,7 +93,7 @@ void prepareOutputBuffer() {
 // changes, not both, so alternate reading bits from them.  We get 1 INM bit of output
 // per byte read.  Feed bits from the INM to the health checker.  Return the expected
 // bits of entropy.
-uint32_t extractBytes(uint8_t *bytes, uint32_t length, uint8_t *inBuf, char **message, bool *errorFlag) {
+uint32_t extractBytes(uint8_t *bytes, uint32_t length, uint8_t *inBuf, const char **message, bool *errorFlag) {
     inmClearEntropyLevel();
     uint32_t i;
     for (i = 0u; i < length; i++) {
@@ -202,7 +202,7 @@ bool isSuperUser(void) {
 // let's do it recursive, because if sth. fails we can easily wipe the malloc()
 infnoise_devlist_node_t* inf_get_devstrings(struct ftdi_context* ftdic,
                                             struct ftdi_device_list* curdev,
-                                            char** message,
+                                            const char** message,
                                             infnoise_devlist_node_t* bgn,
                                             infnoise_devlist_node_t* end) {
     if( curdev != NULL ) {
@@ -214,7 +214,7 @@ infnoise_devlist_node_t* inf_get_devstrings(struct ftdi_context* ftdic,
                                       cur->description, sizeof(cur->description),
                                       cur->serial, sizeof(cur->serial));
         if (rc < 0) {
-            sprintf(*message, "ftdi_usb_get_strings failed: %d (%s)", rc, ftdi_get_error_string(ftdic));
+            *message = ftdi_get_error_string(ftdic);
             free( cur );
             return NULL;
         }
@@ -240,7 +240,7 @@ infnoise_devlist_node_t* inf_get_devstrings(struct ftdi_context* ftdic,
 
 
 // Return a list of all infinite noise multipliers found.
-infnoise_devlist_node_t* listUSBDevices(char **message) {
+infnoise_devlist_node_t* listUSBDevices(const char **message) {
     struct ftdi_context ftdic;
     if(ftdi_init(&ftdic) < 0) {
         *message = "Failed to init";
@@ -267,7 +267,7 @@ infnoise_devlist_node_t* listUSBDevices(char **message) {
 }
 
 // Initialize the Infinite Noise Multiplier USB interface.
-bool initializeUSB(struct ftdi_context *ftdic, char **message, char *serial) {
+bool initializeUSB(struct ftdi_context *ftdic, const char **message, char *serial) {
     ftdi_init(ftdic);
     struct ftdi_device_list *devlist;
 
