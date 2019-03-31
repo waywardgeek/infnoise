@@ -73,6 +73,7 @@ bool initInfnoise(struct infnoise_context *context, char *serial, bool keccak, b
 void deinitInfnoise(struct infnoise_context *context)
 {
     inmHealthCheckStop();
+    ftdi_usb_close(&context->ftdic);
     ftdi_deinit(&context->ftdic);
 }
 
