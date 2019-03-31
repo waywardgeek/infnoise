@@ -214,11 +214,7 @@ infnoise_devlist_node_t* inf_get_devstrings(struct ftdi_context* ftdic,
                                       cur->description, sizeof(cur->description),
                                       cur->serial, sizeof(cur->serial));
         if (rc < 0) {
-            if (!isSuperUser()) {
-                *message = "Can't find Infinite Noise Multiplier. Try running as super user?";
-            } else {
-                sprintf(*message, "ftdi_usb_get_strings failed: %d (%s)", rc, ftdi_get_error_string(ftdic));
-            }
+            sprintf(*message, "ftdi_usb_get_strings failed: %d (%s)", rc, ftdi_get_error_string(ftdic));
             free( cur );
             return NULL;
         }
