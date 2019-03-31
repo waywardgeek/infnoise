@@ -253,7 +253,8 @@ infnoise_devlist_node_t* listUSBDevices(char **message) {
 
     infnoise_devlist_node_t* retlist = NULL;
     struct ftdi_device_list *devlist = NULL;
-    if (ftdi_usb_find_all(&ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID) < 0) {
+    if (ftdi_usb_find_all(&ftdic, &devlist, INFNOISE_VENDOR_ID, INFNOISE_PRODUCT_ID) < 0
+        || devlist == NULL) {
         if (!isSuperUser()) {
             *message = "Can't find Infinite Noise Multiplier.  Try running as super user?";
         } else {
