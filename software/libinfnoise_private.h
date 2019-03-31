@@ -54,7 +54,6 @@ extern double inmK, inmExpectedEntropyPerBit;
 bool initializeUSB(struct ftdi_context *ftdic, const char **message,char *serial);
 void prepareOutputBuffer();
 
-struct timespec;
 double diffTime(struct timespec *start, struct timespec *end);
 uint32_t extractBytes(uint8_t *bytes, uint32_t length, uint8_t *inBuf, const char **message, bool *errorFlag);
 
