@@ -60,5 +60,5 @@ uint32_t extractBytes(uint8_t *bytes, uint32_t length, uint8_t *inBuf, const cha
 
 bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom, const char **message);
 
-uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy, uint32_t *numBits, uint32_t *bytesWritten, bool raw,
+uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy, uint32_t *bytesGiven, uint32_t *bytesWritten, bool raw,
                       uint32_t outputMultiplier);
