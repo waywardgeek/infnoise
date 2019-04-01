@@ -6,7 +6,6 @@
 #else
 #include <linux/limits.h>
 #endif
-#include <ftdi.h>
 
 // Structure for parsed command line options
 struct opt_struct {

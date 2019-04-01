@@ -16,8 +16,6 @@
 #include <string.h>
 #include <signal.h>
 #include <time.h>
-#include <sys/types.h>
-#include <ftdi.h> // requires <sys/types.h>
 #include <getopt.h>
 #include "infnoise.h"
 #include "libinfnoise.h"
@@ -62,7 +60,7 @@ static struct option longopts[] = {
         {NULL,           0,                 NULL, 0}};
 
 // Write the bytes to either stdout, or /dev/random.
-bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom, char **message) {
+bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom, const char **message) {
     if (!writeDevRandom) {
         if (fwrite(bytes, 1, length, stdout) != length) {
             *message = "Unable to write output from Infinite Noise Multiplier";
@@ -223,19 +221,19 @@ int main(int argc, char **argv) {
     }
 
     if (opts.listDevices) {
-        devlist_node devlist = listUSBDevices(&context.message);
+        infnoise_devlist_node_t* devlist = listUSBDevices(&context.message);
         if (devlist == NULL) {
             fprintf(stderr, "Error: %s\n", context.message);
             return 1;
         }
-        devlist_node curdev;
-        for (curdev = devlist; curdev != NULL; ) {
+        infnoise_devlist_node_t* curdev;
+        int id = 0;
+        for (curdev = devlist; curdev != NULL; id++) {
             printf("ID: %i, Manufacturer: %s, Description: %s, Serial: %s\n",
-                   curdev->id, curdev->manufacturer,
-                   curdev->description, curdev->serial);
+                   id, curdev->manufacturer, curdev->description, curdev->serial);
 
             // cleanup:
-            devlist_node olddev = curdev;
+            infnoise_devlist_node_t* olddev = curdev;
             curdev = curdev->next;
             free(olddev);
         }
