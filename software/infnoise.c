@@ -310,6 +310,8 @@ int main(int argc, char **argv) {
         }
     }
     deinitInfnoise(&context);
+#ifdef LINUX
     inmWriteEntropyEnd();
+#endif
     return 0;
 }
