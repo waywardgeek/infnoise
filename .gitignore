@@ -1,1 +1,5 @@
 *.kicad_pcb-bak
+/software/VisualStudio/build
+/software/VisualStudio/.vs
+/software/VisualStudio/ftdi
+!/software/VisualStudio/ftdi/README.md

@@ -3,16 +3,19 @@
 #include <sys/types.h>
 #if defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__APPLE__) || defined(__FreeBSD__)
 #include <limits.h>
-#else
+#elif !defined(_WIN32)
 #include <linux/limits.h>
 #endif
+#if !defined(_WIN32)
 #include <ftdi.h>
+#endif
 #include <time.h>
 
 // The FT240X has a 512 byte buffer.  Must be multiple of 64
 // We also write this in one go to the Keccak sponge, which is at most 1600 bits
 #define BUFLEN 512u
 
+#if !defined(_WIN32)
 struct infnoise_context {
     struct ftdi_context ftdic;
     uint32_t entropyThisTime;
@@ -83,3 +86,5 @@ void deinitInfnoise(struct infnoise_context *context);
  * returns: number of bytes written to the byte-array
 */
 uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, uint32_t outputMultiplier);
+
+#endif

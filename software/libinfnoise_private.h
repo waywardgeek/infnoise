@@ -3,10 +3,12 @@
 #include <sys/types.h>
 #if defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__APPLE__) || defined(__FreeBSD__)
 #include <limits.h>
-#else
+#elif !defined(_WIN32)
 #include <linux/limits.h>
 #endif
+#if !defined(_WIN32)
 #include <ftdi.h>
+#endif
 #include <time.h>
 #include "libinfnoise.h"
 
@@ -34,6 +36,12 @@
 #define SWEN1 2u
 #define SWEN2 0u
 
+// The remaining 8 bits are driven with 0 .. 15 to help track the cause of misfires
+#define ADDR0 3u
+#define ADDR1 5u
+#define ADDR2 6u
+#define ADDR3 7u
+
 // All data bus bits of the FT240X are outputs, except COMP1 and COMP2
 #define MASK (0xffu & ~(1u << COMP1) & ~(1u << COMP2))
 
@@ -51,6 +59,8 @@ void inmDumpStats(void);
 
 extern double inmK, inmExpectedEntropyPerBit;
 
+#if !defined(_WIN32)
+
 bool initializeUSB(struct ftdi_context *ftdic, const char **message,char *serial);
 void prepareOutputBuffer();
 
@@ -62,3 +72,5 @@ bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDe
 
 uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy, uint32_t *bytesGiven, uint32_t *bytesWritten, bool raw,
                       uint32_t outputMultiplier);
+
+#endif

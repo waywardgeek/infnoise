@@ -5,19 +5,21 @@
 
 #include <stdlib.h>
 #include <share.h>
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "VisualStudio\ftdi\ftd2xx.h"
-#include "infnoise.h"
-#include "Keccak\KeccakF-1600-interface.h"
+#include <fcntl.h>
+#include <io.h>
 
-// Pipes in Windows basically don't work, so if you want output from a program to redirect to a file
-// you are forced to write to the file directly, rather than do infnoise > foo.
-FILE *outFile;
+#pragma warning(push)  // Suppress -W4 `warning C4214:  nonstandard extension used: bit field types other than int` in ftd2xx.h::_FTDCB
+#pragma warning(disable : 4214)
+#include "VisualStudio\ftdi\ftd2xx.h"
+#pragma warning(pop)
+#include "infnoise.h"
+#include "libinfnoise_private.h"
+#include "Keccak\KeccakF-1600-interface.h"
 
 // Convert an address value 0 to 15 to an 8-bit value using ADDR0 .. ADDR3.
 static uint8_t makeAddress(uint8_t addr) {
@@ -60,6 +62,9 @@ static uint8_t extractAddress(uint8_t value) {
 // per byte read.  Feed bits from the INM to the health checker.  Return the expected
 // bits of entropy.
 static uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, bool raw) {
+	if (raw) {
+		// We don't currently using `raw` in here
+	}
     inmClearEntropyLevel();
     //printf("New batch\n");
     uint32_t i;
@@ -75,11 +80,11 @@ static uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, bool raw) {
             uint8_t bit = even? oddBit : evenBit;
             byte = (byte << 1) | bit;
             // This is a good place to feed the bit from the INM to the health checker.
-            uint8_t addr = extractAddress(val);
-            //printf("Address: %u, adding evenBit:%u oddBit:%u even:%u\n", addr, evenBit, oddBit, even);
-            if(!inmHealthCheckAddBit(evenBit, oddBit, even, addr)) {
+			uint8_t addr = extractAddress(val);
+			if(!inmHealthCheckAddBit(evenBit, oddBit, even)) {
                 fputs("Health check of Infinite Noise Multiplier failed!\n", stderr);
-                exit(1);
+				fprintf(stderr, "Address: %u, adding evenBit:%u oddBit:%u even:%u\n", addr, evenBit, oddBit, even);
+				exit(1);
             }
         }
         //printf("extracted byte:%x\n", byte);
@@ -90,7 +95,7 @@ static uint32_t extractBytes(uint8_t *bytes, uint8_t *inBuf, bool raw) {
 
 // Write the bytes to either stdout, or /dev/random.  Use the lower of the measured
 // entropy and the provable lower bound on average entropy.
-static void outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom) {
+static void outputBytes(FILE* outFile, uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom) {
     if(entropy > inmExpectedEntropyPerBit*BUFLEN/INM_ACCURACY) {
         entropy = (uint32_t)(inmExpectedEntropyPerBit*BUFLEN/INM_ACCURACY);
     }
@@ -110,11 +115,11 @@ static void outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool 
 // checker says it's OK.  Using outputMultiplier > 1 is a nice way to generate a lot more
 // cryptographically secure pseudo-random data than the INM generates.  This allows a user
 // to generate hundreds of MiB per second if needed, for use as cryptogrpahic keys.
-static void processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entropy, bool raw,
+static void processBytes(FILE* outFile, uint8_t *keccakState, uint8_t *bytes, uint32_t entropy, bool raw,
         bool writeDevRandom, uint32_t outputMultiplier) {
     if(raw) {
         // In raw mode, we just output raw data from the INM.
-        outputBytes(bytes, BUFLEN/8, entropy, writeDevRandom);
+        outputBytes(outFile, bytes, BUFLEN/8, entropy, writeDevRandom);
         return;
     }
     // Note that BUFLEN has to be less than 1600 by enough to make the sponge secure,
@@ -139,7 +144,7 @@ static void processBytes(uint8_t *keccakState, uint8_t *bytes, uint32_t entropy,
         if(entropyThisTime > numLanes*64) {
             entropyThisTime = numLanes*64;
         }
-        outputBytes(dataOut, numLanes*8, entropyThisTime, writeDevRandom);
+        outputBytes(outFile, dataOut, numLanes*8, entropyThisTime, writeDevRandom);
         outputMultiplier -= numLanes/4;
         entropy -= entropyThisTime;
     }
@@ -169,12 +174,12 @@ static bool initializeUSB(FT_HANDLE *ftdic, char **message) {
     
     // Just test to see that we can write and read.
     uint8_t buf[64] = {0,};
-	uint32_t bytesWritten;
+	DWORD bytesWritten;
     if(FT_Write(*ftdic, buf, 64, &bytesWritten) != FT_OK || bytesWritten != 64) {
         *message = "USB write failed\n";
         return false;
     }
-	uint32_t bytesRead;
+	DWORD bytesRead;
     if(FT_Read(*ftdic, buf, 64, &bytesRead) != FT_OK || bytesRead != 64) {
         *message = "USB read failed\n";
         return false;
@@ -183,7 +188,7 @@ static bool initializeUSB(FT_HANDLE *ftdic, char **message) {
 }
 
 /*
-// Return the differnece in the times as a double in microseconds.
+// Return the difference in the times as a double in microseconds.
 static double diffTime(struct timespec *start, struct timespec *end) {
     uint32_t seconds = end->tv_sec - start->tv_sec;
     int32_t nanoseconds = end->tv_nsec - start->tv_nsec;
@@ -198,11 +203,12 @@ int main(int argc, char **argv)
     bool debug = false;
     bool writeDevRandom = false;
     bool noOutput = false;
+	char* outFileName = NULL;
     uint32_t outputMultiplier = 2;
-    uint32_t xArg;
+    int xArg;
 
     // Process arguments
-    for(xArg = 1; xArg < (uint32_t)(argc-1); xArg++) {
+    for(xArg = 1; xArg < argc; xArg++) {
         if(!strcmp(argv[xArg], "--raw")) {
             raw = true;
         } else if(!strcmp(argv[xArg], "--debug")) {
@@ -211,39 +217,54 @@ int main(int argc, char **argv)
             writeDevRandom = true;
         } else if(!strcmp(argv[xArg], "--no-output")) {
             noOutput = true;
-        } else if(!strcmp(argv[xArg], "--multiplier") && xArg+1 < (uint32_t)argc) {
+        } else if(!strcmp(argv[xArg], "--multiplier") && xArg+1 < argc) {
             xArg++;
             outputMultiplier = atoi(argv[xArg]);
             if(outputMultiplier == 0) {
                 fputs("Multiplier must be > 0\n", stderr);
                 return 1;
             }
-		} else {
-            fputs("Usage: infnoise [options] outFile\n"
-                            "Options are:\n"
-                            "    --debug - turn on some debug output\n"
-                            "    --dev-random - write entropy to /dev/random instead of stdout\n"
-                            "    --raw - do not whiten the output\n"
-                            "    --multiplier <value> - write 256 bits * value for each 512 bits written to\n"
-                            "      the Keccak sponge\n"
-                            "    --no-output - do not write random output data\n", stderr);
+		} else if(!strcmp(argv[xArg], "--help") || !strcmp(argv[xArg], "--?") || xArg < argc-1) {
+			// Got a help option or something unexpected that's not the final arg
+            fputs(
+				"Usage: infnoise [options] [outFile]\n"
+                "Options are:\n"
+                "    --debug - turn on some debug output\n"
+                "    --dev-random - write entropy to /dev/random instead of stdout\n"
+                "    --raw - do not whiten the output\n"
+                "    --multiplier <value> - write 256 bits * value for each 512 bits written to\n"
+                "      the Keccak sponge\n"
+                "    --no-output - do not write random output data\n", stderr);
             return 1;
         }
+		else {
+			// Final unparsed arg == output file specified
+			outFileName = argv[xArg];
+		}
     }
-	if (argc < 2) {
-		fprintf(stderr, "No output file specified\n");
-		return 1;
-	}
-	outFile = _fsopen(argv[xArg], "wb", _SH_DENYWR);
-	if(outFile == NULL) {
-		fprintf(stderr, "Unable to open file %s\n", argv[xArg]);
-		return 1;
+
+	FILE* outFile;
+	if (outFileName) {
+		outFile = _fsopen(outFileName, "wb", _SH_DENYWR);
+		if (!outFile) {
+			fprintf(stderr, "Unable to open file %s\n", argv[xArg]);
+			return 1;
+		}
+	} else {
+		outFile = stdout;
+		fflush(outFile);
+		int result = _setmode(_fileno(outFile), _O_BINARY);
+		if (result == -1) {
+			fprintf(stderr, "Cannot set binary mode for outFile");
+			return 1;
+		}
 	}
 
 /*    if(writeDevRandom) {
         inmWriteEntropyStart(BUFLEN/8, debug);
     }
 */
+
     if(!inmHealthCheckStart(PREDICTION_BITS, DESIGN_K, debug)) {
         fputs("Can't initialize health checker\n", stderr);
         return 1;
@@ -270,13 +291,16 @@ int main(int argc, char **argv)
         outBuf[i] |= makeAddress(i & 0xf);
     }
 
-    uint64_t good = 0, bad = 0;
+	uint64_t good = 0;
+/*
+    uint64_t bad = 0;
+*/
     while(true) {
 /*
         struct timespec start;
         clock_gettime(CLOCK_REALTIME, &start);
 */
-		uint32_t numBytes;
+		DWORD numBytes;
         if(FT_Write(ftdic, outBuf, BUFLEN, &numBytes) != FT_OK || numBytes != BUFLEN) {
             fputs("USB write failed\n", stderr);
             return -1;
@@ -295,7 +319,7 @@ int main(int argc, char **argv)
             uint8_t bytes[BUFLEN/8];
             uint32_t entropy = extractBytes(bytes, inBuf, raw);
             if(!noOutput && inmHealthCheckOkToUseData() && inmEntropyOnTarget(entropy, BUFLEN)) {
-                processBytes(keccakState, bytes, entropy, raw, writeDevRandom, outputMultiplier);
+                processBytes(outFile, keccakState, bytes, entropy, raw, writeDevRandom, outputMultiplier);
             }
             good++;
   /*      } else {
