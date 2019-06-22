@@ -10,12 +10,7 @@ CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I /usr/include/libf
  -DGIT_DATE=\"$(GIT_DATE)\"\
  -DLINUX
 
-FOUND = $(shell $(CC) -o /dev/null -x c /dev/null -shared -lftdi 2>/dev/null && echo found)
-ifeq ($(FOUND), found)
-        FTDI=   -lftdi
-else
-        FTDI=   -lftdi1
-endif
+FTDI = $(shell $(CC) -o /dev/null -x c /dev/null -shared -lftdi 2>/dev/null && echo -lftdi || echo -lftdi1)
 
 all: libinfnoise.a libinfnoise.so infnoise
 
