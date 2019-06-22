@@ -1,9 +1,4 @@
 infnoise
-KeccakF-1600-reference.o
-daemon.o
-healthcheck.o
-infnoise
-infnoise.o
-libinfnoise.a
-libinfnoise.o
-libinfnoise.so
+*.a
+*.o
+*.so
