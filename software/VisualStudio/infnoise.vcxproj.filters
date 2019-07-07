@@ -13,33 +13,49 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="FTDI Libraries">
+      <UniqueIdentifier>{92d858ca-f62c-4035-b874-4391ac4a3de8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\healthcheck.c">
+    <ClCompile Include="..\Keccak\KeccakF-1600-reference.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Keccak\KeccakF-1600-reference.c">
+    <ClCompile Include="..\healthcheck.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\infnoise_win.c">
+    <ClCompile Include="..\infnoise_win.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Keccak\brg_endian.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="ftdi\ftd2xx.h">
+      <Filter>FTDI Libraries</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Keccak\KeccakF-1600-interface.h">
+    <ClInclude Include="..\libinfnoise.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\infnoise.h">
+    <ClInclude Include="..\libinfnoise_private.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Keccak\KeccakF-1600-interface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\infnoise.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Keccak\brg_endian.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\ftdi\ftd2xx.lib" />
+    <None Include="ftdi\README.md">
+      <Filter>FTDI Libraries</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="ftdi\amd64\ftd2xx.lib">
+      <Filter>FTDI Libraries</Filter>
+    </Library>
   </ItemGroup>
 </Project>

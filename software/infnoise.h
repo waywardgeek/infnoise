@@ -3,7 +3,7 @@
 #include <sys/types.h>
 #if defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__APPLE__) || defined(__FreeBSD__)
 #include <limits.h>
-#else
+#elif !defined(_WIN32)
 #include <linux/limits.h>
 #endif
 
