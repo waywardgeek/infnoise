@@ -349,8 +349,9 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy,
         KeccakPermutation(keccakState);
         *bytesWritten = bytesToWrite;
         *bytesGiven -= bytesToWrite;
+        return *bytesWritten;
     }
-    return *bytesWritten;
+    return 0;
 }
 
 uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, uint32_t outputMultiplier) {
