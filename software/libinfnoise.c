@@ -120,73 +120,6 @@ uint32_t extractBytes(uint8_t *bytes, uint32_t length, uint8_t *inBuf, const cha
     return inmGetEntropyLevel();
 }
 
-// Whiten the output, if requested, with a Keccak sponge. Output bytes only if the health
-// checker says it's OK.  Using outputMultiplier > 1 is a nice way to generate a lot more
-// cryptographically secure pseudo-random data than the INM generates.  If
-// outputMultiplier is 0, we output only as many bits as we measure in entropy.
-// This allows a user to generate hundreds of MiB per second if needed, for use
-// as cryptographic keys.
-uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy,
-                      uint32_t *bytesGiven, uint32_t *bytesWritten,
-                      bool raw, uint32_t outputMultiplier) {
-    //Use the lower of the measured entropy and the provable lower bound on
-    //average entropy.
-    if (*entropy > inmExpectedEntropyPerBit * BUFLEN / INM_ACCURACY) {
-        *entropy = inmExpectedEntropyPerBit * BUFLEN / INM_ACCURACY;
-    }
-    if (raw) {
-        // In raw mode, we just output raw data from the INM.
-        if (result != NULL) {
-            memcpy(result, bytes, BUFLEN / 8u * sizeof(uint8_t));
-        }
-        return BUFLEN / 8u;
-    }
-
-    // Note that BUFLEN has to be less than 1600 by enough to make the sponge secure,
-    // since outputting all 1600 bits would tell an attacker the Keccak state, allowing
-    // him to predict any further output, when outputMultiplier > 1, until the next call
-    // to processBytes.  All 512 bits are absorbed before squeezing data out to ensure that
-    // we instantly recover (reseed) from a state compromise, which is when an attacker
-    // gets a snapshot of the keccak state.  BUFLEN must be a multiple of 64, since
-    // Keccak-1600 uses 64-bit "lanes".
-    uint8_t resultSize;
-    if (outputMultiplier <= 2) {
-        resultSize = 64u;
-    } else {
-        resultSize = 128u;
-    }
-
-    uint8_t dataOut[resultSize];
-    KeccakAbsorb(keccakState, bytes, BUFLEN / 64u);
-
-    if (outputMultiplier == 0u) {
-        // Output all the bytes of entropy we have
-        KeccakExtract(keccakState, dataOut, (*entropy + 63u) / 64u);
-        if (result != NULL) {
-            memcpy(result, dataOut, *entropy / 8u * sizeof(uint8_t));
-        }
-        return *entropy / 8u;
-    }
-
-    // Output 256*outputMultipler bits (in chunks of 1024)
-    // only the first 1024 now,
-    if (*bytesGiven == 0u) {
-        *bytesGiven = outputMultiplier*256u / 8u;
-        *bytesWritten = 0u;
-
-        // Output up to 1024 bits at a time.
-        uint32_t bytesToWrite = 1024u / 8u;
-        if (bytesToWrite > *bytesGiven) {
-            bytesToWrite = *bytesGiven;
-        }
-
-        KeccakExtract(keccakState, result, bytesToWrite / 8u);
-        KeccakPermutation(keccakState);
-        *bytesWritten = bytesToWrite;
-        *bytesGiven -= bytesToWrite;
-    }
-    return *bytesWritten;
-}
 
 // Return the difference in the times as a double in microseconds.
 double diffTime(struct timespec *start, struct timespec *end) {
@@ -349,6 +282,75 @@ bool initializeUSB(struct ftdi_context *ftdic, const char **message, char *seria
         return false;
     }
     return true;
+}
+
+
+// Whiten the output, if requested, with a Keccak sponge. Output bytes only if the health
+// checker says it's OK.  Using outputMultiplier > 1 is a nice way to generate a lot more
+// cryptographically secure pseudo-random data than the INM generates.  If
+// outputMultiplier is 0, we output only as many bits as we measure in entropy.
+// This allows a user to generate hundreds of MiB per second if needed, for use
+// as cryptographic keys.
+uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy,
+                      uint32_t *bytesGiven, uint32_t *bytesWritten,
+                      bool raw, uint32_t outputMultiplier) {
+    //Use the lower of the measured entropy and the provable lower bound on
+    //average entropy.
+    if (*entropy > inmExpectedEntropyPerBit * BUFLEN / INM_ACCURACY) {
+        *entropy = inmExpectedEntropyPerBit * BUFLEN / INM_ACCURACY;
+    }
+    if (raw) {
+        // In raw mode, we just output raw data from the INM.
+        if (result != NULL) {
+            memcpy(result, bytes, BUFLEN / 8u * sizeof(uint8_t));
+        }
+        return BUFLEN / 8u;
+    }
+
+    // Note that BUFLEN has to be less than 1600 by enough to make the sponge secure,
+    // since outputting all 1600 bits would tell an attacker the Keccak state, allowing
+    // him to predict any further output, when outputMultiplier > 1, until the next call
+    // to processBytes.  All 512 bits are absorbed before squeezing data out to ensure that
+    // we instantly recover (reseed) from a state compromise, which is when an attacker
+    // gets a snapshot of the keccak state.  BUFLEN must be a multiple of 64, since
+    // Keccak-1600 uses 64-bit "lanes".
+    uint8_t resultSize;
+    if (outputMultiplier <= 2) {
+        resultSize = 64u;
+    } else {
+        resultSize = 128u;
+    }
+
+    uint8_t dataOut[resultSize];
+    KeccakAbsorb(keccakState, bytes, BUFLEN / 64u);
+
+    if (outputMultiplier == 0u) {
+        // Output all the bytes of entropy we have
+        KeccakExtract(keccakState, dataOut, (*entropy + 63u) / 64u);
+        if (result != NULL) {
+            memcpy(result, dataOut, *entropy / 8u * sizeof(uint8_t));
+        }
+        return *entropy / 8u;
+    }
+
+    // Output 256*outputMultipler bits (in chunks of 1024)
+    // only the first 1024 now,
+    if (*bytesGiven == 0u) {
+        *bytesGiven = outputMultiplier*256u / 8u;
+        *bytesWritten = 0u;
+
+        // Output up to 1024 bits at a time.
+        uint32_t bytesToWrite = 1024u / 8u;
+        if (bytesToWrite > *bytesGiven) {
+            bytesToWrite = *bytesGiven;
+        }
+
+        KeccakExtract(keccakState, result, bytesToWrite / 8u);
+        KeccakPermutation(keccakState);
+        *bytesWritten = bytesToWrite;
+        *bytesGiven -= bytesToWrite;
+    }
+    return *bytesWritten;
 }
 
 uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, uint32_t outputMultiplier) {
