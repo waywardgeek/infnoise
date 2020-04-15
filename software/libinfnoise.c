@@ -40,7 +40,7 @@ bool initInfnoise(struct infnoise_context *context, char *serial, bool keccak, b
     context->message="";
     context->entropyThisTime=0;
     context->errorFlag=false;
-    context->bytesGiven=0;
+    context->keccakBytesGiven=0;
     context->bytesWritten=0;
 
     prepareOutputBuffer();
@@ -355,21 +355,21 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy,
 
 uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, uint32_t outputMultiplier) {
     // check if data can be squeezed from the keccak sponge from previous state (or we need to collect some new entropy to get bytesGiven >0)
-    if (context->bytesGiven > 0u) {
+    if (context->keccakBytesGiven > 0u) {
         // squeeze the sponge!
 
         // Output up to 1024 bits at a time.
         uint32_t bytesToWrite = 1024u / 8u;
 
-        if (bytesToWrite > context->bytesGiven) {
-            bytesToWrite = context->bytesGiven;
+        if (bytesToWrite > context->keccakBytesGiven) {
+            bytesToWrite = context->keccakBytesGiven;
         }
 
         KeccakExtract(keccakState, result, bytesToWrite / 8u);
         KeccakPermutation(keccakState);
 
         context->bytesWritten += bytesToWrite;
-        context->bytesGiven -= bytesToWrite;
+        context->keccakBytesGiven -= bytesToWrite;
         return bytesToWrite;
     } else { // collect new entropy
         uint8_t inBuf[BUFLEN];
@@ -402,7 +402,7 @@ uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, u
             }
             // call health check and return bytes if OK
             if (inmHealthCheckOkToUseData() && inmEntropyOnTarget(context->entropyThisTime, BUFLEN)) {
-                return processBytes(bytes, result, &context->entropyThisTime, &context->bytesGiven, &context->bytesWritten,
+                return processBytes(bytes, result, &context->entropyThisTime, &context->keccakBytesGiven, &context->bytesWritten,
                 raw, outputMultiplier);
             }
         }
