@@ -23,6 +23,18 @@
 #endif
 
 uint8_t keccakState[KeccakPermutationSizeInBytes];
+uint8_t outBuf[BUFLEN];
+
+void prepareOutputBuffer() {
+    uint32_t i;
+
+    // Endless loop: set SW1EN and SW2EN alternately
+    for (i = 0u; i < BUFLEN; i+=2) {
+        // Alternate Ph1 and Ph2
+        outBuf[i] = (1 << SWEN1);
+        outBuf[i+1] = (1 << SWEN2);
+    }
+}
 
 bool initInfnoise(struct infnoise_context *context, char *serial, bool keccak, bool debug) {
     context->message="";
@@ -77,18 +89,6 @@ void deinitInfnoise(struct infnoise_context *context)
     ftdi_deinit(&context->ftdic);
 }
 
-uint8_t outBuf[BUFLEN];
-
-void prepareOutputBuffer() {
-    uint32_t i;
-
-    // Endless loop: set SW1EN and SW2EN alternately
-    for (i = 0u; i < BUFLEN; i+=2) {
-        // Alternate Ph1 and Ph2
-        outBuf[i] = (1 << SWEN1);
-        outBuf[i+1] = (1 << SWEN2);
-    }
-}
 
 // Extract the INM output from the data received.  Basically, either COMP1 or COMP2
 // changes, not both, so alternate reading bits from them.  We get 1 INM bit of output
