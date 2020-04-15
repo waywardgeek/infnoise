@@ -25,7 +25,6 @@ struct infnoise_context {
 
     // used in multiplier mode to keep track of bytes to be put out
     uint32_t keccakBytesGiven;
-    uint32_t bytesWritten;
 };
 
 typedef struct _infnoise_devlist_node_t infnoise_devlist_node_t;
