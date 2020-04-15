@@ -353,24 +353,9 @@ uint32_t processBytes(uint8_t *bytes, uint8_t *result, uint32_t *entropy,
 
 uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, uint32_t outputMultiplier) {
     // check if data can be squeezed from the keccak sponge from previous state (or we need to collect some new entropy to get bytesGiven >0)
-    if (context->keccakBytesGiven > 0u) {
-        // squeeze the sponge!
-
-        // Output up to 1024 bits at a time.
-        uint32_t bytesToWrite = 1024u / 8u;
-
-        if (bytesToWrite > context->keccakBytesGiven) {
-            bytesToWrite = context->keccakBytesGiven;
-        }
-
-        KeccakExtract(keccakState, result, bytesToWrite / 8u);
-        KeccakPermutation(keccakState);
-
-        context->keccakBytesGiven -= bytesToWrite;
-        return bytesToWrite;
-    } else { // collect new entropy
+    if (context->keccakBytesGiven == 0u) { // collect new entropy (e.g. case RAW)
         uint8_t inBuf[BUFLEN];
-        struct timespec start;
+        struct timespec start, end;
         clock_gettime(CLOCK_REALTIME, &start);
 
         // write clock signal
@@ -386,23 +371,35 @@ uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, u
             return 0;
         }
 
-        struct timespec end;
         clock_gettime(CLOCK_REALTIME, &end);
-        uint32_t us = diffTime(&start, &end);
+        if (diffTime(&start, &end) > MAX_MICROSEC_FOR_SAMPLES)
+            return 0;
 
-        if (us <= MAX_MICROSEC_FOR_SAMPLES) {
-            uint8_t bytes[BUFLEN / 8u];
-            context->entropyThisTime = extractBytes(bytes, sizeof(bytes), inBuf, &context->message, &context->errorFlag);
-            if (context->errorFlag) {
-		            // todo: message?
-                return 0;
-            }
-            // call health check and return bytes if OK
-            if (inmHealthCheckOkToUseData() && inmEntropyOnTarget(context->entropyThisTime, BUFLEN)) {
-                return processBytes(bytes, result, &context->entropyThisTime, &context->keccakBytesGiven,
-                raw, outputMultiplier);
-            }
+        uint8_t bytes[BUFLEN / 8u];
+        context->entropyThisTime = extractBytes(bytes, sizeof(bytes), inBuf, &context->message, &context->errorFlag);
+        if (context->errorFlag
+            || ! (inmHealthCheckOkToUseData() 
+                  && inmEntropyOnTarget(context->entropyThisTime, BUFLEN)) ) {
+            // todo: message?
+            return 0;
         }
+
+        // called health check are ok and return bytes
+        return processBytes(bytes, result, &context->entropyThisTime, &context->keccakBytesGiven, raw, outputMultiplier);
+    } else { // squeeze the sponge!
+
+        // Output up to 1024 bits at a time.
+        uint32_t bytesToWrite = 1024u / 8u;
+
+        if (bytesToWrite > context->keccakBytesGiven) {
+            bytesToWrite = context->keccakBytesGiven;
+        }
+
+        KeccakExtract(keccakState, result, bytesToWrite / 8u);
+        KeccakPermutation(keccakState);
+
+        context->keccakBytesGiven -= bytesToWrite;
+        return bytesToWrite;
     }
     return 0;
 }
