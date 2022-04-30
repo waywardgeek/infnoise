@@ -28,8 +28,7 @@ struct infnoise_context {
     //uint8_t keccakState[KeccakPermutationSizeInBytes];
 
     // used in multiplier mode to keep track of bytes to be put out
-    uint32_t bytesGiven;
-    uint32_t bytesWritten;
+    uint32_t keccakBytesGiven;
 };
 
 typedef struct _infnoise_devlist_node_t infnoise_devlist_node_t;
