@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/poll.h>
+#include <poll.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <linux/random.h>
@@ -25,7 +25,7 @@ static uint32_t readNumberFromFile(char *fileName) {
         exit(1);
     }
     uint32_t value = 0u;
-    char c;
+    int32_t c;
     while( (c = getc(file)) != EOF
            && '0' <= c && c <= '9' ) {
         value *= 10;
