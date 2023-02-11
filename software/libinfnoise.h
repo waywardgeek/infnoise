@@ -15,6 +15,10 @@
 // We also write this in one go to the Keccak sponge, which is at most 1600 bits
 #define BUFLEN 512u
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if !defined(_WIN32)
 struct infnoise_context {
     struct ftdi_context ftdic;
@@ -85,5 +89,9 @@ void deinitInfnoise(struct infnoise_context *context);
  * returns: number of bytes written to the byte-array
 */
 uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, uint32_t outputMultiplier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -1,5 +1,5 @@
 libinfnoise {
-  global: listUSBDevices; initInfnoise; readRawData; readData; # explicitly list symbols to be exported
+  global: listUSBDevices; initInfnoise; deinitInfnoise; readRawData; readData; # explicitly list symbols to be exported
   local: *;         # hide everything else
 };
 
