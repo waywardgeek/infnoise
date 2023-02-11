@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
     } else {
         data = readDataFromFile(argv[1], &dataLen);
     }
-    uint8_t *stringsSeen = calloc((uint64_t)1 << (MAX_STRING_SIZE-3u), sizeof(uint8_t));
+    uint8_t *stringsSeen = calloc((uint64_t)1 << (MAX_STRING_SIZE-4u), sizeof(uint8_t));
     uint32_t len;
     for(len = 4u; len <= MAX_STRING_SIZE; len++) {
         if(!hasSubstringOfLength(len, data, dataLen, stringsSeen)) {
