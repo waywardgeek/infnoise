@@ -185,7 +185,8 @@ bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even) {
             inmNumSequentialZeros = 0u;
             if(inmNumSequentialOnes > INM_MAX_SEQUENCE) {
                 fprintf(stderr, "Maximum sequence of %d 1's exceeded\n", INM_MAX_SEQUENCE);
-                exit(1);
+                inmNumSequentialOnes = 0u;
+                return false;
             }
         } else {
             inmTotalZeros++;
@@ -193,7 +194,8 @@ bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even) {
             inmNumSequentialOnes = 0u;
             if(inmNumSequentialZeros > INM_MAX_SEQUENCE) {
                 fprintf(stderr, "Maximum sequence of %d 0's exceeded\n", INM_MAX_SEQUENCE);
-                exit(1);
+                inmNumSequentialZeros = 0u;
+                return false;
             }
         }
     }
