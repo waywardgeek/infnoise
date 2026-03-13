@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# Makefile snippet for in-tree kernel build
+#
+# To integrate into the kernel tree:
+#
+# 1. Copy all source files to drivers/char/hw_random/infnoise/
+#    mkdir -p drivers/char/hw_random/infnoise
+#    cp infnoise.c infnoise_health.c infnoise_keccak.c infnoise.h \
+#       drivers/char/hw_random/infnoise/
+#
+# 2. Copy Kconfig to drivers/char/hw_random/infnoise/Kconfig
+#
+# 3. Add to drivers/char/hw_random/Kconfig before the final "endif":
+#    source "drivers/char/hw_random/infnoise/Kconfig"
+#
+# 4. Add to drivers/char/hw_random/Makefile:
+#    obj-$(CONFIG_HW_RANDOM_INFNOISE) += infnoise/
+#
+# 5. Create drivers/char/hw_random/infnoise/Makefile with contents below:
+#
+
+# --- Cut here for drivers/char/hw_random/infnoise/Makefile ---
+
+obj-$(CONFIG_HW_RANDOM_INFNOISE) += infnoise.o
+infnoise-y := infnoise.o infnoise_health.o infnoise_keccak.o
+
+ccflags-$(CONFIG_HW_RANDOM_INFNOISE_DEBUG) += -DDEBUG
+
+# --- End of Makefile content ---
+
+#
+# Alternative: Single file in hw_random directory
+#
+# If you prefer not to create a subdirectory, you can place all files
+# directly in drivers/char/hw_random/ and use:
+#
+# In drivers/char/hw_random/Makefile, add:
+#   obj-$(CONFIG_HW_RANDOM_INFNOISE) += infnoise-trng.o
+#   infnoise-trng-y := infnoise.o infnoise_health.o infnoise_keccak.o
+#
+# And rename this Makefile.intree or merge Kconfig entries directly.

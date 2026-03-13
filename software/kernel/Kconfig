@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# Kconfig entry for Infinite Noise TRNG driver
+#
+# To use this in-tree, add to drivers/char/hw_random/Kconfig:
+#   source "drivers/char/hw_random/infnoise/Kconfig"
+#
+# Or copy the config block below directly into the hw_random Kconfig
+#
+
+config HW_RANDOM_INFNOISE
+	tristate "Infinite Noise TRNG support"
+	depends on USB && HW_RANDOM
+	help
+	  This driver provides support for the Infinite Noise True Random
+	  Number Generator (TRNG) USB device.
+
+	  The Infinite Noise TRNG is an open-source hardware random number
+	  generator designed by Bill Cox. It uses an infinite noise
+	  multiplier (INM) circuit to generate true random numbers from
+	  thermal noise.
+
+	  The driver implements:
+	    - Health monitoring with prediction-based entropy validation
+	    - Keccak-1600 sponge-based whitening
+	    - hwrng interface for kernel entropy pool contribution
+	    - Character device (/dev/infnoiseX) for direct access
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called infnoise.
+
+	  If unsure, say N.
+
+config HW_RANDOM_INFNOISE_DEBUG
+	bool "Infinite Noise TRNG debug output"
+	depends on HW_RANDOM_INFNOISE
+	help
+	  Enable debug output for the Infinite Noise TRNG driver.
+	  This adds verbose logging to the kernel log which can help
+	  diagnose issues with the device.
+
+	  If unsure, say N.
