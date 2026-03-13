@@ -10,9 +10,11 @@
 // Structure for parsed command line options
 struct opt_struct {
         uint32_t outputMultiplier; // We output all the entropy when outputMultiplier == 0
+        uint32_t feedFreq; 	// poll-intervall to feed /dev/random
         bool daemon;            // Run as daemon?
         bool debug;             // Print debugging info?
         bool devRandom;         // Feed /dev/random?
+        bool forceReseed;       // Force reseed when feeding /dev/random?
         bool noOutput;          // Supress output?
         bool listDevices;       // List possible USB-devices?
         bool help;              // Show help
@@ -27,6 +29,7 @@ struct opt_struct {
 void inmWriteEntropyStart(uint32_t bufLen, bool debug);
 void inmWriteEntropyEnd();
 void inmWriteEntropyToPool(uint8_t *bytes, uint32_t length, uint32_t entropy);
-void inmWaitForPoolToHaveRoom(void);
+void inmForceKernelRngReseed();
+void inmWaitForPoolToHaveRoom(uint32_t feedFreq);
 
 void startDaemon(struct opt_struct *opts);

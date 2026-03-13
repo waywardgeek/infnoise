@@ -1,8 +1,8 @@
 SHELL = /bin/bash
 
-GIT_VERSION := $(shell git --no-pager describe --tags --always)
-GIT_COMMIT  := $(shell git rev-parse --verify HEAD)
-GIT_DATE    := $(firstword $(shell git --no-pager show --date=iso-strict --format="%ad" --name-only))
+GIT_VERSION ?= $(shell git --no-pager describe --tags --always)
+GIT_COMMIT  ?= $(shell git rev-parse --verify HEAD)
+GIT_DATE    ?= $(firstword $(shell git --no-pager show --date=iso-strict --format="%ad" --name-only))
 
 PREFIX = $(DESTDIR)/usr/local
 
