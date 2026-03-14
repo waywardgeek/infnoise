@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "infnoise_goldfingers")(type "KiCad")(uri "${KIPRJMOD}/infnoise_goldfingers.pretty")(options "")(descr ""))
+)

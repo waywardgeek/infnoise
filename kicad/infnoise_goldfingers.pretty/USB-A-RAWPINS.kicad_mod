@@ -1,22 +1,119 @@
-(module USB-A-RAWPINS (layer F.Cu) (tedit 0)
-  (fp_text reference X1 (at 0 0) (layer F.SilkS) hide
-    (effects (font (size 1.27 1.27) (thickness 0.15)))
-  )
-  (fp_text value USBRAWPINS (at 0 0) (layer F.SilkS) hide
-    (effects (font (size 1.27 1.27) (thickness 0.15)))
-  )
-  (fp_line (start -5 -6) (end 3.7 -6) (layer F.Fab) (width 0.127))
-  (fp_line (start 3.7 -6) (end 3.7 6) (layer F.Fab) (width 0.127))
-  (fp_line (start 3.7 6) (end -5 6) (layer F.Fab) (width 0.127))
-  (fp_line (start -5 6) (end -5 -6) (layer F.Fab) (width 0.127))
-  (fp_text user >Name (at -1.27 -5.08) (layer F.SilkS)
-    (effects (font (size 0.38608 0.38608) (thickness 0.032512)) (justify left bottom))
-  )
-  (fp_text user >Value (at -1.27 5.08) (layer F.SilkS)
-    (effects (font (size 0.38608 0.38608) (thickness 0.032512)) (justify left bottom))
-  )
-  (pad 5V smd rect (at -0.2 3.5) (size 7.5 1.36) (layers F.Cu F.Paste F.Mask))
-  (pad USB_M smd rect (at 0.3 1) (size 6.5 1.36) (layers F.Cu F.Paste F.Mask))
-  (pad USB_P smd rect (at 0.3 -1) (size 6.5 1.36) (layers F.Cu F.Paste F.Mask))
-  (pad GND smd rect (at -0.2 -3.5) (size 7.5 1.36) (layers F.Cu F.Paste F.Mask))
+(footprint "USB-A-RAWPINS"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at -0.01 -6.92 0)
+		(layer "F.SilkS")
+		(uuid "8954a67b-f55c-4e61-86e4-d6a25c3b4b17")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "USBRAWPINS"
+		(at 0 0 0)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "7748e658-0f61-46fb-94bc-f7cbac47d6ea")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "46a21b89-f27c-4dcf-9f56-f029561d44ce")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "7bf4080d-c774-4c3d-91ce-1a1d0a7f9cfb")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_line
+		(start -5 -6)
+		(end 3.7 -6)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "06ad8a41-9599-4278-a69e-7865eda72d71")
+	)
+	(fp_line
+		(start -5 6)
+		(end -5 -6)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "4a83182f-80e7-482e-aa1c-c104004bdd7e")
+	)
+	(fp_line
+		(start 3.7 -6)
+		(end 3.7 6)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "4b4fd3fa-6ec3-4ec1-bec7-41ea08fb8a87")
+	)
+	(fp_line
+		(start 3.7 6)
+		(end -5 6)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "3ab602b4-15a2-430c-b5fb-68ac04bfa7a8")
+	)
+	(pad "1" smd rect
+		(at -0.2 3.5)
+		(size 7.5 1.36)
+		(layers "F.Cu" "F.Mask")
+		(uuid "1b11f0ec-a405-487d-ac95-ed832f1fb687")
+	)
+	(pad "2" smd rect
+		(at 0.3 1)
+		(size 6.5 1.36)
+		(layers "F.Cu" "F.Mask")
+		(uuid "022fd11a-767c-4863-a6f1-d4793ad8d43a")
+	)
+	(pad "3" smd rect
+		(at 0.3 -1)
+		(size 6.5 1.36)
+		(layers "F.Cu" "F.Mask")
+		(uuid "9f885e56-3116-43a7-99b4-aa1e8a343a1f")
+	)
+	(pad "4" smd rect
+		(at -0.2 -3.5)
+		(size 7.5 1.36)
+		(layers "F.Cu" "F.Mask")
+		(uuid "da8fd07a-d594-4281-a929-bb8084e63776")
+	)
+	(embedded_fonts no)
 )

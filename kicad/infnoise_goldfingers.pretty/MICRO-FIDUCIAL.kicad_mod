@@ -1,9 +1,0 @@
-(module MICRO-FIDUCIAL (layer F.Cu) (tedit 0)
-  (fp_text reference FID3 (at 0 0) (layer F.SilkS) hide
-    (effects (font (size 1.27 1.27) (thickness 0.15)))
-  )
-  (fp_text value FIDUCIALUFIDUCIAL (at 0 0) (layer F.SilkS) hide
-    (effects (font (size 1.27 1.27) (thickness 0.15)))
-  )
-  (pad 1 smd circle (at 0 0) (size 0.635 0.635) (layers F.Cu F.Paste F.Mask))
-)
