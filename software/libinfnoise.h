@@ -22,6 +22,21 @@
 extern "C" {
 #endif
 
+// Machine-readable error codes for readData and initInfnoise.
+// Negative values are fatal errors; zero is transient (retry); positive is success.
+typedef enum {
+    INFNOISE_OK              =  0,
+    INFNOISE_ERR_USB_WRITE   = -1,
+    INFNOISE_ERR_USB_READ    = -2,
+    INFNOISE_ERR_HEALTH      = -3,
+    INFNOISE_ERR_TIMING      = -4,
+    INFNOISE_ERR_ENTROPY     = -5,
+    INFNOISE_ERR_NOT_FOUND   = -6,
+    INFNOISE_ERR_INIT        = -7,
+    INFNOISE_ERR_USB_BAUD    = -8,
+    INFNOISE_ERR_USB_BITMODE = -9,
+} infnoise_error_t;
+
 #if !defined(_WIN32)
 
 // Health checker state — previously file-scope globals in healthcheck.c
@@ -60,7 +75,6 @@ struct infnoise_context {
     struct ftdi_context ftdic;
     uint32_t entropyThisTime;
     const char *message;
-    bool errorFlag;
 
     // used in multiplier mode to keep track of bytes to be put out
     uint32_t keccakBytesGiven;
@@ -116,23 +130,23 @@ void deinitInfnoise(struct infnoise_context *context);
 
 /*
  * Reads some bytes from the TRNG and stores them in the "result" byte array.
- * The array has to be of sufficient size. Please refer to the example programs. 
+ * The array has to be of sufficient size. Please refer to the example programs.
  * (64 byte for normal operation or 128byte for multiplier mode)
  *
- * After every read operation, the infnoise_context's errorFlag must be checked,
- * and the data from this call has to be discarded when it returns true!
+ * Return value:
+ *   > 0: number of bytes written to result
+ *     0: transient condition (timing exceeded, entropy off-target) — retry
+ *   < 0: fatal error (infnoise_error_t code) — check context->message
  *
- * Detailed error messages can then be found in context->message.
+ * context->message is set with a human-readable diagnostic on error.
  *
  * parameters:
  *  - context: infnoise_context struct with device pointer and state variables
  *  - result: pointer to byte array to store the result
  *  - raw: boolean flag for raw or whitened output
  *  - outputMultiplier: only used for whitened output
- *
- * returns: number of bytes written to the byte-array
 */
-uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, uint32_t outputMultiplier);
+int32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, uint32_t outputMultiplier);
 
 #ifdef __cplusplus
 }

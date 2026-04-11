@@ -34,16 +34,13 @@ int main()
     while (totalBytesWritten < 1000000) {
         uint8_t result[resultSize];
 
-	// readRawData returns the number of bytes written to result array
-        uint64_t bytesWritten = readData(&context, result, !initKeccak, multiplier);
-
-	// check for errors
-	// note: bytesWritten is also 0 in this case, but an errorFlag is needed as
-        // bytesWritten can also be 0 when data hasn't passed the health monitor.
-        if (context.errorFlag) {
+	// readData returns bytes written (>0), transient (0), or error (<0)
+        int32_t rc = readData(&context, result, !initKeccak, multiplier);
+        if (rc < 0) {
             fprintf(stderr, "Error: %s\n", context.message);
             return -1;
         }
+        uint32_t bytesWritten = (uint32_t)rc;
 	totalBytesWritten += bytesWritten;
         fprintf(stderr, "infnoise bytes read: %lu\n", (unsigned long) totalBytesWritten);
 
