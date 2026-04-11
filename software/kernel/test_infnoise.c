@@ -5,8 +5,8 @@
  * Copyright (C) 2026 Avinash H. Duduskar
  *
  * Verifies driver mechanics: read interfaces, ioctl dispatch, non-blocking
- * I/O, and device lifecycle.  Entropy quality testing is handled separately
- * by test_entropy.sh (rngtest/ent/dieharder) and the project's tests/ suite.
+ * I/O, and device lifecycle.  Entropy quality testing is handled by
+ * make test (rngtest, ent) and the project's tests/runtests.sh suite.
  *
  * Requires: module loaded, device connected, root privileges.
  *

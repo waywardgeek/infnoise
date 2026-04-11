@@ -45,22 +45,22 @@ uninstall:
 load: modules
 	@if lsmod | grep -q "^$(MODULE_NAME)"; then \
 		echo "Module already loaded, unloading first..."; \
-		sudo rmmod $(MODULE_NAME); \
+		rmmod $(MODULE_NAME); \
 	fi
-	sudo insmod $(MODULE_NAME).ko
+	insmod $(MODULE_NAME).ko
 
 # Load with debug
 load-debug: modules
 	@if lsmod | grep -q "^$(MODULE_NAME)"; then \
 		echo "Module already loaded, unloading first..."; \
-		sudo rmmod $(MODULE_NAME); \
+		rmmod $(MODULE_NAME); \
 	fi
-	sudo insmod $(MODULE_NAME).ko debug=1
+	insmod $(MODULE_NAME).ko debug=1
 
 # Unload module
 unload:
 	@if lsmod | grep -q "^$(MODULE_NAME)"; then \
-		sudo rmmod $(MODULE_NAME); \
+		rmmod $(MODULE_NAME); \
 	else \
 		echo "Module not loaded"; \
 	fi
@@ -105,17 +105,17 @@ test: test_infnoise
 		echo "Error: $(MODULE_NAME) module not loaded. Try: make load"; \
 		exit 1; \
 	fi
-	sudo ./test_infnoise
+	./test_infnoise
 	@echo ""
 	@echo "--- FIPS 140-2 (rngtest) ---"
-	@if command -v rngtest >/dev/null 2>&1 && [ -r /dev/hwrng ]; then \
+	@if command -v rngtest >/dev/null 2>&1 && dd if=/dev/hwrng bs=1 count=1 >/dev/null 2>&1; then \
 		dd if=/dev/hwrng bs=2500 count=100 2>/dev/null | rngtest; \
 	else \
 		echo "  SKIP (rngtest not installed or /dev/hwrng not readable)"; \
 	fi
 	@echo ""
 	@echo "--- Shannon entropy (ent) ---"
-	@if command -v ent >/dev/null 2>&1 && [ -r /dev/hwrng ]; then \
+	@if command -v ent >/dev/null 2>&1 && dd if=/dev/hwrng bs=1 count=1 >/dev/null 2>&1; then \
 		dd if=/dev/hwrng bs=2500 count=100 of=/tmp/infnoise-ent.bin 2>/dev/null && \
 		ent /tmp/infnoise-ent.bin && rm -f /tmp/infnoise-ent.bin; \
 	else \

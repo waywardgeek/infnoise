@@ -6,7 +6,7 @@
 #
 # 1. Copy all source files to drivers/char/hw_random/infnoise/
 #    mkdir -p drivers/char/hw_random/infnoise
-#    cp infnoise.c infnoise_health.c infnoise_keccak.c infnoise.h \
+#    cp infnoise_main.c infnoise_health.c infnoise_keccak.c infnoise.h \
 #       drivers/char/hw_random/infnoise/
 #
 # 2. Copy Kconfig to drivers/char/hw_random/infnoise/Kconfig
@@ -23,7 +23,7 @@
 # --- Cut here for drivers/char/hw_random/infnoise/Makefile ---
 
 obj-$(CONFIG_HW_RANDOM_INFNOISE) += infnoise.o
-infnoise-y := infnoise.o infnoise_health.o infnoise_keccak.o
+infnoise-y := infnoise_main.o infnoise_health.o infnoise_keccak.o
 
 ccflags-$(CONFIG_HW_RANDOM_INFNOISE_DEBUG) += -DDEBUG
 
@@ -37,6 +37,6 @@ ccflags-$(CONFIG_HW_RANDOM_INFNOISE_DEBUG) += -DDEBUG
 #
 # In drivers/char/hw_random/Makefile, add:
 #   obj-$(CONFIG_HW_RANDOM_INFNOISE) += infnoise-trng.o
-#   infnoise-trng-y := infnoise.o infnoise_health.o infnoise_keccak.o
+#   infnoise-trng-y := infnoise_main.o infnoise_health.o infnoise_keccak.o
 #
 # And rename this Makefile.intree or merge Kconfig entries directly.
