@@ -137,18 +137,26 @@ extern bool infnoise_raw_mode;
 #define INFNOISE_SET_RAW	_IOW(INFNOISE_IOC_MAGIC, 2, int)
 #define INFNOISE_GET_ENTROPY	_IOR(INFNOISE_IOC_MAGIC, 3, u32)
 
-/* Statistics structure for ioctl */
+/*
+ * Statistics structure for ioctl (UAPI)
+ *
+ * Layout must be identical on 32-bit and 64-bit so that a 32-bit
+ * userspace process can issue INFNOISE_GET_STATS on a 64-bit kernel.
+ * Explicit padding ensures sizeof() == 40 on both, and __aligned(8)
+ * forces u64 alignment on 32-bit where u64 is normally 4-byte aligned.
+ */
 struct infnoise_stats {
-	u64 total_bits;
-	u32 total_ones;
-	u32 total_zeros;
-	u32 even_misfires;
-	u32 odd_misfires;
-	u32 entropy_estimate;	/* Fixed-point */
-	u32 k_estimate;		/* Fixed-point */
-	u8 warmup_complete;
-	u8 health_ok;
-};
+	__u64 total_bits;
+	__u32 total_ones;
+	__u32 total_zeros;
+	__u32 even_misfires;
+	__u32 odd_misfires;
+	__u32 entropy_estimate;	/* Fixed-point 16.16 */
+	__u32 k_estimate;	/* Fixed-point 16.16 */
+	__u8 warmup_complete;
+	__u8 health_ok;
+	__u8 __pad[6];
+} __aligned(8);
 
 /* Health check state */
 struct infnoise_health {

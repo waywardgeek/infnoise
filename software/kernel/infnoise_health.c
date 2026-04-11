@@ -429,6 +429,7 @@ bool infnoise_health_entropy_on_target(struct infnoise_health *health,
 void infnoise_health_get_stats(struct infnoise_health *health,
 			       struct infnoise_stats *stats)
 {
+	memset(stats, 0, sizeof(*stats));
 	stats->total_bits = health->total_bits;
 	stats->total_ones = health->total_ones;
 	stats->total_zeros = health->total_zeros;

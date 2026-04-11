@@ -20,6 +20,8 @@
 #include <linux/hw_random.h>
 #include <linux/workqueue.h>
 #include <linux/uaccess.h>
+#include <linux/compat.h>
+#include <linux/sched/signal.h>
 #include <linux/delay.h>
 #include "infnoise.h"
 
@@ -843,6 +845,7 @@ static const struct file_operations infnoise_fops = {
 	.release	= infnoise_release,
 	.llseek		= noop_llseek,
 	.unlocked_ioctl	= infnoise_ioctl,
+	.compat_ioctl	= compat_ptr_ioctl,
 };
 
 static struct usb_class_driver infnoise_class = {
