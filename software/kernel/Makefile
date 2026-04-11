@@ -41,6 +41,24 @@ uninstall:
 	rm -f /lib/modules/$(shell uname -r)/extra/$(MODULE_NAME).ko
 	depmod -a
 
+# DKMS version (must match dkms.conf PACKAGE_VERSION)
+DKMS_VERSION := 1.0
+DKMS_SRC := /usr/src/$(MODULE_NAME)-$(DKMS_VERSION)
+DKMS_SRCS := infnoise_main.c infnoise_health.c infnoise_keccak.c infnoise.h Makefile dkms.conf
+
+# Install module source for DKMS
+dkms-install:
+	install -d $(DKMS_SRC)
+	install -m 0644 $(DKMS_SRCS) $(DKMS_SRC)/
+	dkms add $(MODULE_NAME)/$(DKMS_VERSION)
+	dkms build $(MODULE_NAME)/$(DKMS_VERSION)
+	dkms install $(MODULE_NAME)/$(DKMS_VERSION)
+
+# Remove DKMS module
+dkms-uninstall:
+	dkms remove $(MODULE_NAME)/$(DKMS_VERSION) --all || true
+	rm -rf $(DKMS_SRC)
+
 # Load module
 load: modules
 	@if lsmod | grep -q "^$(MODULE_NAME)"; then \
@@ -113,6 +131,8 @@ help:
 	@echo "  clean        - Remove build artifacts"
 	@echo "  install      - Install module to system"
 	@echo "  uninstall    - Remove module from system"
+	@echo "  dkms-install - Install via DKMS (persists across kernel upgrades)"
+	@echo "  dkms-uninstall - Remove DKMS module"
 	@echo "  load         - Load module with insmod"
 	@echo "  load-debug   - Load module with debug enabled"
 	@echo "  unload       - Unload module with rmmod"
@@ -129,4 +149,4 @@ help:
 	@echo "Example:"
 	@echo "  make KDIR=/usr/src/linux-headers-6.1.0"
 
-.PHONY: all modules clean install uninstall load load-debug unload reload dmesg info test-hwrng test-char rngtest help
+.PHONY: all modules clean install uninstall dkms-install dkms-uninstall load load-debug unload reload dmesg info test-hwrng test-char rngtest help
