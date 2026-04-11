@@ -257,8 +257,8 @@ do this by creating a file in etc/udev/rules.d.
 
 It relies on the systemd service "infnoise.service" provided under init_scripts, as udev is not designed to start long-running processes. 
 
-    SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", SYMLINK+="infnoise" 
-    ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015" ,TAG+="systemd", ENV{SYSTEMD_WANTS}="infnoise.service"
+    SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{MTP_NO_PROBE}="1", TAG+="systemd", SYMLINK+="infnoise", GROUP="dialout", MODE="0664"
+    ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{MTP_NO_PROBE}="1", TAG+="systemd", ENV{SYSTEMD_WANTS}="infnoise.service"
 
 This also adds a symlink so the device removal can also be reacted on.
 
