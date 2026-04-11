@@ -674,9 +674,6 @@ static int infnoise_hwrng_read(struct hwrng *rng, void *data, size_t max,
 	ret = infnoise_read_data(dev, data, max, raw);
 	mutex_unlock(&dev->lock);
 
-	if (ret > 0)
-		dev->bytes_generated += ret;
-
 	return ret;
 }
 
@@ -791,7 +788,6 @@ static ssize_t infnoise_char_read(struct file *file, char __user *buf,
 			return -EFAULT;
 
 		total += ret;
-		dev->bytes_generated += ret;
 	}
 
 	return total;
