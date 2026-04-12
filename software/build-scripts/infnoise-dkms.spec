@@ -4,8 +4,8 @@ Release:        __RELEASE__
 Summary:        Infinite Noise TRNG kernel module (DKMS)
 Group:          System/Kernel
 License:        GPL-2.0-or-later
-URL:            https://github.com/13-37-org/infnoise
-Vendor:         13-37.org
+URL:            https://github.com/leetronics/infnoise
+Vendor:         leetronics.de
 Source:		infnoise-%{version}.tar.gz
 BuildArch:      noarch
 Prefix:         %{_prefix}

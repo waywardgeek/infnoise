@@ -56,7 +56,7 @@ This is why by default it performs a reduced run which takes only 1-2 hours.
 
 Tests are run for each combination of these parameters and can be started by running runtests.sh:
 ```
-$ git clone https://github.com/manuel-domke/infnoise
+$ git clone https://github.com/leetronics/infnoise
 $ cd tests
 $ sudo ./runtests.sh
 ```
@@ -77,4 +77,4 @@ Directory structure created by a test run:
 	    - <testcase>-<multiplier>-<kbytes>K-pv.log: 		log output of pv
 	    - <testcase>-<multiplier>-<kbytes>K.out:			random data produced in the test run
 
-In the already existing results folder you'll find results for major driver [releases] (https://github.com/13-37-org/infnoise/releases).
+In the already existing results folder you'll find results for major driver [releases] (https://github.com/leetronics/infnoise/releases).
