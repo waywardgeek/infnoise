@@ -1,0 +1,7 @@
+post_install() {
+  dkms install infnoise/"$1"
+}
+
+pre_remove() {
+  dkms remove infnoise/"$1" --all || true
+}

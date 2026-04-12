@@ -1,0 +1,138 @@
+name: Build Packages
+
+on:
+  push:
+    branches: [main, master]
+    tags:
+      - 'v*'
+      - '[0-9]*'
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build-deb:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential fakeroot libftdi1-dev git
+
+      - name: Fix line endings
+        run: find software/build-scripts -name "*.sh" -exec sed -i 's/\r$//' {} \;
+
+      - name: Build deb packages
+        working-directory: software
+        run: |
+          bash ./build-scripts/build.sh amd64
+          bash ./build-scripts/build-dkms.sh deb
+
+      - name: Upload deb packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-packages
+          path: software/*.deb
+
+  build-rpm:
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    env:
+      GIT_DISCOVERY_ACROSS_FILESYSTEM: 1
+    steps:
+      - name: Install git
+        run: dnf install -y git
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Install build dependencies
+        run: dnf install -y rpm-build make gcc libftdi-devel
+
+      - name: Fix line endings and script issues
+        run: |
+          git config --system --add safe.directory '*'
+          find software/build-scripts -type f -exec sed -i 's/\r$//' {} \;
+          sed -i 's/ \. --exclude="SOURCES"/ --exclude="SOURCES" ./' \
+            software/build-scripts/build-rpm.sh \
+            software/build-scripts/build-dkms.sh
+          sed -i 's|\.\./SOURCES/|%{_sourcedir}/|' \
+            software/build-scripts/infnoise.spec \
+            software/build-scripts/infnoise-tools.spec \
+            software/build-scripts/infnoise-dkms.spec
+
+      - name: Build rpm packages
+        working-directory: software
+        run: |
+          bash ./build-scripts/build-rpm.sh
+          bash ./build-scripts/build-dkms.sh rpm
+
+      - name: Upload rpm packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpm-packages
+          path: software/RPMS/**/*.rpm
+
+  build-arch:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    env:
+      GIT_DISCOVERY_ACROSS_FILESYSTEM: 1
+    steps:
+      - name: Install git
+        run: pacman -Syu --noconfirm git
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Install build dependencies
+        run: pacman -S --noconfirm --needed base-devel libftdi libftdi-compat sudo dkms
+
+      - name: Fix line endings
+        run: |
+          git config --system --add safe.directory '*'
+          find software/build-scripts -type f -exec sed -i 's/\r$//' {} \;
+
+      - name: Set up builder user
+        run: |
+          useradd -m builder
+          echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+          chown -R builder:builder "$GITHUB_WORKSPACE"
+
+      - name: Build arch packages
+        run: |
+          su -m builder -c "cd \"$GITHUB_WORKSPACE/software/build-scripts\" && bash ./build-archlinux.sh --notsigned"
+          su -m builder -c "cd \"$GITHUB_WORKSPACE/software\" && bash ./build-scripts/build-dkms.sh arch"
+
+      - name: Upload arch packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: arch-packages
+          path: |
+            software/build-scripts/x86_64/*.pkg.tar.*
+            software/x86_64-dkms/*.pkg.tar.*
+
+  release:
+    needs: [build-deb, build-rpm, build-arch]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**/*
+          generate_release_notes: true

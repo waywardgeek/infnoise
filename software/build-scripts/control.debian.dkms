@@ -1,0 +1,9 @@
+Package: infnoise-dkms
+Essential: no
+Section: kernel
+Priority: optional
+Architecture: all
+Depends: dkms
+Maintainer: Manuel Domke
+Installed-Size: 32K
+Description: Infinite Noise TRNG kernel module (DKMS)
