@@ -3,9 +3,10 @@ GIT_COMMIT  ?= $(shell git rev-parse --verify HEAD)
 GIT_DATE    ?= $(firstword $(shell git --no-pager show --date=iso-strict --format="%ad" --name-only))
 
 PREFIX = $(DESTDIR)/usr/local
-FTDILOC = /usr/local/Cellar/libftdi/1.4/include/libftdi1/
+FTDILOCI = $(shell brew --prefix libftdi || echo /usr/local)/include/libftdi1
+FTDILOCL = $(shell brew --prefix libftdi || echo /usr/local)/lib
 
-CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I $(FTDILOC) \
+CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -fPIC -I Keccak -I $(FTDILOCI) \
  -DGIT_VERSION=\"$(GIT_VERSION)\"\
  -DGIT_COMMIT=\"$(GIT_COMMIT)\"\
  -DGIT_DATE=\"$(GIT_DATE)\"\
@@ -15,11 +16,8 @@ FTDI=   -lftdi1
 
 all: libinfnoise.a libinfnoise.dylib infnoise
 
-clean:
-	rm -f *.o *.a infnoise
-
 infnoise: libinfnoise.a infnoise.o daemon.o
-	$(CC) $(CFLAGS) -o infnoise infnoise.o daemon.o libinfnoise.a $(FTDI) -lm -L. -linfnoise
+	$(CC) $(CFLAGS) -o infnoise infnoise.o daemon.o libinfnoise.a $(FTDI) -lm -L. -L $(FTDILOCL)
 
 %.o: %.c infnoise.h libinfnoise.h
 	$(CC) -c -o $@ $< $(CFLAGS)
@@ -38,7 +36,7 @@ libinfnoise.a: libinfnoise.o healthcheck.o KeccakF-1600-reference.o
 
 # shared lib
 libinfnoise.dylib: libinfnoise.o healthcheck.o KeccakF-1600-reference.o
-	$(CC) $(CFLAGS) -fvisibility=hidden -o libinfnoise.dylib libinfnoise.o healthcheck.o KeccakF-1600-reference.o -Wl $(FTDI) -lm -dynamiclib
+	$(CC) $(CFLAGS) -fvisibility=hidden -o libinfnoise.dylib libinfnoise.o healthcheck.o KeccakF-1600-reference.o -L $(FTDILOCL) $(FTDI) -lm -dynamiclib
 
 libs: libinfnoise.a
 
@@ -52,13 +50,5 @@ install-lib: libinfnoise.dylib
 	install -m 0644 libinfnoise.dylib $(PREFIX)/lib
 
 install: infnoise
-	install -d $(PREFIX)/bin
-	install -m 0755 infnoise $(PREFIX)/bin/
-	install -d $(PREFIX)/lib/udev/rules.d/
-	install -m 0644 init_scripts/75-infnoise.rules $(PREFIX)/lib/udev/rules.d/
-	install -d $(PREFIX)/lib/systemd/system
-	install -m 0644 init_scripts/infnoise.service $(PREFIX)/lib/systemd/system
-
-postinstall:
-	systemctl restart systemd-udevd
-	systemctl enable infnoise
+	install -d $(PREFIX)/sbin
+	install -m 0755 infnoise $(PREFIX)/sbin/
