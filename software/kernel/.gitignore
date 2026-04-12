@@ -1,0 +1,13 @@
+# Kernel build artifacts
+*.o
+*.ko
+*.mod
+*.mod.c
+.*.cmd
+Module.symvers
+modules.order
+.module-common*
+.tmp_versions/
+
+# Test binary
+test_infnoise

@@ -29,7 +29,7 @@ modules:
 # Clean build artifacts
 clean:
 	$(MAKE) -C $(KDIR) M=$(PWD) clean
-	rm -f Module.symvers modules.order
+	rm -f Module.symvers modules.order test_infnoise
 
 # Install module
 install: modules
@@ -63,22 +63,22 @@ dkms-uninstall:
 load: modules
 	@if lsmod | grep -q "^$(MODULE_NAME)"; then \
 		echo "Module already loaded, unloading first..."; \
-		sudo rmmod $(MODULE_NAME); \
+		rmmod $(MODULE_NAME); \
 	fi
-	sudo insmod $(MODULE_NAME).ko
+	insmod $(MODULE_NAME).ko
 
 # Load with debug
 load-debug: modules
 	@if lsmod | grep -q "^$(MODULE_NAME)"; then \
 		echo "Module already loaded, unloading first..."; \
-		sudo rmmod $(MODULE_NAME); \
+		rmmod $(MODULE_NAME); \
 	fi
-	sudo insmod $(MODULE_NAME).ko debug=1
+	insmod $(MODULE_NAME).ko debug=1
 
 # Unload module
 unload:
 	@if lsmod | grep -q "^$(MODULE_NAME)"; then \
-		sudo rmmod $(MODULE_NAME); \
+		rmmod $(MODULE_NAME); \
 	else \
 		echo "Module not loaded"; \
 	fi
@@ -113,13 +113,31 @@ test-char:
 		echo "Error: No /dev/infnoise* device found"; \
 	fi
 
-# Run rngtest on hwrng output
-rngtest:
-	@echo "Running rngtest (1000 blocks)..."
-	@if [ -r /dev/hwrng ]; then \
-		cat /dev/hwrng | rngtest -c 1000 || true; \
+# Build userspace test harness
+test_infnoise: test_infnoise.c
+	$(CC) -Wall -Wextra -o $@ $<
+
+# Run all tests: kmod + entropy quality (~45s total)
+test: test_infnoise
+	@if ! lsmod | grep -q "^$(MODULE_NAME)"; then \
+		echo "Error: $(MODULE_NAME) module not loaded. Try: make load"; \
+		exit 1; \
+	fi
+	./test_infnoise
+	@echo ""
+	@echo "--- FIPS 140-2 (rngtest) ---"
+	@if command -v rngtest >/dev/null 2>&1 && dd if=/dev/hwrng bs=1 count=1 >/dev/null 2>&1; then \
+		dd if=/dev/hwrng bs=2500 count=100 2>/dev/null | rngtest; \
 	else \
-		echo "Error: /dev/hwrng not readable"; \
+		echo "  SKIP (rngtest not installed or /dev/hwrng not readable)"; \
+	fi
+	@echo ""
+	@echo "--- Shannon entropy (ent) ---"
+	@if command -v ent >/dev/null 2>&1 && dd if=/dev/hwrng bs=1 count=1 >/dev/null 2>&1; then \
+		dd if=/dev/hwrng bs=2500 count=100 of=/tmp/infnoise-ent.bin 2>/dev/null && \
+		ent /tmp/infnoise-ent.bin && rm -f /tmp/infnoise-ent.bin; \
+	else \
+		echo "  SKIP (ent not installed or /dev/hwrng not readable)"; \
 	fi
 
 # Show help
@@ -139,9 +157,9 @@ help:
 	@echo "  reload       - Unload and reload module"
 	@echo "  dmesg        - Show recent kernel messages from module"
 	@echo "  info         - Show module information"
-	@echo "  test-hwrng   - Test hwrng interface"
-	@echo "  test-char    - Test character device"
-	@echo "  rngtest      - Run rngtest on hwrng output"
+	@echo "  test         - Run all tests: kmod + rngtest + ent (~45s)"
+	@echo "  test-hwrng   - Dump hex from /dev/hwrng (visual check)"
+	@echo "  test-char    - Dump hex from /dev/infnoise0 (visual check)"
 	@echo ""
 	@echo "Variables:"
 	@echo "  KDIR         - Kernel source directory (default: /lib/modules/\$$(uname -r)/build)"
@@ -149,4 +167,4 @@ help:
 	@echo "Example:"
 	@echo "  make KDIR=/usr/src/linux-headers-6.1.0"
 
-.PHONY: all modules clean install uninstall dkms-install dkms-uninstall load load-debug unload reload dmesg info test-hwrng test-char rngtest help
+.PHONY: all modules clean install uninstall load load-debug unload reload dmesg info test-hwrng test-char test help

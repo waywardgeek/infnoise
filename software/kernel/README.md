@@ -28,7 +28,7 @@ See [Device Setup](#device-setup) for detailed instructions.
 sudo apt install linux-headers-$(uname -r) build-essential
 
 # Build
-cd infnoise-kmod
+cd software/kernel
 make
 
 # Load
@@ -123,7 +123,7 @@ sudo pacman -S linux-headers base-devel
 ### Compile
 
 ```bash
-cd infnoise-kmod
+cd software/kernel
 make
 ```
 
