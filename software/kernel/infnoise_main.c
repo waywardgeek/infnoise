@@ -801,7 +801,7 @@ static long infnoise_ioctl(struct file *file, unsigned int cmd,
 			   unsigned long arg)
 {
 	struct infnoise_device *dev = file->private_data;
-	struct infnoise_stats stats;
+	struct infnoise_stats stats = {};
 	int raw;
 	u32 entropy;
 
