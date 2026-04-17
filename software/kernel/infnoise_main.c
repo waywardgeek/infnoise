@@ -781,11 +781,15 @@ static ssize_t infnoise_char_read(struct file *file, char __user *buf,
 			return total ? total : ret;
 
 		if (ret == 0) {
-			/* No data available, try again */
+			/* No data available yet (warmup / entropy below target) */
 			if (total > 0)
 				break;
 			if (file->f_flags & O_NONBLOCK)
 				return -EAGAIN;
+			/* Yield CPU and back off to avoid busy-wait / soft lockup */
+			msleep(INFNOISE_RETRY_DELAY_MS);
+			if (signal_pending(current))
+				return -ERESTARTSYS;
 			continue;
 		}
 

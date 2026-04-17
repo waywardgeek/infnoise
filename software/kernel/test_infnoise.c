@@ -25,8 +25,11 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <signal.h>
 #include <sys/ioctl.h>
+#include <sys/wait.h>
 #include <stdint.h>
+#include <time.h>
 
 /* Must match kernel header exactly */
 struct infnoise_stats {
@@ -125,6 +128,69 @@ static void test_nonblock(void)
 		FAIL(strerror(errno));
 	} else {
 		FAIL("unexpected 0 return");
+	}
+}
+
+/*
+ * Regression test: blocking read must be interruptible by signal.
+ *
+ * Forks a child that reads in a blocking loop, parent sends SIGUSR1
+ * after 500ms.  The child should exit cleanly via EINTR.  If the
+ * driver's retry loop doesn't check signal_pending(), the child
+ * hangs forever.
+ */
+static volatile sig_atomic_t child_got_signal = 0;
+static void child_handler(int sig) { (void)sig; child_got_signal = 1; }
+
+static void test_interruptible(void)
+{
+	TEST("blocking read is interruptible by signal");
+
+	pid_t pid = fork();
+	if (pid < 0) {
+		FAIL(strerror(errno));
+		return;
+	}
+
+	if (pid == 0) {
+		signal(SIGUSR1, child_handler);
+		int fd = open("/dev/infnoise0", O_RDONLY);
+		if (fd < 0) _exit(2);
+
+		uint8_t buf[64];
+		while (!child_got_signal) {
+			ssize_t n = read(fd, buf, sizeof(buf));
+			if (n < 0 && errno == EINTR) {
+				close(fd);
+				_exit(0);
+			}
+			if (n < 0) {
+				close(fd);
+				_exit(3);
+			}
+		}
+		close(fd);
+		_exit(0);
+	}
+
+	usleep(500000);
+	kill(pid, SIGUSR1);
+
+	int status;
+	struct timespec ts = { .tv_sec = 3, .tv_nsec = 0 };
+	nanosleep(&ts, NULL);
+
+	pid_t ret = waitpid(pid, &status, WNOHANG);
+	if (ret == 0) {
+		kill(pid, SIGKILL);
+		waitpid(pid, &status, 0);
+		FAIL("child hung (busy-wait or uninterruptible)");
+	} else if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+		PASS();
+	} else {
+		char msg[64];
+		snprintf(msg, sizeof(msg), "child exit=%d", WEXITSTATUS(status));
+		FAIL(msg);
 	}
 }
 
@@ -299,6 +365,7 @@ int main(void)
 
 	printf("\n--- Non-blocking I/O ---\n");
 	test_nonblock();
+	test_interruptible();
 
 	printf("\n--- Ioctl interface ---\n");
 	test_struct_size();
