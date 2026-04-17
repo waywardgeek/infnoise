@@ -20,6 +20,8 @@
 #include <linux/hw_random.h>
 #include <linux/workqueue.h>
 #include <linux/uaccess.h>
+#include <linux/compat.h>
+#include <linux/sched/signal.h>
 #include <linux/delay.h>
 #include "infnoise.h"
 
@@ -801,7 +803,7 @@ static long infnoise_ioctl(struct file *file, unsigned int cmd,
 			   unsigned long arg)
 {
 	struct infnoise_device *dev = file->private_data;
-	struct infnoise_stats stats;
+	struct infnoise_stats stats = {};
 	int raw;
 	u32 entropy;
 
@@ -843,6 +845,7 @@ static const struct file_operations infnoise_fops = {
 	.release	= infnoise_release,
 	.llseek		= noop_llseek,
 	.unlocked_ioctl	= infnoise_ioctl,
+	.compat_ioctl	= compat_ptr_ioctl,
 };
 
 static struct usb_class_driver infnoise_class = {

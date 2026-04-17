@@ -130,6 +130,25 @@ static void test_nonblock(void)
 
 /* ── Ioctl interface ────────────────────────────────────── */
 
+/*
+ * Regression test: struct must be 40 bytes on all architectures.
+ *
+ * With __aligned(8) and explicit __pad[6], the struct is 40 bytes on
+ * both 32-bit and 64-bit.  Without it, 32-bit compilers produce 36
+ * bytes, causing _IOR to encode a different ioctl number.
+ */
+static void test_struct_size(void)
+{
+	TEST("sizeof(infnoise_stats) == 40");
+	if (sizeof(struct infnoise_stats) == 40) {
+		PASS();
+	} else {
+		char msg[64];
+		snprintf(msg, sizeof(msg), "got %zu", sizeof(struct infnoise_stats));
+		FAIL(msg);
+	}
+}
+
 static void test_ioctl_get_stats(int fd)
 {
 	struct infnoise_stats stats;
@@ -154,6 +173,36 @@ static void test_ioctl_get_stats(int fd)
 	printf("bits=%lu ones=%u zeros=%u ",
 	       (unsigned long)stats.total_bits, stats.total_ones,
 	       stats.total_zeros);
+	PASS();
+}
+
+/*
+ * Regression test: padding bytes in infnoise_stats must be zeroed.
+ *
+ * Pre-fills the struct with 0xAA, then calls GET_STATS.  If the kernel
+ * doesn't memset the struct before copy_to_user, the 6 padding bytes
+ * (offsets 34-39) contain uninitialized kernel stack data — an info leak.
+ */
+static void test_padding_zeroed(int fd)
+{
+	struct infnoise_stats stats;
+
+	TEST("GET_STATS padding bytes zeroed (info leak check)");
+	memset(&stats, 0xAA, sizeof(stats));
+
+	if (ioctl(fd, INFNOISE_GET_STATS, &stats) < 0) {
+		FAIL(strerror(errno));
+		return;
+	}
+
+	int pad_ok = 1;
+	for (int i = 0; i < 6; i++) {
+		if (stats.__pad[i] != 0) pad_ok = 0;
+	}
+	if (!pad_ok) {
+		FAIL("padding bytes not zeroed (kernel stack info leak)");
+		return;
+	}
 	PASS();
 }
 
@@ -252,7 +301,9 @@ int main(void)
 	test_nonblock();
 
 	printf("\n--- Ioctl interface ---\n");
+	test_struct_size();
 	test_ioctl_get_stats(fd);
+	test_padding_zeroed(fd);
 	test_ioctl_get_entropy(fd);
 	test_ioctl_set_raw(fd);
 	test_ioctl_bad_cmd(fd);
