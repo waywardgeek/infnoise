@@ -4,8 +4,8 @@ Release:        __RELEASE__
 Summary:        Infinite Noise TRNG
 Group:          Applications/Security
 License:        CC0
-URL:            https://github.com/manuel-domke/infnoise
-Vendor:         13-37.org
+URL:            https://github.com/leetronics/infnoise
+Vendor:         leetronics.de
 Source:		infnoise-%{version}.tar.gz
 Prefix:         %{_prefix}
 Packager: 	Manuel Domke

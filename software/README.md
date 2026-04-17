@@ -1,7 +1,7 @@
 Releases
 ---------------------------------
 
-Signed packages of release versions are availabe on [Github](https://github.com/13-37-org/infnoise/releases) and [13-37.org](https://13-37.org/files/).
+Signed packages of release versions are availabe on [Github](https://github.com/leetronics/infnoise/releases) and [13-37.org](https://13-37.org/files/).
 
 The packages are signed with the same PGP-Key (Key-ID: `0x4E730A3C`) used for the apt repositories below. 
 Full Fingerprint: `71AE 099B 262D C0B4 93E6 EE71 975D C25C 4E73 0A3C`. You can get the keys on [13-37.org/keys](https://13-37.org/keys) and in the [Crowd Supply campaign](https://crowdsupply.com/13-37/infinite-noise-trng).
@@ -29,11 +29,11 @@ Connect the Infinite Noise TRNG (if not already) and the service will be started
 Compiling the Driver 
 ------------------------------
 
-It's highly recommended to build from the tagged releases, as these have been [tested and verified](https://github.com/13-37-org/infnoise/tree/master/tests/results) extensively. Note that the releases are maintained in the 13-37-org fork of this project.
+It's highly recommended to build from the tagged releases, as these have been [tested and verified](https://github.com/leetronics/infnoise/tree/master/tests/results) extensively. Note that the releases are maintained in the 13-37-org fork of this project.
 
 To switch to a specific tag:
     
-    git clone https://github.com/13-37-org/infnoise
+    git clone https://github.com/leetronics/infnoise
     git checkout tags/0.3.0
 
 GNU/Linux

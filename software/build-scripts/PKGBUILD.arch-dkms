@@ -1,0 +1,34 @@
+# Maintainer: Manuel Domke <manuel@leetronics.de>
+
+_pkgname=infnoise
+
+pkgname=${_pkgname}-dkms
+pkgver=0.2.6.r86.g453234b
+pkgdesc="Infinite Noise TRNG kernel module (DKMS)"
+license=('GPL2')
+url='https://github.com/leetronics/infnoise'
+depends=('dkms')
+makedepends=('git')
+source=('git+https://github.com/leetronics/infnoise')
+sha256sums=('SKIP')
+install='INSTALL-dkms'
+arch=('any')
+
+pkgver() {
+  cd "${_pkgname}"
+  git describe --long --tags | sed 's/-/.r/;s/-/./'
+}
+
+package() {
+  local _kdir="${srcdir}/infnoise/software/kernel"
+  local _destdir="${pkgdir}/usr/src/${_pkgname}-${pkgver}"
+  install -d "${_destdir}"
+  install -m 0644 "${_kdir}/infnoise_main.c" "${_destdir}/"
+  install -m 0644 "${_kdir}/infnoise_health.c" "${_destdir}/"
+  install -m 0644 "${_kdir}/infnoise_keccak.c" "${_destdir}/"
+  install -m 0644 "${_kdir}/infnoise.h" "${_destdir}/"
+  install -m 0644 "${_kdir}/Makefile" "${_destdir}/"
+  install -m 0644 "${_kdir}/dkms.conf" "${_destdir}/"
+  sed -i "s/PACKAGE_VERSION=\".*\"/PACKAGE_VERSION=\"${pkgver}\"/" \
+      "${_destdir}/dkms.conf"
+}

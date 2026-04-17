@@ -25,7 +25,7 @@ packages:
 - "python"
 - "libftdi-dev"
 remotes:
-- "url": "https://github.com/13-37-org/infnoise"
+- "url": "https://github.com/leetronics/infnoise"
   "dir": "infnoise"
 files: []
 script: |

@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+
+dkms add infnoise/${VERSION} || true
+dkms build infnoise/${VERSION} || true
+dkms install infnoise/${VERSION} --force || true

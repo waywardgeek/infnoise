@@ -378,5 +378,5 @@ The VID 0x1209 is provided by [pid.codes](https://pid.codes/), a registry for US
 
 ## See Also
 
-- [Infinite Noise TRNG Project](https://github.com/13-37-org/infnoise)
+- [Infinite Noise TRNG Project](https://github.com/leetronics/infnoise)
 - [Wayward Geek's Original Design](https://github.com/waywardgeek/infnoise)
