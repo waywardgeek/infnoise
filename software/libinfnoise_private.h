@@ -63,7 +63,7 @@ bool initializeUSB(struct ftdi_context *ftdic, const char **message, char *seria
 
 struct timespec;
 double diffTime(struct timespec *start, struct timespec *end);
-uint32_t extractBytes(struct infnoise_context *context, uint8_t *bytes, uint32_t length, uint8_t *inBuf);
+bool extractBytes(struct infnoise_context *context, uint8_t *bytes, uint32_t length, uint8_t *inBuf);
 uint32_t processBytes(struct infnoise_context *context, uint8_t *bytes, uint8_t *result, bool raw, uint32_t outputMultiplier);
 
 bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom, const char **message);

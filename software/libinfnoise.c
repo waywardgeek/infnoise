@@ -36,7 +36,6 @@ static void prepareOutputBuffer(struct infnoise_context *context) {
 bool initInfnoise(struct infnoise_context *context, char *serial, bool keccak, bool debug) {
     context->message="";
     context->entropyThisTime=0;
-    context->errorFlag=false;
     context->keccakBytesGiven=0;
 
     prepareOutputBuffer(context);
@@ -65,7 +64,6 @@ bool initInfnoise(struct infnoise_context *context, char *serial, bool keccak, b
     uint32_t maxWarmupRounds = 5000;
     uint32_t warmupRounds = 0;
 
-    //bool errorFlag = false;
     while (!inmHealthCheckOkToUseData(&context->health)) {
         readData(context, NULL, true, 1);
         warmupRounds++;
@@ -90,7 +88,7 @@ void deinitInfnoise(struct infnoise_context *context)
 // changes, not both, so alternate reading bits from them.  We get 1 INM bit of output
 // per byte read.  Feed bits from the INM to the health checker.  Return the expected
 // bits of entropy.
-uint32_t extractBytes(struct infnoise_context *context, uint8_t *bytes, uint32_t length, uint8_t *inBuf) {
+bool extractBytes(struct infnoise_context *context, uint8_t *bytes, uint32_t length, uint8_t *inBuf) {
     struct infnoise_health_state *hc = &context->health;
     inmClearEntropyLevel(hc);
     uint32_t i;
@@ -108,13 +106,13 @@ uint32_t extractBytes(struct infnoise_context *context, uint8_t *bytes, uint32_t
             // This is a good place to feed the bit from the INM to the health checker.
             if (!inmHealthCheckAddBit(hc, evenBit, oddBit, even)) {
                 context->message = "Health check of Infinite Noise Multiplier failed!";
-                context->errorFlag = true;
-                return 0;
+                return false;
             }
         }
         bytes[i] = byte;
     }
-    return inmGetEntropyLevel(hc);
+    context->entropyThisTime = inmGetEntropyLevel(hc);
+    return true;
 }
 
 
@@ -348,7 +346,7 @@ uint32_t processBytes(struct infnoise_context *context, uint8_t *bytes, uint8_t 
     return 0;
 }
 
-uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, uint32_t outputMultiplier) {
+int32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, uint32_t outputMultiplier) {
     // check if data can be squeezed from the keccak sponge from previous state (or we need to collect some new entropy to get bytesGiven >0)
     if (context->keccakBytesGiven == 0u) { // collect new entropy (e.g. case RAW)
         uint8_t inBuf[BUFLEN];
@@ -358,31 +356,28 @@ uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, u
         // write clock signal
         if (ftdi_write_data(&context->ftdic, context->outBuf, BUFLEN) != BUFLEN) {
             context->message = "USB write failed";
-            context->errorFlag = true;
+            return INFNOISE_ERR_USB_WRITE;
         }
 
         // and read 512 byte from the internal buffer (in synchronous bitbang mode)
         if (ftdi_read_data(&context->ftdic, inBuf, sizeof(inBuf)) != sizeof(inBuf)) {
             context->message = "USB read failed";
-            context->errorFlag = true;
-            return 0;
+            return INFNOISE_ERR_USB_READ;
         }
 
         clock_gettime(CLOCK_REALTIME, &end);
         if (diffTime(&start, &end) > MAX_MICROSEC_FOR_SAMPLES)
-            return 0;
+            return 0;  // transient — caller should retry
 
         uint8_t bytes[BUFLEN / 8u];
-        context->entropyThisTime = extractBytes(context, bytes, sizeof(bytes), inBuf);
-        if (context->errorFlag
-            || ! (inmHealthCheckOkToUseData(&context->health)
-                  && inmEntropyOnTarget(&context->health, context->entropyThisTime, BUFLEN)) ) {
-            // todo: message?
-            return 0;
-        }
+        if (!extractBytes(context, bytes, sizeof(bytes), inBuf))
+            return INFNOISE_ERR_HEALTH;
+        if (! (inmHealthCheckOkToUseData(&context->health)
+               && inmEntropyOnTarget(&context->health, context->entropyThisTime, BUFLEN)) )
+            return 0;  // transient — caller should retry
 
         // called health check are ok and return bytes
-        return processBytes(context, bytes, result, raw, outputMultiplier);
+        return (int32_t)processBytes(context, bytes, result, raw, outputMultiplier);
     } else { // squeeze the sponge!
 
         // Output up to 1024 bits at a time.
@@ -396,7 +391,7 @@ uint32_t readData(struct infnoise_context *context, uint8_t *result, bool raw, u
         KeccakPermutation(context->keccakState);
 
         context->keccakBytesGiven -= bytesToWrite;
-        return bytesToWrite;
+        return (int32_t)bytesToWrite;
     }
     return 0;
 }

@@ -311,13 +311,13 @@ int main(int argc, char **argv) {
     uint64_t totalBytesWritten = 0u;
     while (running) {
         uint8_t result[resultSize];
-        uint64_t bytesWritten = readData(&context, result, opts.raw, opts.outputMultiplier);
-        totalBytesWritten += bytesWritten;
-
-        if (context.errorFlag) {
+        int32_t rc = readData(&context, result, opts.raw, opts.outputMultiplier);
+        if (rc < 0) {
             fprintf(stderr, "Error: %s\n", context.message);
             return 1;
         }
+        uint32_t bytesWritten = (uint32_t)rc;
+        totalBytesWritten += bytesWritten;
 
         if (!opts.noOutput
             && !outputBytes(result, bytesWritten, context.entropyThisTime, opts.devRandom, opts.forceReseed, opts.feedFreq, &context.message)) {
