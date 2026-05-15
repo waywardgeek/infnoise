@@ -15,20 +15,64 @@
 // We also write this in one go to the Keccak sponge, which is at most 1600 bits
 #define BUFLEN 512u
 
+// KeccakPermutationSizeInBytes = 1600/8 = 200; avoid Keccak header dependency
+#define INFNOISE_KECCAK_STATE_SIZE 200
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #if !defined(_WIN32)
+
+// Health checker state — previously file-scope globals in healthcheck.c
+struct infnoise_health_state {
+    // Configuration (set once in inmHealthCheckStart)
+    uint8_t  N;
+    double   K;
+    double   expectedEntropyPerBit;
+    bool     debug;
+
+    // Dynamically allocated prediction tables
+    uint32_t *onesEven;
+    uint32_t *zerosEven;
+    uint32_t *onesOdd;
+    uint32_t *zerosOdd;
+
+    // Running state
+    uint32_t prevBits;
+    uint32_t numBitsSampled;
+    uint32_t numBitsOfEntropy;
+    double   currentProbability;
+    uint64_t totalBits;
+    bool     prevBit;
+    uint32_t entropyLevel;
+    uint32_t numSequentialZeros;
+    uint32_t numSequentialOnes;
+    uint32_t totalOnes;
+    uint32_t totalZeros;
+    uint32_t evenMisfires;
+    uint32_t oddMisfires;
+    bool     prevEven;
+    bool     prevOdd;
+};
+
 struct infnoise_context {
     struct ftdi_context ftdic;
     uint32_t entropyThisTime;
     const char *message;
     bool errorFlag;
-    //uint8_t keccakState[KeccakPermutationSizeInBytes];
 
     // used in multiplier mode to keep track of bytes to be put out
     uint32_t keccakBytesGiven;
+
+    // Keccak sponge state — previously global in libinfnoise.c
+    uint8_t keccakState[INFNOISE_KECCAK_STATE_SIZE];
+
+    // USB clock signal buffer — previously global in libinfnoise.c
+    uint8_t outBuf[BUFLEN];
+
+    // Health checker — previously static globals in healthcheck.c
+    struct infnoise_health_state health;
 };
 
 typedef struct _infnoise_devlist_node_t infnoise_devlist_node_t;

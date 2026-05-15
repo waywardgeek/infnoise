@@ -45,27 +45,26 @@
 // All data bus bits of the FT240X are outputs, except COMP1 and COMP2
 #define MASK (0xffu & ~(1u << COMP1) & ~(1u << COMP2))
 
-bool inmHealthCheckStart(uint8_t N, double K, bool debug);
-void inmHealthCheckStop(void);
-bool inmHealthCheckAddBit(bool evenBit, bool oddBit, bool even);
-bool inmHealthCheckOkToUseData(void);
-double inmHealthCheckEstimateK(void);
-double inmHealthCheckEstimateEntropyPerBit(void);
-uint32_t inmGetEntropyLevel(void);
-void inmClearEntropyLevel(void);
-bool inmEntropyOnTarget(uint32_t entropy, uint32_t bits);
+bool inmHealthCheckStart(struct infnoise_health_state *hc, uint8_t N, double K, bool debug);
+void inmHealthCheckStop(struct infnoise_health_state *hc);
+bool inmHealthCheckAddBit(struct infnoise_health_state *hc, bool evenBit, bool oddBit, bool even);
+bool inmHealthCheckOkToUseData(struct infnoise_health_state *hc);
+double inmHealthCheckEstimateK(struct infnoise_health_state *hc);
+double inmHealthCheckEstimateEntropyPerBit(struct infnoise_health_state *hc);
+uint32_t inmGetEntropyLevel(struct infnoise_health_state *hc);
+void inmClearEntropyLevel(struct infnoise_health_state *hc);
+bool inmEntropyOnTarget(struct infnoise_health_state *hc, uint32_t entropy, uint32_t bits);
 
-void inmDumpStats(void);
-
-extern double inmK, inmExpectedEntropyPerBit;
+void inmDumpStats(struct infnoise_health_state *hc);
 
 #if !defined(_WIN32)
 
-bool initializeUSB(struct ftdi_context *ftdic, const char **message,char *serial);
+bool initializeUSB(struct ftdi_context *ftdic, const char **message, char *serial);
 
 struct timespec;
 double diffTime(struct timespec *start, struct timespec *end);
-uint32_t extractBytes(uint8_t *bytes, uint32_t length, uint8_t *inBuf, const char **message, bool *errorFlag);
+uint32_t extractBytes(struct infnoise_context *context, uint8_t *bytes, uint32_t length, uint8_t *inBuf);
+uint32_t processBytes(struct infnoise_context *context, uint8_t *bytes, uint8_t *result, bool raw, uint32_t outputMultiplier);
 
 bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDevRandom, const char **message);
 
