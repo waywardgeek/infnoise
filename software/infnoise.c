@@ -96,6 +96,7 @@ bool outputBytes(uint8_t *bytes, uint32_t length, uint32_t entropy, bool writeDe
         // suppress warning
         (void) entropy;
         (void) feedFrequency;
+	(void)forceKernelReseed;
         return false;
 #endif
 #ifdef LINUX
