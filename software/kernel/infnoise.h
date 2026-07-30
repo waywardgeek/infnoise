@@ -70,6 +70,11 @@
 
 /* FTDI interface index (1-based: interface 0 uses index 1) */
 #define FTDI_INDEX_INTERFACE_A	1
+/* FTDI baudrate request encodes interface A as zero. */
+#define FTDI_INDEX_BAUDRATE_A	0
+
+#define FTDI_BAUDRATE_9600	0x4138
+#define FTDI_BAUDRATE_30000	0x0064
 
 /* Buffer sizes */
 #define INFNOISE_BUFLEN		512	/* FT240X buffer size, must be multiple of 64 */

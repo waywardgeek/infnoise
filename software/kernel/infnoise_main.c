@@ -95,13 +95,16 @@ static int infnoise_configure_ftdi(struct infnoise_device *dev)
 		return ret;
 	}
 
-	/*
-	 * Set baud rate to 30000
-	 * FTDI baud rate encoding: value = 3000000 / baud
-	 * For 30000 baud: value = 100 = 0x0064
-	 */
-	ret = ftdi_control(dev, FTDI_SIO_SET_BAUDRATE, 0x0064,
-			   FTDI_INDEX_INTERFACE_A);
+	/* Match the control-transfer sequence captured from libftdi. */
+	ret = ftdi_control(dev, FTDI_SIO_SET_BAUDRATE, FTDI_BAUDRATE_9600,
+			   FTDI_INDEX_BAUDRATE_A);
+	if (ret < 0) {
+		dev_err(&dev->intf->dev, "Failed to set default baud rate: %d\n", ret);
+		return ret;
+	}
+
+	ret = ftdi_control(dev, FTDI_SIO_SET_BAUDRATE, FTDI_BAUDRATE_30000,
+			   FTDI_INDEX_BAUDRATE_A);
 	if (ret < 0) {
 		dev_err(&dev->intf->dev, "Failed to set baud rate: %d\n", ret);
 		return ret;
