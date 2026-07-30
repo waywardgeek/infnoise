@@ -55,6 +55,8 @@ static void infnoise_warmup_work(struct work_struct *work);
 static int infnoise_read_data(struct infnoise_device *dev, u8 *result,
 			      size_t max_len, bool raw);
 static int infnoise_configure_ftdi(struct infnoise_device *dev);
+static int infnoise_read_samples(struct infnoise_device *dev, int target,
+				 int *data_bytes, unsigned long deadline);
 
 /*
  * FTDI USB control transfer helper
@@ -137,53 +139,6 @@ static int infnoise_configure_ftdi(struct infnoise_device *dev)
 	/* Give the device time to settle after configuration */
 	msleep(50);
 
-	return 0;
-}
-
-/*
- * Test USB transfer to verify device is working
- * Similar to what libftdi does during initialization
- */
-static int infnoise_test_transfer(struct infnoise_device *dev)
-{
-	u8 *test_buf;
-	int ret, actual;
-
-	/* Allocate DMA-capable buffer */
-	test_buf = kmalloc(64, GFP_KERNEL);
-	if (!test_buf)
-		return -ENOMEM;
-
-	memset(test_buf, 0, 64);
-
-	/* Clear any halt condition on endpoints */
-	usb_clear_halt(dev->udev, usb_sndbulkpipe(dev->udev, dev->bulk_out_ep));
-	usb_clear_halt(dev->udev, usb_rcvbulkpipe(dev->udev, dev->bulk_in_ep));
-
-	/* Test write */
-	ret = usb_bulk_msg(dev->udev,
-			   usb_sndbulkpipe(dev->udev, dev->bulk_out_ep),
-			   test_buf, 64,
-			   &actual, INFNOISE_USB_TIMEOUT);
-	if (ret < 0) {
-		dev_err(&dev->intf->dev, "Test write failed: %d\n", ret);
-		kfree(test_buf);
-		return ret;
-	}
-
-	/* Test read */
-	ret = usb_bulk_msg(dev->udev,
-			   usb_rcvbulkpipe(dev->udev, dev->bulk_in_ep),
-			   test_buf, 64,
-			   &actual, INFNOISE_USB_TIMEOUT);
-	if (ret < 0) {
-		dev_err(&dev->intf->dev, "Test read failed: %d\n", ret);
-		kfree(test_buf);
-		return ret;
-	}
-
-	dev_info(&dev->intf->dev, "Test transfer OK (%d bytes)\n", actual);
-	kfree(test_buf);
 	return 0;
 }
 
@@ -323,6 +278,32 @@ static int infnoise_write_clocks(struct infnoise_device *dev, const u8 *clocks,
 		return -EIO;
 
 	return 0;
+}
+
+/*
+ * Complete the initial synchronous bit-bang exchange before warmup consumes
+ * samples. A short FTDI packet includes status bytes and is not sufficient.
+ */
+static int infnoise_prime_ftdi(struct infnoise_device *dev)
+{
+	int data_bytes = 0;
+	int ret;
+	unsigned long deadline;
+
+	/* read_buf is heap allocated and therefore valid for USB DMA. */
+	memset(dev->read_buf, 0, FTDI_PACKET_SIZE);
+	ret = infnoise_write_clocks(dev, dev->read_buf, FTDI_PACKET_SIZE);
+	if (ret) {
+		dev_err(&dev->intf->dev, "Initial FTDI write failed: %d\n", ret);
+		return ret;
+	}
+
+	deadline = jiffies + msecs_to_jiffies(INFNOISE_USB_TIMEOUT);
+	ret = infnoise_read_samples(dev, FTDI_PACKET_SIZE, &data_bytes, deadline);
+	if (ret)
+		dev_err(&dev->intf->dev, "Initial FTDI read failed: %d\n", ret);
+
+	return ret;
 }
 
 /*
@@ -602,15 +583,24 @@ static void infnoise_warmup_work(struct work_struct *work)
 						   warmup_work);
 	unsigned int rounds = 0;
 	u8 discard[64];
+	int ret = 0;
 
 	dev_info(&dev->intf->dev, "Starting warmup...\n");
 
-	mutex_lock(&dev->lock);
+	/* Run bulk I/O after probe has returned and the endpoint is ready. */
+	msleep(100);
+	if (!test_bit(INFNOISE_PRESENT, &dev->flags))
+		return;
 
-	while (!infnoise_health_ok(&dev->health) &&
+	mutex_lock(&dev->lock);
+	ret = infnoise_prime_ftdi(dev);
+
+	while (!ret && !infnoise_health_ok(&dev->health) &&
 	       rounds < INFNOISE_WARMUP_ROUNDS &&
 	       test_bit(INFNOISE_PRESENT, &dev->flags)) {
-		infnoise_read_data(dev, discard, sizeof(discard), true);
+		ret = infnoise_read_data(dev, discard, sizeof(discard), true);
+		if (ret < 0)
+			break;
 		rounds++;
 	}
 
@@ -621,7 +611,10 @@ static void infnoise_warmup_work(struct work_struct *work)
 		return;
 	}
 
-	if (rounds >= INFNOISE_WARMUP_ROUNDS) {
+	if (ret < 0) {
+		dev_err(&dev->intf->dev, "Warmup stopped after USB error: %d\n", ret);
+		set_bit(INFNOISE_HEALTH_FAIL, &dev->flags);
+	} else if (rounds >= INFNOISE_WARMUP_ROUNDS) {
 		dev_err(&dev->intf->dev,
 			"Warmup failed after %u rounds\n", rounds);
 		set_bit(INFNOISE_HEALTH_FAIL, &dev->flags);
@@ -913,11 +906,6 @@ static int infnoise_probe(struct usb_interface *intf,
 
 	/* Configure FTDI */
 	ret = infnoise_configure_ftdi(dev);
-	if (ret)
-		goto err_health;
-
-	/* Test transfer to prime the device */
-	ret = infnoise_test_transfer(dev);
 	if (ret)
 		goto err_health;
 
