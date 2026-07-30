@@ -30,8 +30,6 @@
 #include <sys/wait.h>
 #include <stdint.h>
 #include <time.h>
-#include <glob.h>
-#include <limits.h>
 
 /* Must match kernel header exactly */
 struct infnoise_stats {
@@ -53,7 +51,6 @@ struct infnoise_stats {
 #define INFNOISE_GET_ENTROPY	_IOR(INFNOISE_IOC_MAGIC, 3, uint32_t)
 
 static int passed = 0, failed = 0, skipped = 0;
-static char device_path[PATH_MAX];
 
 #define TEST(name) printf("  %-50s ", name)
 #define PASS() do { printf("\033[32mPASS\033[0m\n"); passed++; } while(0)
@@ -112,7 +109,7 @@ static void test_hwrng_read(void)
 static void test_nonblock(void)
 {
 	TEST("O_NONBLOCK returns EAGAIN or data");
-	int fd = open(device_path, O_RDONLY | O_NONBLOCK);
+	int fd = open("/dev/infnoise0", O_RDONLY | O_NONBLOCK);
 	if (fd < 0) {
 		FAIL(strerror(errno));
 		return;
@@ -157,7 +154,7 @@ static void test_interruptible(void)
 
 	if (pid == 0) {
 		signal(SIGUSR1, child_handler);
-		int fd = open(device_path, O_RDONLY);
+		int fd = open("/dev/infnoise0", O_RDONLY);
 		if (fd < 0) _exit(2);
 
 		uint8_t buf[64];
@@ -325,7 +322,7 @@ static void test_open_close_reopen(void)
 	TEST("open/close/reopen 5 times");
 
 	for (int i = 0; i < 5; i++) {
-		int fd = open(device_path, O_RDONLY);
+		int fd = open("/dev/infnoise0", O_RDONLY);
 		if (fd < 0) {
 			char msg[64];
 			snprintf(msg, sizeof(msg), "open %d: %s", i, strerror(errno));
@@ -348,53 +345,16 @@ static void test_open_close_reopen(void)
 
 /* ── Main ───────────────────────────────────────────────── */
 
-static int find_device_path(void)
-{
-	glob_t matches;
-	int path_len;
-	int ret;
-
-	/* Prefer the node created by usb_register_dev(), then udev aliases. */
-	ret = glob("/dev/infnoise[0-9]*", 0, NULL, &matches);
-	if (ret != 0)
-		ret = glob("/dev/infnoise-*", 0, NULL, &matches);
-	if (ret != 0)
-		return -1;
-
-	path_len = snprintf(device_path, sizeof(device_path), "%s",
-			    matches.gl_pathv[0]);
-	if (path_len < 0 || path_len >= (int)sizeof(device_path)) {
-		globfree(&matches);
-		return -1;
-	}
-
-	globfree(&matches);
-	return 0;
-}
-
-int main(int argc, char **argv)
+int main(void)
 {
 	int fd;
-	int path_len;
 
 	printf("\nInfinite Noise TRNG Kernel Module — Test Harness\n");
 	printf("=================================================\n\n");
 
-	if (argc > 1) {
-		path_len = snprintf(device_path, sizeof(device_path), "%s", argv[1]);
-		if (path_len < 0 || path_len >= (int)sizeof(device_path)) {
-			fprintf(stderr, "Device path is too long\n");
-			return 1;
-		}
-	} else if (find_device_path() < 0) {
-		fprintf(stderr, "Cannot find /dev/infnoise-*\n");
-		fprintf(stderr, "Is the module loaded? Try: sudo insmod infnoise.ko\n");
-		return 1;
-	}
-
-	fd = open(device_path, O_RDONLY);
+	fd = open("/dev/infnoise0", O_RDONLY);
 	if (fd < 0) {
-		fprintf(stderr, "Cannot open %s: %s\n", device_path, strerror(errno));
+		fprintf(stderr, "Cannot open /dev/infnoise0: %s\n", strerror(errno));
 		fprintf(stderr, "Is the module loaded? Try: sudo insmod infnoise.ko\n");
 		return 1;
 	}
