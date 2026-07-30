@@ -435,6 +435,20 @@ static int infnoise_usb_transfer(struct infnoise_device *dev)
 			return ret;
 		}
 
+		/* Discard any partial batch before issuing a new set of clocks. */
+		if (retry + 1 < INFNOISE_MAX_RETRIES) {
+			int purge_ret;
+
+			purge_ret = ftdi_control(dev, FTDI_SIO_RESET,
+						 FTDI_SIO_RESET_PURGE_RX,
+						 FTDI_INDEX_INTERFACE_A);
+			if (purge_ret < 0) {
+				dev_warn(&dev->intf->dev,
+					 "Failed to purge RX before retry: %d\n", purge_ret);
+				return purge_ret;
+			}
+		}
+
 		/* Attempt recovery if we've hit the threshold */
 		if (dev->consecutive_errors >= INFNOISE_RECOVERY_THRESHOLD) {
 			int recovery_ret = infnoise_try_recovery(dev);
