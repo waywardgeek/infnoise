@@ -87,14 +87,6 @@ static int infnoise_configure_ftdi(struct infnoise_device *dev)
 		return ret;
 	}
 
-	/* Set latency timer to 1ms for faster response */
-	ret = ftdi_control(dev, FTDI_SIO_SET_LATENCY_TIMER, 1,
-			   FTDI_INDEX_INTERFACE_A);
-	if (ret < 0) {
-		dev_err(&dev->intf->dev, "Failed to set latency timer: %d\n", ret);
-		return ret;
-	}
-
 	/* Match the control-transfer sequence captured from libftdi. */
 	ret = ftdi_control(dev, FTDI_SIO_SET_BAUDRATE, FTDI_BAUDRATE_9600,
 			   FTDI_INDEX_BAUDRATE_A);
