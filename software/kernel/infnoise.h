@@ -70,6 +70,11 @@
 
 /* FTDI interface index (1-based: interface 0 uses index 1) */
 #define FTDI_INDEX_INTERFACE_A	1
+/* FTDI baudrate request encodes interface A as zero. */
+#define FTDI_INDEX_BAUDRATE_A	0
+
+#define FTDI_BAUDRATE_9600	0x4138
+#define FTDI_BAUDRATE_30000	0x0064
 
 /* Buffer sizes */
 #define INFNOISE_BUFLEN		512	/* FT240X buffer size, must be multiple of 64 */
@@ -78,9 +83,8 @@
 /* FTDI packet format: each 64-byte USB packet has 2 status bytes + 62 data bytes */
 #define FTDI_PACKET_SIZE	64
 #define FTDI_STATUS_SIZE	2
-#define FTDI_DATA_PER_PACKET	(FTDI_PACKET_SIZE - FTDI_STATUS_SIZE)  /* 62 */
-/* For 512 bytes of data, we need ceil(512/62) = 9 packets = 576 bytes */
-#define INFNOISE_USB_READ_SIZE	(((INFNOISE_BUFLEN + FTDI_DATA_PER_PACKET - 1) / FTDI_DATA_PER_PACKET) * FTDI_PACKET_SIZE)
+/* Match libftdi's default bulk IN chunk; one transfer can contain many packets. */
+#define INFNOISE_USB_READ_SIZE	4096
 
 /* Health check constants */
 #define INM_PREDICTION_BITS	14	/* Bits used for prediction */
@@ -212,7 +216,7 @@ struct infnoise_device {
 
 	/* Buffers */
 	u8 *clock_buf;		/* Clock pattern buffer (512 bytes) */
-	u8 *usb_buf;		/* Raw USB read buffer (576 bytes w/ FTDI status) */
+	u8 *usb_buf;		/* Raw FTDI USB transfer buffer (4096 bytes) */
 	u8 *read_buf;		/* Processed read buffer (512 bytes, status stripped) */
 	u8 *out_buf;		/* Output buffer (64 bytes) */
 

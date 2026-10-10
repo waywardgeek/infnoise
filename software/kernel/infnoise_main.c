@@ -55,6 +55,8 @@ static void infnoise_warmup_work(struct work_struct *work);
 static int infnoise_read_data(struct infnoise_device *dev, u8 *result,
 			      size_t max_len, bool raw);
 static int infnoise_configure_ftdi(struct infnoise_device *dev);
+static int infnoise_read_samples(struct infnoise_device *dev, int target,
+				 int *data_bytes, unsigned long deadline);
 
 /*
  * FTDI USB control transfer helper
@@ -85,21 +87,16 @@ static int infnoise_configure_ftdi(struct infnoise_device *dev)
 		return ret;
 	}
 
-	/* Set latency timer to 1ms for faster response */
-	ret = ftdi_control(dev, FTDI_SIO_SET_LATENCY_TIMER, 1,
-			   FTDI_INDEX_INTERFACE_A);
+	/* Match the control-transfer sequence captured from libftdi. */
+	ret = ftdi_control(dev, FTDI_SIO_SET_BAUDRATE, FTDI_BAUDRATE_9600,
+			   FTDI_INDEX_BAUDRATE_A);
 	if (ret < 0) {
-		dev_err(&dev->intf->dev, "Failed to set latency timer: %d\n", ret);
+		dev_err(&dev->intf->dev, "Failed to set default baud rate: %d\n", ret);
 		return ret;
 	}
 
-	/*
-	 * Set baud rate to 30000
-	 * FTDI baud rate encoding: value = 3000000 / baud
-	 * For 30000 baud: value = 100 = 0x0064
-	 */
-	ret = ftdi_control(dev, FTDI_SIO_SET_BAUDRATE, 0x0064,
-			   FTDI_INDEX_INTERFACE_A);
+	ret = ftdi_control(dev, FTDI_SIO_SET_BAUDRATE, FTDI_BAUDRATE_30000,
+			   FTDI_INDEX_BAUDRATE_A);
 	if (ret < 0) {
 		dev_err(&dev->intf->dev, "Failed to set baud rate: %d\n", ret);
 		return ret;
@@ -137,53 +134,6 @@ static int infnoise_configure_ftdi(struct infnoise_device *dev)
 	/* Give the device time to settle after configuration */
 	msleep(50);
 
-	return 0;
-}
-
-/*
- * Test USB transfer to verify device is working
- * Similar to what libftdi does during initialization
- */
-static int infnoise_test_transfer(struct infnoise_device *dev)
-{
-	u8 *test_buf;
-	int ret, actual;
-
-	/* Allocate DMA-capable buffer */
-	test_buf = kmalloc(64, GFP_KERNEL);
-	if (!test_buf)
-		return -ENOMEM;
-
-	memset(test_buf, 0, 64);
-
-	/* Clear any halt condition on endpoints */
-	usb_clear_halt(dev->udev, usb_sndbulkpipe(dev->udev, dev->bulk_out_ep));
-	usb_clear_halt(dev->udev, usb_rcvbulkpipe(dev->udev, dev->bulk_in_ep));
-
-	/* Test write */
-	ret = usb_bulk_msg(dev->udev,
-			   usb_sndbulkpipe(dev->udev, dev->bulk_out_ep),
-			   test_buf, 64,
-			   &actual, INFNOISE_USB_TIMEOUT);
-	if (ret < 0) {
-		dev_err(&dev->intf->dev, "Test write failed: %d\n", ret);
-		kfree(test_buf);
-		return ret;
-	}
-
-	/* Test read */
-	ret = usb_bulk_msg(dev->udev,
-			   usb_rcvbulkpipe(dev->udev, dev->bulk_in_ep),
-			   test_buf, 64,
-			   &actual, INFNOISE_USB_TIMEOUT);
-	if (ret < 0) {
-		dev_err(&dev->intf->dev, "Test read failed: %d\n", ret);
-		kfree(test_buf);
-		return ret;
-	}
-
-	dev_info(&dev->intf->dev, "Test transfer OK (%d bytes)\n", actual);
-	kfree(test_buf);
 	return 0;
 }
 
@@ -297,42 +247,108 @@ static int infnoise_extract_bytes(struct infnoise_device *dev, u8 *bytes,
 	return infnoise_health_get_entropy(&dev->health);
 }
 
-/*
- * Strip FTDI modem status bytes from USB data
- *
- * FTDI sends data in 64-byte packets: 2 status bytes + 62 data bytes.
- * This function extracts just the data bytes.
- */
-static int infnoise_strip_ftdi_status(struct infnoise_device *dev,
-				      int usb_bytes)
+/* Retry transient host-controller backpressure for a bounded interval. */
+static int infnoise_write_clocks(struct infnoise_device *dev, const u8 *clocks,
+				 size_t length)
 {
-	int packets = usb_bytes / FTDI_PACKET_SIZE;
-	int leftover = usb_bytes % FTDI_PACKET_SIZE;
+	unsigned long deadline = jiffies + msecs_to_jiffies(INFNOISE_USB_TIMEOUT);
+	int actual;
+	int ret;
+
+	for (;;) {
+		ret = usb_bulk_msg(dev->udev,
+				   usb_sndbulkpipe(dev->udev, dev->bulk_out_ep),
+				   (void *)clocks, length, &actual,
+				   INFNOISE_USB_TIMEOUT);
+		if (ret != -EAGAIN && !(ret == 0 && actual == 0))
+			break;
+		if (time_after_eq(jiffies, deadline))
+			return -ETIMEDOUT;
+		usleep_range(1000, 2000);
+	}
+
+	if (ret < 0)
+		return ret;
+	if (actual != length)
+		return -EIO;
+
+	return 0;
+}
+
+/*
+ * Complete the initial synchronous bit-bang exchange before warmup consumes
+ * samples. A short FTDI packet includes status bytes and is not sufficient.
+ */
+static int infnoise_prime_ftdi(struct infnoise_device *dev)
+{
 	int data_bytes = 0;
-	int i;
+	int ret;
+	unsigned long deadline;
 
-	for (i = 0; i < packets; i++) {
-		u8 *src = dev->usb_buf + i * FTDI_PACKET_SIZE + FTDI_STATUS_SIZE;
-		int copy_len = min(FTDI_DATA_PER_PACKET,
-				   INFNOISE_BUFLEN - data_bytes);
+	/* read_buf is heap allocated and therefore valid for USB DMA. */
+	memset(dev->read_buf, 0, FTDI_PACKET_SIZE);
+	ret = infnoise_write_clocks(dev, dev->read_buf, FTDI_PACKET_SIZE);
+	if (ret) {
+		dev_err(&dev->intf->dev, "Initial FTDI write failed: %d\n", ret);
+		return ret;
+	}
 
-		if (copy_len > 0) {
-			memcpy(dev->read_buf + data_bytes, src, copy_len);
-			data_bytes += copy_len;
+	deadline = jiffies + msecs_to_jiffies(INFNOISE_USB_TIMEOUT);
+	ret = infnoise_read_samples(dev, FTDI_PACKET_SIZE, &data_bytes, deadline);
+	if (ret)
+		dev_err(&dev->intf->dev, "Initial FTDI read failed: %d\n", ret);
+
+	return ret;
+}
+
+/*
+ * Read FTDI packets until the requested number of sample bytes is available.
+ * A bulk transfer can contain several 64-byte FTDI packets; remove the two
+ * status bytes at the beginning of each packet before consuming samples.
+ */
+static int infnoise_read_samples(struct infnoise_device *dev, int target,
+				 int *data_bytes, unsigned long deadline)
+{
+	int ret;
+	int actual;
+
+	while (*data_bytes < target) {
+		u8 *pkt = dev->usb_buf;
+		int offset;
+
+		ret = usb_bulk_msg(dev->udev,
+				   usb_rcvbulkpipe(dev->udev, dev->bulk_in_ep),
+				   pkt, INFNOISE_USB_READ_SIZE, &actual,
+				   INFNOISE_USB_TIMEOUT);
+		if (ret == -ETIMEDOUT || ret == -EAGAIN ||
+		    (ret == 0 && actual == 0)) {
+			if (time_after_eq(jiffies, deadline))
+				return -ETIMEDOUT;
+			usleep_range(100, 200);
+			continue;
+		}
+		if (ret < 0) {
+			if (infnoise_debug)
+				dev_dbg(&dev->intf->dev, "USB read failed: %d\n", ret);
+			return ret;
+		}
+
+		for (offset = 0; offset < actual && *data_bytes < target;) {
+			int packet_len = min(FTDI_PACKET_SIZE, actual - offset);
+			int payload;
+
+			if (packet_len > FTDI_STATUS_SIZE) {
+				payload = min(packet_len - FTDI_STATUS_SIZE,
+					      target - *data_bytes);
+				memcpy(dev->read_buf + *data_bytes,
+				       pkt + offset + FTDI_STATUS_SIZE, payload);
+				*data_bytes += payload;
+			}
+			offset += packet_len;
 		}
 	}
 
-	/* Handle partial packet at end if any */
-	if (leftover > FTDI_STATUS_SIZE && data_bytes < INFNOISE_BUFLEN) {
-		int copy_len = min(leftover - FTDI_STATUS_SIZE,
-				   INFNOISE_BUFLEN - data_bytes);
-		u8 *src = dev->usb_buf + packets * FTDI_PACKET_SIZE + FTDI_STATUS_SIZE;
-
-		memcpy(dev->read_buf + data_bytes, src, copy_len);
-		data_bytes += copy_len;
-	}
-
-	return data_bytes;
+	return 0;
 }
 
 /*
@@ -344,66 +360,20 @@ static int infnoise_strip_ftdi_status(struct infnoise_device *dev,
 static int infnoise_usb_transfer_once(struct infnoise_device *dev)
 {
 	int ret;
-	int actual;
-	int total_read = 0;
-	int data_bytes;
+	int data_bytes = 0;
+	unsigned long deadline;
 
-	/* Write clock pattern */
-	ret = usb_bulk_msg(dev->udev,
-			   usb_sndbulkpipe(dev->udev, dev->bulk_out_ep),
-			   dev->clock_buf, INFNOISE_BUFLEN,
-			   &actual, INFNOISE_USB_TIMEOUT);
-	if (ret < 0) {
+	ret = infnoise_write_clocks(dev, dev->clock_buf, INFNOISE_BUFLEN);
+	if (ret) {
 		if (infnoise_debug)
 			dev_dbg(&dev->intf->dev, "USB write failed: %d\n", ret);
 		return ret;
 	}
 
-	if (actual != INFNOISE_BUFLEN) {
-		dev_err(&dev->intf->dev, "Short write: %d/%d\n",
-			actual, INFNOISE_BUFLEN);
-		return -EIO;
-	}
-
-	/*
-	 * Read samples - FTDI returns data in 64-byte packets with 2 status
-	 * bytes per packet. We need to read until we have enough data bytes.
-	 */
-	while (total_read < INFNOISE_USB_READ_SIZE) {
-		int remaining = INFNOISE_USB_READ_SIZE - total_read;
-
-		ret = usb_bulk_msg(dev->udev,
-				   usb_rcvbulkpipe(dev->udev, dev->bulk_in_ep),
-				   dev->usb_buf + total_read, remaining,
-				   &actual, INFNOISE_USB_TIMEOUT);
-		if (ret < 0) {
-			if (infnoise_debug)
-				dev_dbg(&dev->intf->dev, "USB read failed: %d\n", ret);
-			return ret;
-		}
-
-		if (actual == 0) {
-			if (infnoise_debug)
-				dev_dbg(&dev->intf->dev, "USB read timeout, got %d/%d\n",
-					total_read, INFNOISE_USB_READ_SIZE);
-			return -ETIMEDOUT;
-		}
-
-		total_read += actual;
-
-		if (infnoise_debug && total_read < INFNOISE_USB_READ_SIZE)
-			dev_dbg(&dev->intf->dev, "Partial read: %d/%d, continuing\n",
-				total_read, INFNOISE_USB_READ_SIZE);
-	}
-
-	/* Strip FTDI status bytes to get actual data */
-	data_bytes = infnoise_strip_ftdi_status(dev, total_read);
-
-	if (data_bytes < INFNOISE_BUFLEN) {
-		dev_err(&dev->intf->dev, "Short data: %d/%d bytes\n",
-			data_bytes, INFNOISE_BUFLEN);
-		return -EIO;
-	}
+	deadline = jiffies + msecs_to_jiffies(INFNOISE_USB_TIMEOUT);
+	ret = infnoise_read_samples(dev, INFNOISE_BUFLEN, &data_bytes, deadline);
+	if (ret)
+		return ret;
 
 	/* Extract entropy bits */
 	return infnoise_extract_bytes(dev, dev->out_buf, INFNOISE_BYTES_OUT,
@@ -463,6 +433,20 @@ static int infnoise_usb_transfer(struct infnoise_device *dev)
 				dev_dbg(&dev->intf->dev,
 					"Non-recoverable error: %d\n", ret);
 			return ret;
+		}
+
+		/* Discard any partial batch before issuing a new set of clocks. */
+		if (retry + 1 < INFNOISE_MAX_RETRIES) {
+			int purge_ret;
+
+			purge_ret = ftdi_control(dev, FTDI_SIO_RESET,
+						 FTDI_SIO_RESET_PURGE_RX,
+						 FTDI_INDEX_INTERFACE_A);
+			if (purge_ret < 0) {
+				dev_warn(&dev->intf->dev,
+					 "Failed to purge RX before retry: %d\n", purge_ret);
+				return purge_ret;
+			}
 		}
 
 		/* Attempt recovery if we've hit the threshold */
@@ -608,15 +592,24 @@ static void infnoise_warmup_work(struct work_struct *work)
 						   warmup_work);
 	unsigned int rounds = 0;
 	u8 discard[64];
+	int ret = 0;
 
 	dev_info(&dev->intf->dev, "Starting warmup...\n");
 
-	mutex_lock(&dev->lock);
+	/* Run bulk I/O after probe has returned and the endpoint is ready. */
+	msleep(100);
+	if (!test_bit(INFNOISE_PRESENT, &dev->flags))
+		return;
 
-	while (!infnoise_health_ok(&dev->health) &&
+	mutex_lock(&dev->lock);
+	ret = infnoise_prime_ftdi(dev);
+
+	while (!ret && !infnoise_health_ok(&dev->health) &&
 	       rounds < INFNOISE_WARMUP_ROUNDS &&
 	       test_bit(INFNOISE_PRESENT, &dev->flags)) {
-		infnoise_read_data(dev, discard, sizeof(discard), true);
+		ret = infnoise_read_data(dev, discard, sizeof(discard), true);
+		if (ret < 0)
+			break;
 		rounds++;
 	}
 
@@ -627,7 +620,10 @@ static void infnoise_warmup_work(struct work_struct *work)
 		return;
 	}
 
-	if (rounds >= INFNOISE_WARMUP_ROUNDS) {
+	if (ret < 0) {
+		dev_err(&dev->intf->dev, "Warmup stopped after USB error: %d\n", ret);
+		set_bit(INFNOISE_HEALTH_FAIL, &dev->flags);
+	} else if (rounds >= INFNOISE_WARMUP_ROUNDS) {
 		dev_err(&dev->intf->dev,
 			"Warmup failed after %u rounds\n", rounds);
 		set_bit(INFNOISE_HEALTH_FAIL, &dev->flags);
@@ -919,11 +915,6 @@ static int infnoise_probe(struct usb_interface *intf,
 
 	/* Configure FTDI */
 	ret = infnoise_configure_ftdi(dev);
-	if (ret)
-		goto err_health;
-
-	/* Test transfer to prime the device */
-	ret = infnoise_test_transfer(dev);
 	if (ret)
 		goto err_health;
 
